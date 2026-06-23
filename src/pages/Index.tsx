@@ -153,9 +153,14 @@ export default function Index() {
                 <span className="hidden sm:inline text-sm font-medium">{user.name.split(' ')[0]}</span>
               </Button>
             ) : (
-              <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
-                Войти
-              </Button>
+              <>
+                <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
+                  Войти
+                </Button>
+                <Button variant="ghost" size="icon" className="rounded-full sm:hidden" onClick={() => setAuthOpen(true)}>
+                  <Icon name="UserCircle" size={22} />
+                </Button>
+              </>
             )}
           <Sheet>
             <SheetTrigger asChild>
