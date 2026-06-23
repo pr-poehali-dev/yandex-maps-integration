@@ -368,7 +368,7 @@ export default function Index() {
             <div className="space-y-5">
               {[
                 { icon: 'Phone', label: '+7 (916) 143-32-32' },
-                { icon: 'Mail', label: 'hello@nova.shop' },
+                { icon: 'Mail', label: 'mag789-944@yandex.ru' },
                 { icon: 'MapPin', label: 'Москва, ул. Тверская, 1' },
                 { icon: 'Clock', label: 'Ежедневно с 9:00 до 21:00' },
               ].map((c) => (
