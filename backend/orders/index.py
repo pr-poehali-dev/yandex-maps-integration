@@ -1,5 +1,5 @@
 """
-Заказы: создание, список для админа, обновление статуса.
+Заказы: создание, список для админа, обновление статуса, история покупок пользователя.
 """
 import json
 import os
@@ -34,7 +34,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
+            'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Authorization',
             'Access-Control-Max-Age': '86400'
         }, 'body': ''}
 
@@ -42,9 +42,18 @@ def handler(event: dict, context) -> dict:
     action = body.get('action', '')
     admin_token = event.get('headers', {}).get('X-Admin-Token', '')
     admin_password = os.environ.get('ADMIN_PASSWORD', '')
+    auth_token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
 
     conn = get_conn()
     cur = conn.cursor()
+
+    # Получить user_id по токену (если есть)
+    user_id = None
+    if auth_token:
+        cur.execute("SELECT user_id FROM sessions WHERE token = %s AND expires_at > NOW()", (auth_token,))
+        row = cur.fetchone()
+        if row:
+            user_id = row[0]
 
     # Создать заказ (публичный)
     if action == 'create':
@@ -66,8 +75,8 @@ def handler(event: dict, context) -> dict:
             return err('Заполните все поля')
 
         cur.execute(
-            "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'new') RETURNING id",
-            (name, phone, city, street, apartment, entrance, floor_, zip_code, comment, delivery_service, int(total))
+            "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'new',%s) RETURNING id",
+            (name, phone, city, street, apartment, entrance, floor_, zip_code, comment, delivery_service, int(total), user_id)
         )
         order_id = cur.fetchone()[0]
 
@@ -78,9 +87,36 @@ def handler(event: dict, context) -> dict:
             )
 
         conn.commit()
-
         cur.close(); conn.close()
         return ok({'success': True, 'order_id': order_id})
+
+    # История заказов пользователя
+    if action == 'my_orders':
+        if not user_id:
+            cur.close(); conn.close()
+            return err('Не авторизован', 401)
+
+        cur.execute("SELECT id, total, status, payment_status, created_at, delivery_service, address_city, address_street FROM orders WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+        rows = cur.fetchall()
+
+        orders = []
+        for r in rows:
+            cur.execute("SELECT product_name, price, qty FROM order_items WHERE order_id = %s", (r[0],))
+            items = [{'name': i[0], 'price': i[1], 'qty': i[2]} for i in cur.fetchall()]
+            orders.append({
+                'id': r[0],
+                'total': r[1],
+                'status': r[2],
+                'payment_status': r[3],
+                'created_at': r[4].strftime('%d.%m.%Y %H:%M'),
+                'delivery_service': r[5],
+                'city': r[6],
+                'street': r[7],
+                'items': items,
+            })
+
+        cur.close(); conn.close()
+        return ok({'orders': orders})
 
     # Список заказов (только для админа)
     if action == 'list':

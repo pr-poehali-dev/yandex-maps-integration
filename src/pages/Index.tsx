@@ -81,6 +81,8 @@ export default function Index() {
   const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
   const SBP_URL = 'https://b2b.cbrpay.ru/BS1C0060E74II4FJ8I9OS3LCKOFL877K';
   const [orderLoading, setOrderLoading] = useState(false);
+  const [myOrders, setMyOrders] = useState<{ id: number; total: number; status: string; payment_status: string; created_at: string; delivery_service: string; city: string; street: string; items: { name: string; price: number; qty: number }[] }[]>([]);
+  const [myOrdersLoading, setMyOrdersLoading] = useState(false);
   const [heroIdx, setHeroIdx] = useState(0);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authOpen, setAuthOpen] = useState(false);
@@ -90,7 +92,7 @@ export default function Index() {
   const [authName, setAuthName] = useState('');
   const [authPhone, setAuthPhone] = useState('');
   const [authError, setAuthError] = useState('');
-  const { user, loading, login, register, logout } = useAuth();
+  const { user, token, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/' });
 
@@ -421,7 +423,7 @@ export default function Index() {
                         try {
                           await fetch(ORDERS_URL, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
                             body: JSON.stringify({
                               action: 'create',
                               name: address.name,
@@ -752,54 +754,128 @@ export default function Index() {
       )}
 
       {/* Личный кабинет */}
+      {cabinetOpen && user && (() => {
+        if (myOrders.length === 0 && !myOrdersLoading && token) {
+          setMyOrdersLoading(true);
+          fetch(ORDERS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ action: 'my_orders' }) })
+            .then(r => r.json()).then(res => { if (res.orders) setMyOrders(res.orders); setMyOrdersLoading(false); });
+        }
+        return null;
+      })()}
       {cabinetOpen && user && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setCabinetOpen(false)}>
-          <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-card border border-border rounded-3xl w-full max-w-md mx-4 shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            {/* Шапка */}
+            <div className="flex items-center justify-between p-6 pb-4 flex-shrink-0">
               <h2 className="font-display font-black text-2xl">Личный кабинет</h2>
               <button onClick={() => setCabinetOpen(false)} className="text-muted-foreground hover:text-foreground"><Icon name="X" size={20} /></button>
             </div>
 
-            <div className="mb-6">
-              <p className="text-muted-foreground text-sm mb-1">Добро пожаловать,</p>
-              <p className="font-display font-bold text-xl">{user.name}</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
-              <p className="text-xs text-muted-foreground mt-1">С нами с {user.member_since}</p>
-            </div>
+            <div className="overflow-y-auto flex-1 px-6 pb-6 space-y-5">
+              {/* Профиль */}
+              <div>
+                <p className="text-muted-foreground text-sm mb-1">Добро пожаловать,</p>
+                <p className="font-display font-bold text-xl">{user.name}</p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-xs text-muted-foreground mt-1">С нами с {user.member_since}</p>
+              </div>
 
-            {user.card && (
-              <div className="relative rounded-2xl p-6 mb-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)' }}>
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                <div className="relative">
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="text-white/80 text-xs font-medium tracking-widest uppercase">Скидочная карта</span>
-                    <span className="font-display font-black text-white text-2xl">{user.card.discount_percent}%</span>
-                  </div>
-                  <p className="text-white font-mono text-lg tracking-widest mb-4">
-                    {user.card.number.replace(/(.{4})/g, '$1 ').trim()}
-                  </p>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-white/60 text-xs">Владелец</p>
-                      <p className="text-white font-semibold">{user.name}</p>
+              {/* Скидочная карта */}
+              {user.card && (
+                <div className="relative rounded-2xl p-5 overflow-hidden" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)' }}>
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                  <div className="relative">
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="text-white/80 text-xs font-medium tracking-widest uppercase">Скидочная карта</span>
+                      <span className="font-display font-black text-white text-2xl">{user.card.discount_percent}%</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-white/60 text-xs">Скидка на все покупки</p>
-                      <p className="text-white font-bold text-lg">{user.card.discount_percent}%</p>
+                    <p className="text-white font-mono text-base tracking-widest mb-3">{user.card.number.replace(/(.{4})/g, '$1 ').trim()}</p>
+                    <div className="flex justify-between items-end">
+                      <div><p className="text-white/60 text-xs">Владелец</p><p className="text-white font-semibold text-sm">{user.name}</p></div>
+                      <div className="text-right"><p className="text-white/60 text-xs">Скидка на все покупки</p><p className="text-white font-bold">{user.card.discount_percent}%</p></div>
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* История заказов */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold text-base">История заказов</p>
+                  <button onClick={async () => {
+                    if (!token) return;
+                    setMyOrdersLoading(true);
+                    const res = await fetch(ORDERS_URL, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                      body: JSON.stringify({ action: 'my_orders' }),
+                    }).then(r => r.json());
+                    if (res.orders) setMyOrders(res.orders);
+                    setMyOrdersLoading(false);
+                  }} className="text-xs text-primary flex items-center gap-1 hover:opacity-70">
+                    <Icon name="RefreshCw" size={12} className={myOrdersLoading ? 'animate-spin' : ''} /> Обновить
+                  </button>
+                </div>
+
+                {myOrders.length === 0 && !myOrdersLoading && (
+                  <button onClick={async () => {
+                    if (!token) return;
+                    setMyOrdersLoading(true);
+                    const res = await fetch(ORDERS_URL, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                      body: JSON.stringify({ action: 'my_orders' }),
+                    }).then(r => r.json());
+                    if (res.orders) setMyOrders(res.orders);
+                    setMyOrdersLoading(false);
+                  }} className="w-full text-center py-6 text-sm text-muted-foreground border border-dashed border-border rounded-2xl hover:border-primary/40 transition-colors">
+                    {myOrdersLoading ? 'Загружаю...' : 'Нажмите, чтобы загрузить заказы'}
+                  </button>
+                )}
+
+                {myOrdersLoading && myOrders.length === 0 && (
+                  <div className="text-center py-6 text-muted-foreground text-sm">Загружаю...</div>
+                )}
+
+                <div className="space-y-3">
+                  {myOrders.map(o => {
+                    const statusMap: Record<string, { label: string; color: string }> = {
+                      new: { label: 'Новый', color: 'bg-blue-100 text-blue-700' },
+                      confirmed: { label: 'Подтверждён', color: 'bg-emerald-100 text-emerald-700' },
+                      shipped: { label: 'Отправлен', color: 'bg-orange-100 text-orange-700' },
+                      delivered: { label: 'Доставлен', color: 'bg-green-100 text-green-700' },
+                      cancelled: { label: 'Отменён', color: 'bg-red-100 text-red-600' },
+                    };
+                    const st = statusMap[o.status] || { label: o.status, color: 'bg-muted text-muted-foreground' };
+                    return (
+                      <div key={o.id} className="border border-border rounded-2xl p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm">#{o.id}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
+                            {o.payment_status === 'paid' && <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">✓ Оплачен</span>}
+                          </div>
+                          <span className="font-bold text-sm">{fmt(o.total)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{o.created_at} · {o.city}</p>
+                        <div className="space-y-1">
+                          {o.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-xs">
+                              <span className="text-muted-foreground truncate flex-1 mr-2">{item.name} × {item.qty}</span>
+                              <span className="font-medium flex-shrink-0">{fmt(item.price * item.qty)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
 
-            <div className="bg-muted/50 rounded-2xl p-4 mb-6">
-              <p className="text-sm text-muted-foreground mb-1">Ваша скидка на каждую покупку</p>
-              <p className="font-display font-black text-3xl gradient-text">{user.card?.discount_percent ?? 0}%</p>
+              <Button variant="outline" className="w-full rounded-full h-11" onClick={() => { logout(); setCabinetOpen(false); setMyOrders([]); }}>
+                <Icon name="LogOut" size={16} className="mr-2" /> Выйти
+              </Button>
             </div>
-
-            <Button variant="outline" className="w-full rounded-full h-11" onClick={() => { logout(); setCabinetOpen(false); }}>
-              <Icon name="LogOut" size={16} className="mr-2" /> Выйти
-            </Button>
           </div>
         </div>
       )}
