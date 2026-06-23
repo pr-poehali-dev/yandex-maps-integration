@@ -589,7 +589,7 @@ export default function Index() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="relative w-72 md:w-80 animate-scale-in">
+            <div className="relative w-full md:w-[480px] animate-scale-in">
               <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
               <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
                 {allProducts.map((p, i) => (
