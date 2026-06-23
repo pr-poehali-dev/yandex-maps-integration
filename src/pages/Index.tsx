@@ -32,11 +32,7 @@ const IMG = {
 };
 
 const PRODUCTS: Product[] = [
-  { id: 1, name: 'Наушники Aura Pro', category: 'Аудио', price: 12990, brand: 'Aura', rating: 4.9, image: IMG.headphones, badge: 'Хит' },
-  { id: 2, name: 'Смарт-часы Pulse X', category: 'Гаджеты', price: 19990, brand: 'Pulse', rating: 4.8, image: IMG.watch, badge: 'Новинка' },
   { id: 3, name: 'Кроссовки Flux Air', category: 'Обувь', price: 8990, brand: 'Flux', rating: 4.7, image: IMG.sneakers },
-  { id: 4, name: 'Наушники Aura Mini', category: 'Аудио', price: 6990, brand: 'Aura', rating: 4.6, image: IMG.headphones },
-  { id: 5, name: 'Смарт-часы Pulse Lite', category: 'Гаджеты', price: 11990, brand: 'Pulse', rating: 4.5, image: IMG.watch },
   { id: 6, name: 'Кроссовки Flux Run', category: 'Обувь', price: 10990, brand: 'Flux', rating: 4.9, image: IMG.sneakers, badge: 'Хит' },
   { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
   { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, brand: 'HomeLife', rating: 4.7, image: IMG.home },
@@ -57,8 +53,8 @@ const PRODUCTS: Product[] = [
   { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
-const CATEGORIES = ['Все', 'Аудио', 'Гаджеты', 'Обувь', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
-const BRANDS = ['Aura', 'Pulse', 'Flux', 'HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
+const CATEGORIES = ['Все', 'Обувь', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
+const BRANDS = ['Flux', 'HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
 const NAV = [
   { id: 'home', label: 'Главная' },
