@@ -82,18 +82,24 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
-  const [tab, setTab] = useState<'products' | 'socials'>('products');
+  const [tab, setTab] = useState<'products' | 'socials' | 'users'>('products');
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [users, setUsers] = useState<{ id: number; name: string; email: string; created_at: string }[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const isAuth = !!token;
 
   useEffect(() => {
-    if (isAuth) { loadProducts(); loadSettings(); }
+    if (isAuth) { loadProducts(); loadSettings(); loadUsers(); }
   }, [isAuth]);
+
+  const loadUsers = async () => {
+    const data = await api('get_users', {}, token);
+    if (data.users) setUsers(data.users);
+  };
 
   const loadProducts = async () => {
     const data = await api('list', {}, token);
@@ -254,6 +260,10 @@ export default function Admin() {
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'products' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
             <Icon name="Package" size={14} />Товары
           </button>
+          <button onClick={() => setTab('users')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'users' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
+            <Icon name="Users" size={14} />Клиенты
+          </button>
           <button onClick={() => setTab('socials')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
             <Icon name="Link" size={14} />Соцсети
@@ -284,6 +294,39 @@ export default function Admin() {
               {savingSettings ? 'Сохраняю...' : 'Сохранить'}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Пользователи */}
+      {tab === 'users' && (
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-xl">Клиенты <span className="text-muted-foreground font-normal text-base">({users.length})</span></h2>
+            <button onClick={loadUsers} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+              <Icon name="RefreshCw" size={14} />
+            </button>
+          </div>
+          {users.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Icon name="Users" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Пока никто не зарегистрировался</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {users.map(u => (
+                <div key={u.id} className="flex items-center gap-3 p-3 bg-card border border-border rounded-2xl">
+                  <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-sm">{u.name.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{u.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground flex-shrink-0">{u.created_at}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

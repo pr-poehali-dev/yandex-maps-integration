@@ -155,5 +155,12 @@ def handler(event: dict, context) -> dict:
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
 
+    # Список пользователей
+    if action == 'get_users':
+        cur.execute("SELECT id, name, email, created_at FROM users ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        cur.close(); conn.close()
+        return ok({'users': [{'id': r[0], 'name': r[1], 'email': r[2], 'created_at': r[3].strftime('%d.%m.%Y %H:%M')} for r in rows]})
+
     cur.close(); conn.close()
     return err('Неизвестное действие', 400)
