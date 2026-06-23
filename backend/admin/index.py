@@ -67,11 +67,19 @@ def handler(event: dict, context) -> dict:
 
     # Получить все товары
     if action == 'list':
-        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge FROM products ORDER BY id")
+        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, sort_order FROM products ORDER BY sort_order, id")
         rows = cur.fetchall()
         cur.close(); conn.close()
-        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8]} for r in rows]
+        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8], 'sort_order': r[9]} for r in rows]
         return ok({'products': products})
+
+    # Сохранить порядок товаров
+    if action == 'reorder':
+        order = body.get('order', [])  # список id в нужном порядке
+        for i, pid in enumerate(order):
+            cur.execute("UPDATE products SET sort_order=%s WHERE id=%s", (i, pid))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True})
 
     # Обновить товар
     if action == 'update':

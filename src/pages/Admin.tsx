@@ -1,8 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
 const CATEGORIES = ['Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
@@ -18,7 +32,38 @@ type Product = {
   rating: number;
   image: string;
   badge: string | null;
+  sort_order?: number;
 };
+
+function SortableItem({ product, isActive, onClick, onDelete }: {
+  product: Product;
+  isActive: boolean;
+  onClick: () => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: product.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/50'}`}
+      onClick={onClick}
+    >
+      <button {...attributes} {...listeners} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing flex-shrink-0" onClick={e => e.stopPropagation()}>
+        <Icon name="GripVertical" size={16} />
+      </button>
+      <img src={product.image} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 bg-muted" />
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-sm truncate">{product.name}</p>
+        <p className="text-xs text-muted-foreground">{product.price.toLocaleString('ru-RU')} ₽</p>
+      </div>
+      <button onClick={e => { e.stopPropagation(); onDelete(); }}
+        className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0">
+        <Icon name="Trash2" size={16} />
+      </button>
+    </div>
+  );
+}
 
 async function api(action: string, body: object = {}, token?: string) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -38,6 +83,8 @@ export default function Admin() {
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
   const isAuth = !!token;
 
   useEffect(() => {
@@ -47,6 +94,18 @@ export default function Admin() {
   const loadProducts = async () => {
     const data = await api('list', {}, token);
     if (data.products) setProducts(data.products);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = products.findIndex(p => p.id === active.id);
+    const newIndex = products.findIndex(p => p.id === over.id);
+    const newOrder = arrayMove(products, oldIndex, newIndex);
+    setProducts(newOrder);
+    await api('reorder', { order: newOrder.map(p => p.id) }, token);
+    setMsg('Порядок сохранён!');
+    setTimeout(() => setMsg(''), 2000);
   };
 
   const handleLogin = async () => {
@@ -177,24 +236,24 @@ export default function Admin() {
               <Icon name="Plus" size={16} className="mr-1" /> Добавить
             </Button>
           </div>
-          <div className="space-y-2">
-            {products.map(p => (
-              <div key={p.id}
-                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${editing?.id === p.id ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/50'}`}
-                onClick={() => setEditing({ ...p })}
-              >
-                <img src={p.image} alt={p.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 bg-muted" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.price.toLocaleString('ru-RU')} ₽</p>
-                </div>
-                <button onClick={e => { e.stopPropagation(); handleDelete(p.id); }}
-                  className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0">
-                  <Icon name="Trash2" size={16} />
-                </button>
+          <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+            <Icon name="GripVertical" size={12} /> Перетащите для изменения порядка
+          </p>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={products.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {products.map(p => (
+                  <SortableItem
+                    key={p.id}
+                    product={p}
+                    isActive={editing?.id === p.id}
+                    onClick={() => setEditing({ ...p })}
+                    onDelete={() => handleDelete(p.id)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         </div>
 
         {/* Редактор */}

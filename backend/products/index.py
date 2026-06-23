@@ -17,7 +17,7 @@ def handler(event: dict, context) -> dict:
 
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
-    cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge FROM products ORDER BY id")
+    cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge FROM products ORDER BY sort_order, id")
     rows = cur.fetchall()
     cur.close(); conn.close()
 
