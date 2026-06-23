@@ -72,7 +72,7 @@ const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 export default function Index() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Все');
-  const [maxPrice, setMaxPrice] = useState(200000);
+  const [maxPrice, setMaxPrice] = useState(5000000);
   const [brands, setBrands] = useState<string[]>([]);
   const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'address' | 'payment'>('cart');
@@ -636,7 +636,7 @@ export default function Index() {
             </div>
             <div>
               <h3 className="font-display font-bold mb-3">Цена до</h3>
-              <Slider value={[maxPrice]} onValueChange={(v) => setMaxPrice(v[0])} max={200000} min={200} step={500} />
+              <Slider value={[maxPrice]} onValueChange={(v) => setMaxPrice(v[0])} max={5000000} min={200} step={1000} />
               <p className="text-primary font-bold mt-3">{fmt(maxPrice)}</p>
             </div>
             <div>
