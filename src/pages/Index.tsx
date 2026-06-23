@@ -464,7 +464,11 @@ export default function Index() {
                   {paymentMethod === 'sbp' && (
                     <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
                       <p className="text-sm font-medium text-emerald-800">Оплатите заказ через СБП</p>
-                      <p className="text-xs text-emerald-700">Нажмите кнопку ниже — откроется страница оплаты. После оплаты вернитесь сюда.</p>
+                      <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
+                        <span className="text-xs text-emerald-700">Сумма к оплате</span>
+                        <span className="text-lg font-black text-emerald-800">{fmt(total)}</span>
+                      </div>
+                      <p className="text-xs text-emerald-700">Введите эту сумму при переводе. После оплаты вернитесь сюда.</p>
                       <a href={SBP_URL} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium">
                         <Icon name="Smartphone" size={16} />
                         Оплатить по СБП
