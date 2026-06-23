@@ -1,0 +1,18 @@
+INSERT INTO products (name, category, brand, price, wholesale, rating, image, badge) VALUES
+('Набор для дома «Уют»', 'Товары для дома', 'HomeLife', 2490, 1890, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6797d70d-3499-4e5f-83d8-ec18a1d90669.jpg', 'Новинка'),
+('Ароматическая свеча', 'Товары для дома', 'HomeLife', 890, 670, 4.7, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6797d70d-3499-4e5f-83d8-ec18a1d90669.jpg', NULL),
+('Снеки Chimi Mix', 'Снеки', 'Chimi', 390, 290, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/3477e609-5df9-465a-bd9a-f809917117cf.jpg', 'Хит'),
+('Рамен Tonkotsu', 'Снеки', 'Chimi', 290, 210, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/3477e609-5df9-465a-bd9a-f809917117cf.jpg', NULL),
+('Bubble Tea Matcha', 'Напитки', 'Boba', 350, 260, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6600e17a-0053-4943-8a5e-5ad0885d4457.jpg', 'Хит'),
+('Газировка Yuzu', 'Напитки', 'Boba', 220, 160, 4.7, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6600e17a-0053-4943-8a5e-5ad0885d4457.jpg', NULL),
+('Набор ручек Kawaii', 'Канцелярия', 'Kansai', 590, 440, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/8b6e7544-54d7-450d-8d5e-bac7533ffe7b.jpg', 'Новинка'),
+('Скетчбук A5', 'Канцелярия', 'Kansai', 490, 360, 4.6, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/8b6e7544-54d7-450d-8d5e-bac7533ffe7b.jpg', NULL),
+('Плюшевый Куро', 'Игрушки', 'ToyBox', 1290, 970, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/0cccad38-cfed-4df1-a6d1-b3a257fe1031.jpg', 'Хит'),
+('Мягкая игрушка Уточка', 'Игрушки', 'ToyBox', 890, 670, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/0cccad38-cfed-4df1-a6d1-b3a257fe1031.jpg', NULL),
+('Сыворотка Glow Essence', 'Косметика', 'K-Beauty', 1990, 1490, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f196c31f-7def-43c7-a4bc-a4b4eb012afc.jpg', 'Хит'),
+('Маска для лица Jeju', 'Косметика', 'K-Beauty', 390, 290, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f196c31f-7def-43c7-a4bc-a4b4eb012afc.jpg', NULL),
+('Маска-плёнка Bamboo', 'Косметика', 'K-Beauty', 490, 360, 4.7, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f196c31f-7def-43c7-a4bc-a4b4eb012afc.jpg', NULL),
+('Квадроцикл ATV 250cc', 'Тяжёлая техника', 'MotoForce', 189990, 149990, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/d74e3cbd-9798-44c8-adb0-2ef46a94d6b7.jpg', 'Новинка'),
+('Квадроцикл ATV 110cc', 'Тяжёлая техника', 'MotoForce', 99990, 79990, 4.7, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/d74e3cbd-9798-44c8-adb0-2ef46a94d6b7.jpg', NULL),
+('Питбайк MX 125', 'Тяжёлая техника', 'MotoForce', 79990, 62990, 4.8, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/4d30d897-0c9b-49b4-bc2a-04a13bdcfd29.jpg', 'Хит'),
+('Питбайк MX 150 Pro', 'Тяжёлая техника', 'MotoForce', 119990, 94990, 4.9, 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/4d30d897-0c9b-49b4-bc2a-04a13bdcfd29.jpg', NULL);

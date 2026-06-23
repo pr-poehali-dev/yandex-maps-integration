@@ -64,6 +64,7 @@ const NAV = [
   { id: 'contacts', label: 'Контакты' },
 ];
 
+const PRODUCTS_URL = 'https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a';
 const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 
 export default function Index() {
@@ -81,11 +82,20 @@ export default function Index() {
   const [authName, setAuthName] = useState('');
   const [authError, setAuthError] = useState('');
   const { user, loading, login, register, logout } = useAuth();
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const timer = setInterval(() => setHeroIdx((i) => (i + 1) % PRODUCTS.length), 3000);
-    return () => clearInterval(timer);
+    fetch(PRODUCTS_URL)
+      .then(r => r.json())
+      .then(data => { if (data.products?.length) setDbProducts(data.products); });
   }, []);
+
+  const allProducts = dbProducts.length > 0 ? dbProducts : PRODUCTS;
+
+  useEffect(() => {
+    const timer = setInterval(() => setHeroIdx((i) => (i + 1) % allProducts.length), 3000);
+    return () => clearInterval(timer);
+  }, [allProducts.length]);
 
   const handleAuth = async () => {
     setAuthError('');
@@ -97,12 +107,12 @@ export default function Index() {
     setAuthEmail(''); setAuthPassword(''); setAuthName('');
   };
 
-  const filtered = useMemo(() => PRODUCTS.filter((p) =>
+  const filtered = useMemo(() => allProducts.filter((p) =>
     (category === 'Все' || p.category === category) &&
     p.price <= maxPrice &&
     (brands.length === 0 || brands.includes(p.brand)) &&
     p.name.toLowerCase().includes(search.toLowerCase())
-  ), [category, maxPrice, brands, search]);
+  ), [allProducts, category, maxPrice, brands, search]);
 
   const addToCart = (id: number) => setCart((c) => {
     const ex = c.find((i) => i.id === id);
@@ -111,7 +121,7 @@ export default function Index() {
   const changeQty = (id: number, d: number) => setCart((c) =>
     c.map((i) => i.id === id ? { ...i, qty: i.qty + d } : i).filter((i) => i.qty > 0));
 
-  const cartItems = cart.map((i) => ({ ...PRODUCTS.find((p) => p.id === i.id)!, qty: i.qty }));
+  const cartItems = cart.map((i) => ({ ...allProducts.find((p) => p.id === i.id)!, qty: i.qty }));
   const total = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
 
@@ -215,14 +225,14 @@ export default function Index() {
             <div className="relative w-72 md:w-80 animate-scale-in">
               <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
               <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
-                {PRODUCTS.map((p, i) => (
+                {allProducts.map((p, i) => (
                   <img key={p.id} src={p.image} alt={p.name}
                     className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
                     style={{ opacity: i === heroIdx ? 1 : 0 }} />
                 ))}
               </div>
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {PRODUCTS.map((_, i) => (
+                {allProducts.map((_, i) => (
                   <button key={i} onClick={() => setHeroIdx(i)}
                     className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
                 ))}
@@ -357,7 +367,7 @@ export default function Index() {
         </div>
         <div className="relative">
           <div className="absolute inset-0 gradient-brand blur-3xl opacity-20 rounded-full" />
-          <img src={PRODUCTS[0].image} alt="О нас" className="relative rounded-3xl w-full shadow-xl" />
+          <img src={allProducts[0]?.image} alt="О нас" className="relative rounded-3xl w-full shadow-xl" />
         </div>
       </section>
 

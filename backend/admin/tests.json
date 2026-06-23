@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Login wrong password",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "login", "password": "wrongpass"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "Неверный пароль"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get products without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

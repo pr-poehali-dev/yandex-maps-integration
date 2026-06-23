@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  brand VARCHAR(100) NOT NULL,
+  price INTEGER NOT NULL,
+  wholesale INTEGER NOT NULL,
+  rating NUMERIC(2,1) DEFAULT 4.8,
+  image TEXT NOT NULL,
+  badge VARCHAR(50),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
