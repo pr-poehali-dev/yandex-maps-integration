@@ -20,7 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
 const ORDERS_URL = 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd';
-const CATEGORIES = ['Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
+const STATIC_CATEGORIES = ['Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
 const BADGES = ['', 'Хит', 'Новинка', 'Скидка'];
 
 type Product = {
@@ -121,6 +121,8 @@ export default function Admin() {
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState('50');
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState('5');
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [newCategory, setNewCategory] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string; card_type: string; discount_percent: number; total_purchases: number }[]>([]);
@@ -134,12 +136,35 @@ export default function Admin() {
   const isAuth = !!token;
 
   useEffect(() => {
-    if (isAuth) { loadProducts(); loadSettings(); loadUsers(); loadOrders(); }
+    if (isAuth) { loadProducts(); loadSettings(); loadUsers(); loadOrders(); loadCategories(); }
   }, [isAuth]);
 
   const loadUsers = async () => {
     const data = await api('get_users', {}, token);
     if (data.users) setUsers(data.users);
+  };
+
+  const loadCategories = async () => {
+    const data = await api('get_categories', {}, token);
+    if (data.categories) setCategories(data.categories);
+  };
+
+  const handleAddCategory = async () => {
+    const name = newCategory.trim();
+    if (!name) return;
+    const data = await api('add_category', { name }, token);
+    if (data.error) { showMsg(data.error); return; }
+    setNewCategory('');
+    loadCategories();
+    loadProducts();
+    showMsg('Категория добавлена!');
+  };
+
+  const handleDeleteCategory = async (id: number, name: string) => {
+    const data = await api('delete_category', { id }, token);
+    if (data.error) { showMsg(data.error); return; }
+    setCategories(c => c.filter(cat => cat.id !== id));
+    showMsg(`«${name}» удалена`);
   };
 
   const loadOrders = async () => {
@@ -363,6 +388,39 @@ export default function Admin() {
       {tab === 'socials' && (
         <div className="px-4 py-5 space-y-4">
           <h2 className="font-display font-bold text-xl">Настройки</h2>
+
+          {/* Категории */}
+          <div className="bg-card border border-border rounded-3xl p-5 space-y-3">
+            <h3 className="font-semibold text-base flex items-center gap-2">
+              <Icon name="Tag" size={16} className="text-primary" />Категории товаров
+            </h3>
+            <div className="flex gap-2">
+              <Input
+                value={newCategory}
+                onChange={e => setNewCategory(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+                placeholder="Название новой категории"
+                className="h-10 rounded-xl text-sm flex-1"
+              />
+              <Button className="gradient-brand text-white rounded-xl h-10 px-4 hover:opacity-90 flex-shrink-0" onClick={handleAddCategory}>
+                <Icon name="Plus" size={16} />
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              {categories.map(cat => (
+                <div key={cat.id} className="flex items-center justify-between px-3 py-2.5 bg-muted/50 rounded-xl">
+                  <span className="text-sm font-medium">{cat.name}</span>
+                  <button onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                    className="text-muted-foreground hover:text-red-500 transition-colors p-1">
+                    <Icon name="Trash2" size={14} />
+                  </button>
+                </div>
+              ))}
+              {categories.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-2">Загрузка...</p>
+              )}
+            </div>
+          </div>
 
           {/* Оптовые пороги */}
           <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
@@ -727,7 +785,7 @@ export default function Admin() {
                 <label className="text-xs font-medium text-muted-foreground block mb-1.5">Категория</label>
                 <select value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })}
                   className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm">
-                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                  {(categories.length > 0 ? categories.map(c => c.name) : STATIC_CATEGORIES).map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
 

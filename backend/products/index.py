@@ -31,9 +31,12 @@ def handler(event: dict, context) -> dict:
     cur.execute("SELECT key, value FROM site_settings")
     settings = {r[0]: r[1] for r in cur.fetchall()}
 
+    cur.execute("SELECT name FROM categories ORDER BY sort_order, id")
+    categories = [r[0] for r in cur.fetchall()]
+
     cur.close(); conn.close()
     return {
         'statusCode': 200,
         'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-        'body': json.dumps({'products': products, 'settings': settings}, ensure_ascii=False)
+        'body': json.dumps({'products': products, 'settings': settings, 'categories': categories}, ensure_ascii=False)
     }

@@ -178,5 +178,39 @@ def handler(event: dict, context) -> dict:
             })
         return ok({'users': users})
 
+    # Список категорий
+    if action == 'get_categories':
+        cur.execute("SELECT id, name FROM categories ORDER BY sort_order, id")
+        rows = cur.fetchall()
+        cur.close(); conn.close()
+        return ok({'categories': [{'id': r[0], 'name': r[1]} for r in rows]})
+
+    # Добавить категорию
+    if action == 'add_category':
+        name = body.get('name', '').strip()
+        if not name:
+            cur.close(); conn.close()
+            return err('Укажите название')
+        cur.execute("SELECT id FROM categories WHERE name = %s", (name,))
+        if cur.fetchone():
+            cur.close(); conn.close()
+            return err('Категория уже существует')
+        cur.execute("INSERT INTO categories (name, sort_order) VALUES (%s, (SELECT COALESCE(MAX(sort_order),0)+1 FROM categories)) RETURNING id", (name,))
+        new_id = cur.fetchone()[0]
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True, 'id': new_id})
+
+    # Удалить категорию
+    if action == 'delete_category':
+        cat_id = body.get('id')
+        cur.execute("SELECT COUNT(*) FROM products WHERE category = (SELECT name FROM categories WHERE id = %s)", (cat_id,))
+        count = cur.fetchone()[0]
+        if count > 0:
+            cur.close(); conn.close()
+            return err(f'Нельзя удалить: в категории {count} товаров')
+        cur.execute("DELETE FROM categories WHERE id = %s", (cat_id,))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True})
+
     cur.close(); conn.close()
     return err('Неизвестное действие', 400)

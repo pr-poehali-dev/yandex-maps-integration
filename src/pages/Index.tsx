@@ -54,7 +54,7 @@ const PRODUCTS: Product[] = [
   { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, wholesale: 94990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
-const CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
+const STATIC_CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
 const STATIC_BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
 const NAV = [
@@ -98,6 +98,7 @@ export default function Index() {
   const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
+  const [dbCategories, setDbCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
@@ -109,8 +110,11 @@ export default function Index() {
           if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
           if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
         }
+        if (data.categories?.length) setDbCategories(data.categories);
       });
   }, []);
+
+  const CATEGORIES = ['Все', ...(dbCategories.length > 0 ? dbCategories : STATIC_CATEGORIES.slice(1))];
 
   const allProducts = dbProducts.length > 0 ? dbProducts : PRODUCTS;
   const allBrands = useMemo(() => {
