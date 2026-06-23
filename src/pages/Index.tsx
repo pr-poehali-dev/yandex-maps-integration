@@ -758,10 +758,10 @@ export default function Index() {
               ))}
               <a href={socials.social_telegram || 'https://t.me/Chineshop1688'} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-2xl bg-[#229ED9] flex items-center justify-center text-white group-hover:opacity-80 transition-opacity">
-                  <Icon name="Send" size={20} />
+                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white border border-border flex items-center justify-center group-hover:opacity-80 transition-opacity flex-shrink-0">
+                  <img src="https://www.google.com/s2/favicons?domain=max.ru&sz=64" alt="MAX" className="w-8 h-8 object-contain" />
                 </div>
-                <span className="font-medium group-hover:text-primary transition-colors">Написать в Telegram</span>
+                <span className="font-medium group-hover:text-primary transition-colors">Написать в MAX</span>
               </a>
             </div>
           </div>
