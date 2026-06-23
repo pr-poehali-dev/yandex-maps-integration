@@ -72,6 +72,8 @@ async function api(action: string, body: object = {}, token?: string) {
   return res.json();
 }
 
+type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string };
+
 export default function Admin() {
   const [token, setToken] = useState(() => localStorage.getItem('admin_token') || '');
   const [password, setPassword] = useState('');
@@ -81,6 +83,9 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
+  const [tab, setTab] = useState<'products' | 'socials'>('products');
+  const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
+  const [savingSettings, setSavingSettings] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -88,12 +93,25 @@ export default function Admin() {
   const isAuth = !!token;
 
   useEffect(() => {
-    if (isAuth) loadProducts();
+    if (isAuth) { loadProducts(); loadSettings(); }
   }, [isAuth]);
 
   const loadProducts = async () => {
     const data = await api('list', {}, token);
     if (data.products) setProducts(data.products);
+  };
+
+  const loadSettings = async () => {
+    const data = await api('get_settings', {}, token);
+    if (data.settings) setSettings(data.settings);
+  };
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    await api('save_settings', { settings }, token);
+    setSavingSettings(false);
+    setMsg('Ссылки сохранены!');
+    setTimeout(() => setMsg(''), 2000);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -227,7 +245,50 @@ export default function Admin() {
         </div>
       </header>
 
-      <div className="container py-8 grid lg:grid-cols-[320px_1fr] gap-8">
+      {/* Вкладки */}
+      <div className="container pt-6">
+        <div className="flex gap-2 bg-muted/50 rounded-2xl p-1 w-fit">
+          <button onClick={() => setTab('products')}
+            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'products' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+            <Icon name="Package" size={14} className="inline mr-1.5" />Товары
+          </button>
+          <button onClick={() => setTab('socials')}
+            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+            <Icon name="Link" size={14} className="inline mr-1.5" />Соцсети
+          </button>
+        </div>
+      </div>
+
+      {tab === 'socials' && (
+        <div className="container py-8 max-w-lg">
+          <div className="bg-card border border-border rounded-3xl p-8 space-y-5">
+            <h2 className="font-display font-bold text-2xl mb-2">Ссылки на соцсети</h2>
+            {([
+              { key: 'social_instagram', label: 'Instagram', icon: 'Instagram', placeholder: 'https://instagram.com/...' },
+              { key: 'social_youtube', label: 'YouTube', icon: 'Youtube', placeholder: 'https://youtube.com/...' },
+              { key: 'social_telegram', label: 'Telegram', icon: 'Send', placeholder: 'https://t.me/...' },
+              { key: 'social_max', label: 'Max', icon: 'Tv', placeholder: 'https://web.max.ru/...' },
+            ] as { key: keyof Settings; label: string; icon: string; placeholder: string }[]).map(s => (
+              <div key={s.key}>
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-1.5">
+                  <Icon name={s.icon} size={14} /> {s.label}
+                </label>
+                <Input
+                  value={settings[s.key]}
+                  onChange={e => setSettings({ ...settings, [s.key]: e.target.value })}
+                  placeholder={s.placeholder}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+            ))}
+            <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 mt-2" onClick={handleSaveSettings} disabled={savingSettings}>
+              {savingSettings ? 'Сохраняю...' : 'Сохранить ссылки'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {tab === 'products' && <div className="container py-8 grid lg:grid-cols-[320px_1fr] gap-8">
         {/* Список товаров */}
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -333,7 +394,7 @@ export default function Admin() {
             </div>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

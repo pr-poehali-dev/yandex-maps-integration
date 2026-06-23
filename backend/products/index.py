@@ -17,18 +17,22 @@ def handler(event: dict, context) -> dict:
 
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
+
     cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge FROM products ORDER BY sort_order, id")
     rows = cur.fetchall()
-    cur.close(); conn.close()
-
     products = [
         {'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3],
          'price': r[4], 'wholesale': r[5], 'rating': float(r[6]),
          'image': r[7], 'badge': r[8]}
         for r in rows
     ]
+
+    cur.execute("SELECT key, value FROM site_settings")
+    settings = {r[0]: r[1] for r in cur.fetchall()}
+
+    cur.close(); conn.close()
     return {
         'statusCode': 200,
         'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-        'body': json.dumps({'products': products}, ensure_ascii=False)
+        'body': json.dumps({'products': products, 'settings': settings}, ensure_ascii=False)
     }

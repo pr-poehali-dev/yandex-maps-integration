@@ -139,5 +139,20 @@ def handler(event: dict, context) -> dict:
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
 
+    # Получить настройки (соцсети)
+    if action == 'get_settings':
+        cur.execute("SELECT key, value FROM site_settings")
+        rows = cur.fetchall()
+        cur.close(); conn.close()
+        return ok({'settings': {r[0]: r[1] for r in rows}})
+
+    # Сохранить настройки (соцсети)
+    if action == 'save_settings':
+        settings = body.get('settings', {})
+        for key, value in settings.items():
+            cur.execute("UPDATE site_settings SET value=%s WHERE key=%s", (value, key))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True})
+
     cur.close(); conn.close()
     return err('Неизвестное действие', 400)

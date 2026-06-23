@@ -83,11 +83,15 @@ export default function Index() {
   const [authError, setAuthError] = useState('');
   const { user, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/' });
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
       .then(r => r.json())
-      .then(data => { if (data.products?.length) setDbProducts(data.products); });
+      .then(data => {
+        if (data.products?.length) setDbProducts(data.products);
+        if (data.settings) setSocials(s => ({ ...s, ...data.settings }));
+      });
   }, []);
 
   const allProducts = dbProducts.length > 0 ? dbProducts : PRODUCTS;
@@ -389,7 +393,7 @@ export default function Index() {
                   <span className="font-medium">{c.label}</span>
                 </div>
               ))}
-              <a href="https://t.me/Chineshop1688" target="_blank" rel="noopener noreferrer"
+              <a href={socials.social_telegram || 'https://t.me/Chineshop1688'} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-4 group">
                 <div className="w-12 h-12 rounded-2xl bg-[#229ED9] flex items-center justify-center text-white group-hover:opacity-80 transition-opacity">
                   <Icon name="Send" size={20} />
@@ -415,14 +419,26 @@ export default function Index() {
           <span className="font-display font-black text-xl gradient-text">Се-Се 谢谢</span>
           <p className="text-sm text-muted-foreground">© 2026 Се-Се 谢谢. Все права защищены.</p>
           <div className="flex gap-3">
-            {['Instagram', 'Youtube'].map((i) => (
-              <button key={i} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
-                <Icon name={i} size={18} />
-              </button>
-            ))}
-            <a href="https://t.me/Chineshop1688" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
-              <Icon name="Send" size={18} />
-            </a>
+            {socials.social_instagram && (
+              <a href={socials.social_instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
+                <Icon name="Instagram" size={18} />
+              </a>
+            )}
+            {socials.social_youtube && (
+              <a href={socials.social_youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
+                <Icon name="Youtube" size={18} />
+              </a>
+            )}
+            {socials.social_telegram && (
+              <a href={socials.social_telegram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
+                <Icon name="Send" size={18} />
+              </a>
+            )}
+            {socials.social_max && (
+              <a href={socials.social_max} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
+                <Icon name="Tv" size={18} />
+              </a>
+            )}
           </div>
         </div>
       </footer>
