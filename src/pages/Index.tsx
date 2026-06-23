@@ -157,7 +157,7 @@ export default function Index() {
       </header>
 
       <section id="home" className="relative overflow-hidden gradient-mesh">
-        <div className="container py-24 md:py-32 grid md:grid-cols-2 gap-12 items-center">
+        <div className="container py-24 md:py-32 grid md:grid-cols-2 gap-12 items-start">
           <div className="animate-fade-in">
             <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
             <h1 className="font-display font-black text-5xl md:text-7xl leading-[0.95] tracking-tight mb-6">
