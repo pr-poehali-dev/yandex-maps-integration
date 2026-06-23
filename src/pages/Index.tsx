@@ -17,6 +17,7 @@ type Product = {
   rating: number;
   image: string;
   badge?: string;
+  wholesale_min_qty?: number;
 };
 
 const IMG = {
@@ -150,7 +151,8 @@ export default function Index() {
   const WHOLESALE_QTY_HEAVY = wholesaleQtyHeavy;
 
   const getEffectivePrice = (product: Product, qty: number): { price: number; isWholesale: boolean } => {
-    const wholesaleQty = product.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT;
+    const defaultQty = product.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT;
+    const wholesaleQty = (product.wholesale_min_qty && product.wholesale_min_qty > 0) ? product.wholesale_min_qty : defaultQty;
     const isWholesaleQty = qty >= wholesaleQty;
     if (isWholesaleQty) return { price: product.wholesale, isWholesale: true };
     // Применяем скидку по карте если не оптовое кол-во
@@ -672,7 +674,7 @@ export default function Index() {
                     <div>
                       <span className="font-display font-black text-xl">{fmt(p.price)}</span>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-xs text-muted-foreground">Опт от {p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT} шт:</span>
+                        <span className="text-xs text-muted-foreground">Опт от {(p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT)} шт:</span>
                         <span className="text-sm font-bold text-emerald-600">{fmt(p.wholesale)}</span>
                       </div>
                     </div>

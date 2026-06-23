@@ -67,10 +67,10 @@ def handler(event: dict, context) -> dict:
 
     # Получить все товары
     if action == 'list':
-        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, sort_order FROM products ORDER BY sort_order, id")
+        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, sort_order, description, wholesale_min_qty FROM products ORDER BY sort_order, id")
         rows = cur.fetchall()
         cur.close(); conn.close()
-        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8], 'sort_order': r[9]} for r in rows]
+        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8], 'sort_order': r[9], 'description': r[10] or '', 'wholesale_min_qty': r[11] or 0} for r in rows]
         return ok({'products': products})
 
     # Сохранить порядок товаров
@@ -91,10 +91,11 @@ def handler(event: dict, context) -> dict:
         wholesale = body.get('wholesale')
         badge = body.get('badge') or None
         description = body.get('description', '')
+        wholesale_min_qty = int(body.get('wholesale_min_qty', 0))
 
         cur.execute(
-            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, description=%s, updated_at=NOW() WHERE id=%s",
-            (name, category, brand, price, wholesale, badge, description, pid)
+            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, description=%s, wholesale_min_qty=%s, updated_at=NOW() WHERE id=%s",
+            (name, category, brand, price, wholesale, badge, description, wholesale_min_qty, pid)
         )
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})

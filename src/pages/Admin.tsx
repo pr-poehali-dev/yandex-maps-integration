@@ -35,6 +35,7 @@ type Product = {
   badge: string | null;
   description?: string;
   sort_order?: number;
+  wholesale_min_qty?: number;
 };
 
 type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string };
@@ -243,6 +244,7 @@ export default function Admin() {
       wholesale: Number(editing.wholesale),
       badge: editing.badge || null,
       description: editing.description || '',
+      wholesale_min_qty: Number(editing.wholesale_min_qty || 0),
     }, token);
     setSaving(false);
     showMsg('Сохранено!');
@@ -743,6 +745,17 @@ export default function Admin() {
                     onChange={e => setEditing({ ...editing, wholesale: Number(e.target.value) })}
                     className="h-12 rounded-xl text-base" />
                 </div>
+              </div>
+
+              {/* Мин. кол-во для опта */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">
+                  Мин. кол-во для оптовой цены, шт.
+                  <span className="ml-1 text-muted-foreground/60">(0 — использовать общий порог)</span>
+                </label>
+                <Input type="number" inputMode="numeric" min={0} value={editing.wholesale_min_qty || 0}
+                  onChange={e => setEditing({ ...editing, wholesale_min_qty: Number(e.target.value) })}
+                  className="h-12 rounded-xl text-base" placeholder="0" />
               </div>
 
               {/* Значок */}
