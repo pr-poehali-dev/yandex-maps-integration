@@ -140,7 +140,7 @@ export default function Index() {
   const changeQty = (id: number, d: number) => setCart((c) =>
     c.map((i) => i.id === id ? { ...i, qty: i.qty + d } : i).filter((i) => i.qty > 0));
 
-  const WHOLESALE_QTY_DEFAULT = 20;
+  const WHOLESALE_QTY_DEFAULT = 50;
   const WHOLESALE_QTY_HEAVY = 5;
 
   const getEffectivePrice = (product: Product, qty: number): { price: number; isWholesale: boolean } => {
