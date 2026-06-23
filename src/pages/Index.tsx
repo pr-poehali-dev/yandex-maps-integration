@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -70,6 +70,12 @@ export default function Index() {
   const [maxPrice, setMaxPrice] = useState(200000);
   const [brands, setBrands] = useState<string[]>([]);
   const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
+  const [heroIdx, setHeroIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setHeroIdx((i) => (i + 1) % PRODUCTS.length), 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   const filtered = useMemo(() => PRODUCTS.filter((p) =>
     (category === 'Все' || p.category === category) &&
@@ -173,9 +179,23 @@ export default function Index() {
               <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
             </div>
           </div>
-          <div className="relative animate-scale-in">
-            <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
-            <img src={PRODUCTS[1].image} alt="Hero" className="relative rounded-3xl w-full animate-float shadow-2xl" />
+          <div className="flex justify-center">
+            <div className="relative w-72 md:w-80 animate-scale-in">
+              <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
+                {PRODUCTS.map((p, i) => (
+                  <img key={p.id} src={p.image} alt={p.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                    style={{ opacity: i === heroIdx ? 1 : 0 }} />
+                ))}
+              </div>
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {PRODUCTS.map((_, i) => (
+                  <button key={i} onClick={() => setHeroIdx(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
