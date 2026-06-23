@@ -54,7 +54,7 @@ const PRODUCTS: Product[] = [
 ];
 
 const CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
-const BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
+const STATIC_BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
 const NAV = [
   { id: 'home', label: 'Главная' },
@@ -102,6 +102,10 @@ export default function Index() {
   }, []);
 
   const allProducts = dbProducts.length > 0 ? dbProducts : PRODUCTS;
+  const allBrands = useMemo(() => {
+    const fromProducts = [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
+    return fromProducts.length > 0 ? fromProducts : STATIC_BRANDS;
+  }, [allProducts]);
 
   useEffect(() => {
     const timer = setInterval(() => setHeroIdx((i) => (i + 1) % allProducts.length), 3000);
@@ -534,7 +538,7 @@ export default function Index() {
             <div>
               <h3 className="font-display font-bold mb-3">Бренд</h3>
               <div className="space-y-2">
-                {BRANDS.map((b) => (
+                {allBrands.map((b) => (
                   <label key={b} className="flex items-center gap-3 cursor-pointer group">
                     <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${brands.includes(b) ? 'gradient-brand border-transparent' : 'border-border'}`}>
                       {brands.includes(b) && <Icon name="Check" size={14} className="text-white" />}
