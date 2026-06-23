@@ -367,7 +367,7 @@ export default function Index() {
             <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-8">Контакты</h2>
             <div className="space-y-5">
               {[
-                { icon: 'Phone', label: '+7 (495) 123-45-67' },
+                { icon: 'Phone', label: '+7 (916) 143-32-32' },
                 { icon: 'Mail', label: 'hello@nova.shop' },
                 { icon: 'MapPin', label: 'Москва, ул. Тверская, 1' },
                 { icon: 'Clock', label: 'Ежедневно с 9:00 до 21:00' },
