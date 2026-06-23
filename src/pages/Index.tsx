@@ -164,7 +164,7 @@ export default function Index() {
               Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-md mb-8">
-              Премиальная техника и стиль. Тщательно отобрано, доставим за 1 день.
+              Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
             </p>
             <div className="flex gap-4">
               <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
