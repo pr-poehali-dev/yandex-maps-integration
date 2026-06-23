@@ -108,10 +108,10 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close(); return err('Сессия истекла', 401)
 
         user_id, name, email, is_wholesale, created_at, phone = row
-        cur.execute("SELECT card_number, discount_percent, total_purchases FROM discount_cards WHERE user_id = %s", (user_id,))
+        cur.execute("SELECT card_number, discount_percent, total_purchases, card_type FROM discount_cards WHERE user_id = %s", (user_id,))
         card = cur.fetchone()
         cur.close(); conn.close()
-        return ok({'id': user_id, 'name': name, 'email': email, 'phone': phone or '', 'is_wholesale': is_wholesale, 'member_since': created_at.strftime('%d.%m.%Y'), 'card': {'number': card[0], 'discount_percent': card[1], 'total_purchases': card[2]} if card else None})
+        return ok({'id': user_id, 'name': name, 'email': email, 'phone': phone or '', 'is_wholesale': is_wholesale, 'member_since': created_at.strftime('%d.%m.%Y'), 'card': {'number': card[0], 'discount_percent': card[1], 'total_purchases': card[2], 'card_type': card[3]} if card else None})
 
     if action == 'logout':
         if token:

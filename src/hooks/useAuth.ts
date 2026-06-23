@@ -6,6 +6,7 @@ export type Card = {
   number: string;
   discount_percent: number;
   total_purchases: number;
+  card_type: 'silver' | 'gold' | 'diamond';
 };
 
 export type User = {

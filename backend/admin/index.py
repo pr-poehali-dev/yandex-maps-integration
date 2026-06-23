@@ -155,12 +155,27 @@ def handler(event: dict, context) -> dict:
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
 
-    # Список пользователей
+    # Список пользователей с картами лояльности
     if action == 'get_users':
-        cur.execute("SELECT id, name, email, phone, created_at FROM users ORDER BY created_at DESC")
+        cur.execute("""
+            SELECT u.id, u.name, u.email, u.phone, u.created_at,
+                   dc.card_type, dc.discount_percent, dc.total_purchases
+            FROM users u
+            LEFT JOIN discount_cards dc ON dc.user_id = u.id
+            ORDER BY u.created_at DESC
+        """)
         rows = cur.fetchall()
         cur.close(); conn.close()
-        return ok({'users': [{'id': r[0], 'name': r[1], 'email': r[2], 'phone': r[3] or '', 'created_at': r[4].strftime('%d.%m.%Y %H:%M')} for r in rows]})
+        users = []
+        for r in rows:
+            users.append({
+                'id': r[0], 'name': r[1], 'email': r[2], 'phone': r[3] or '',
+                'created_at': r[4].strftime('%d.%m.%Y %H:%M'),
+                'card_type': r[5] or 'silver',
+                'discount_percent': r[6] or 5,
+                'total_purchases': r[7] or 0,
+            })
+        return ok({'users': users})
 
     cur.close(); conn.close()
     return err('Неизвестное действие', 400)

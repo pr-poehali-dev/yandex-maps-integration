@@ -120,7 +120,7 @@ export default function Admin() {
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string }[]>([]);
+  const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string; card_type: string; discount_percent: number; total_purchases: number }[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
@@ -534,23 +534,40 @@ export default function Admin() {
             </div>
           ) : (
             <div className="space-y-2">
-              {users.map(u => (
-                <div key={u.id} className="flex items-center gap-3 p-3 bg-card border border-border rounded-2xl">
-                  <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-sm">{u.name.charAt(0).toUpperCase()}</span>
+              {users.map(u => {
+                const cardColors: Record<string, string> = {
+                  silver: 'bg-gray-100 text-gray-600 border-gray-200',
+                  gold: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                  diamond: 'bg-blue-100 text-blue-700 border-blue-200',
+                };
+                const cardLabels: Record<string, string> = {
+                  silver: 'Серебро', gold: 'Золото', diamond: 'Бриллиант',
+                };
+                const cardType = u.card_type || 'silver';
+                return (
+                  <div key={u.id} className="p-3 bg-card border border-border rounded-2xl space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-sm">{u.name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">{u.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                        {u.phone && (
+                          <a href={`tel:${u.phone}`} className="text-xs text-primary truncate flex items-center gap-1 mt-0.5">
+                            <Icon name="Phone" size={10} />{u.phone}
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground flex-shrink-0 text-right">{u.created_at}</p>
+                    </div>
+                    <div className={`flex items-center justify-between rounded-xl px-3 py-2 border text-xs font-medium ${cardColors[cardType]}`}>
+                      <span>{cardLabels[cardType]} · {u.discount_percent}% скидка</span>
+                      <span>{u.total_purchases.toLocaleString('ru-RU')} ₽ покупок</span>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{u.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                    {u.phone && (
-                      <a href={`tel:${u.phone}`} className="text-xs text-primary truncate flex items-center gap-1 mt-0.5">
-                        <Icon name="Phone" size={10} />{u.phone}
-                      </a>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground flex-shrink-0 text-right">{u.created_at}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

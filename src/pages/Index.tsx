@@ -141,7 +141,10 @@ export default function Index() {
     c.map((i) => i.id === id ? { ...i, qty: i.qty + d } : i).filter((i) => i.qty > 0));
 
   const cartItems = cart.map((i) => ({ ...allProducts.find((p) => p.id === i.id)!, qty: i.qty }));
-  const total = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+  const rawTotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+  const discountPercent = (user && user.card && !user.is_wholesale) ? user.card.discount_percent : 0;
+  const discountAmount = Math.round(rawTotal * discountPercent / 100);
+  const total = rawTotal - discountAmount;
   const count = cart.reduce((s, i) => s + i.qty, 0);
 
   const toggleBrand = (b: string) => setBrands((bs) => bs.includes(b) ? bs.filter((x) => x !== b) : [...bs, b]);
@@ -241,6 +244,12 @@ export default function Index() {
                         ))}
                       </div>
                       <div className="border-t border-border px-6 pt-4 pb-6 space-y-3 flex-shrink-0">
+                        {discountPercent > 0 && (
+                          <div className="bg-primary/10 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                            <span className="text-sm text-primary font-medium">Скидка по карте {discountPercent}%</span>
+                            <span className="text-sm font-bold text-primary">−{fmt(discountAmount)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between font-display font-bold text-lg">
                           <span>Итого</span><span className="gradient-text">{fmt(total)}</span>
                         </div>
@@ -388,6 +397,12 @@ export default function Index() {
                           <span className="font-medium flex-shrink-0">{fmt(i.price * i.qty)}</span>
                         </div>
                       ))}
+                      {discountPercent > 0 && (
+                        <div className="flex justify-between text-sm pt-1">
+                          <span className="text-primary font-medium">Скидка по карте {discountPercent}%</span>
+                          <span className="text-primary font-bold">−{fmt(discountAmount)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between font-display font-bold text-base pt-2 border-t border-border">
                         <span>Итого</span><span className="gradient-text">{fmt(total)}</span>
                       </div>
@@ -436,7 +451,8 @@ export default function Index() {
                               zip: address.zip,
                               comment: address.comment,
                               delivery_service: deliveryService,
-                              total,
+                              total: rawTotal,
+                              is_wholesale: user?.is_wholesale || false,
                               items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
                             }),
                           });
@@ -781,22 +797,61 @@ export default function Index() {
               </div>
 
               {/* Скидочная карта */}
-              {user.card && (
-                <div className="relative rounded-2xl p-5 overflow-hidden" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)' }}>
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                  <div className="relative">
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="text-white/80 text-xs font-medium tracking-widest uppercase">Скидочная карта</span>
-                      <span className="font-display font-black text-white text-2xl">{user.card.discount_percent}%</span>
+              {user.card && (() => {
+                const cardStyles: Record<string, { bg: string; label: string; next?: string; nextMin?: number }> = {
+                  silver:  { bg: 'linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #d1d5db 100%)', label: 'Серебряная', next: 'Золотая', nextMin: 50000 },
+                  gold:    { bg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #fcd34d 100%)', label: 'Золотая', next: 'Бриллиантовая', nextMin: 100000 },
+                  diamond: { bg: 'linear-gradient(135deg, #0369a1 0%, #7c3aed 50%, #06b6d4 100%)', label: 'Бриллиантовая' },
+                };
+                const style = cardStyles[user.card.card_type] || cardStyles.silver;
+                const toNext = style.nextMin ? style.nextMin - user.card.total_purchases : 0;
+                return (
+                  <div className="space-y-2">
+                    <div className="relative rounded-2xl p-5 overflow-hidden" style={{ background: style.bg }}>
+                      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                      <div className="relative">
+                        <div className="flex justify-between items-start mb-4">
+                          <span className="text-white/80 text-xs font-medium tracking-widest uppercase">{style.label}</span>
+                          <span className="font-display font-black text-white text-2xl">{user.card.discount_percent}%</span>
+                        </div>
+                        <p className="text-white font-mono text-base tracking-widest mb-3">{user.card.number.replace(/(.{4})/g, '$1 ').trim()}</p>
+                        <div className="flex justify-between items-end">
+                          <div><p className="text-white/60 text-xs">Владелец</p><p className="text-white font-semibold text-sm">{user.name}</p></div>
+                          <div className="text-right"><p className="text-white/60 text-xs">Скидка на покупки</p><p className="text-white font-bold">{user.card.discount_percent}%</p></div>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-white font-mono text-base tracking-widest mb-3">{user.card.number.replace(/(.{4})/g, '$1 ').trim()}</p>
-                    <div className="flex justify-between items-end">
-                      <div><p className="text-white/60 text-xs">Владелец</p><p className="text-white font-semibold text-sm">{user.name}</p></div>
-                      <div className="text-right"><p className="text-white/60 text-xs">Скидка на все покупки</p><p className="text-white font-bold">{user.card.discount_percent}%</p></div>
+                    <div className="bg-muted/60 rounded-xl p-3 space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Сумма покупок</span>
+                        <span className="font-semibold">{fmt(user.card.total_purchases)}</span>
+                      </div>
+                      {style.next && toNext > 0 && (
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">До {style.next}</span>
+                          <span className="font-semibold text-primary">{fmt(toNext)}</span>
+                        </div>
+                      )}
+                      {!style.next && (
+                        <p className="text-xs text-center text-primary font-medium">Максимальный уровень!</p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      {[
+                        { type: 'silver', label: 'Серебро', sub: 'до 50 000₽', disc: '5%' },
+                        { type: 'gold', label: 'Золото', sub: 'до 100 000₽', disc: '10%' },
+                        { type: 'diamond', label: 'Бриллиант', sub: 'от 100 000₽', disc: '12%' },
+                      ].map(l => (
+                        <div key={l.type} className={`rounded-xl p-2 border text-xs ${user.card!.card_type === l.type ? 'border-primary bg-primary/10' : 'border-border bg-muted/30'}`}>
+                          <p className="font-bold">{l.label}</p>
+                          <p className="text-muted-foreground">{l.sub}</p>
+                          <p className={`font-black ${user.card!.card_type === l.type ? 'text-primary' : 'text-muted-foreground'}`}>{l.disc}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* История заказов */}
               <div>

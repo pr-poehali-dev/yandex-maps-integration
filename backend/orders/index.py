@@ -1,5 +1,5 @@
 """
-Заказы: создание, список для админа, обновление статуса, история покупок пользователя.
+Заказы: создание (со скидкой по карте лояльности), список для админа, обновление статуса, история покупок.
 """
 import json
 import os
@@ -14,6 +14,13 @@ STATUSES = {
     'cancelled': '❌ Отменён',
 }
 
+# Уровни карт лояльности (не применяется к оптовым заказам)
+CARD_LEVELS = [
+    {'type': 'diamond', 'min': 100000, 'discount': 12, 'label': 'Бриллиантовая'},
+    {'type': 'gold',    'min': 50000,  'discount': 10, 'label': 'Золотая'},
+    {'type': 'silver',  'min': 0,      'discount': 5,  'label': 'Серебряная'},
+]
+
 
 def get_conn():
     return psycopg2.connect(os.environ['DATABASE_URL'])
@@ -26,6 +33,12 @@ def ok(data: dict):
 def err(msg: str, status: int = 400):
     return {'statusCode': status, 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}, 'body': json.dumps({'error': msg}, ensure_ascii=False)}
 
+
+def get_card_level(total_purchases: int) -> dict:
+    for level in CARD_LEVELS:
+        if total_purchases >= level['min']:
+            return level
+    return CARD_LEVELS[-1]
 
 
 def handler(event: dict, context) -> dict:
@@ -68,15 +81,26 @@ def handler(event: dict, context) -> dict:
         comment = body.get('comment', '').strip()
         delivery_service = body.get('delivery_service', 'courier').strip()
         items = body.get('items', [])
-        total = body.get('total', 0)
+        total = int(body.get('total', 0))
+        is_wholesale = body.get('is_wholesale', False)
 
         if not name or not phone or not city or not street or not items:
             cur.close(); conn.close()
             return err('Заполните все поля')
 
+        # Применяем скидку по карте лояльности (только для зарегистрированных, только розница)
+        discount_percent = 0
+        original_total = total
+        if user_id and not is_wholesale:
+            cur.execute("SELECT discount_percent, total_purchases FROM discount_cards WHERE user_id = %s", (user_id,))
+            card = cur.fetchone()
+            if card:
+                discount_percent = card[0]
+                total = int(total * (1 - discount_percent / 100))
+
         cur.execute(
             "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'new',%s) RETURNING id",
-            (name, phone, city, street, apartment, entrance, floor_, zip_code, comment, delivery_service, int(total), user_id)
+            (name, phone, city, street, apartment, entrance, floor_, zip_code, comment, delivery_service, total, user_id)
         )
         order_id = cur.fetchone()[0]
 
@@ -86,9 +110,21 @@ def handler(event: dict, context) -> dict:
                 (order_id, item.get('id', 0), item.get('name', ''), int(item.get('price', 0)), int(item.get('qty', 1)))
             )
 
+        # Обновляем сумму покупок и уровень карты (только розница)
+        if user_id and not is_wholesale:
+            cur.execute("SELECT id, total_purchases FROM discount_cards WHERE user_id = %s", (user_id,))
+            card_row = cur.fetchone()
+            if card_row:
+                new_total_purchases = card_row[1] + original_total
+                new_level = get_card_level(new_total_purchases)
+                cur.execute(
+                    "UPDATE discount_cards SET total_purchases = %s, discount_percent = %s, card_type = %s WHERE id = %s",
+                    (new_total_purchases, new_level['discount'], new_level['type'], card_row[0])
+                )
+
         conn.commit()
         cur.close(); conn.close()
-        return ok({'success': True, 'order_id': order_id})
+        return ok({'success': True, 'order_id': order_id, 'discount_percent': discount_percent, 'total': total})
 
     # История заказов пользователя
     if action == 'my_orders':
@@ -165,10 +201,8 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return err('Неверный статус')
 
-        cur.execute("UPDATE orders SET status=%s WHERE id=%s RETURNING customer_name, customer_phone, address_city, total", (status, order_id))
-        row = cur.fetchone()
+        cur.execute("UPDATE orders SET status=%s WHERE id=%s", (status, order_id))
         conn.commit()
-
         cur.close(); conn.close()
         return ok({'success': True})
 
