@@ -73,6 +73,9 @@ export default function Index() {
   const [maxPrice, setMaxPrice] = useState(200000);
   const [brands, setBrands] = useState<string[]>([]);
   const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
+  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'address' | 'payment'>('cart');
+  const [address, setAddress] = useState({ city: '', street: '', apartment: '', zip: '', name: '', phone: '' });
+  const [orderDone, setOrderDone] = useState(false);
   const [heroIdx, setHeroIdx] = useState(0);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authOpen, setAuthOpen] = useState(false);
@@ -173,40 +176,203 @@ export default function Index() {
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent className="flex flex-col">
-              <SheetHeader>
-                <SheetTitle className="font-display text-2xl">Корзина</SheetTitle>
-              </SheetHeader>
-              {cartItems.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
-                  <Icon name="ShoppingCart" size={48} />
-                  <p>Корзина пуста</p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex-1 overflow-y-auto space-y-4 mt-4">
-                    {cartItems.map((i) => (
-                      <div key={i.id} className="flex gap-3 items-center">
-                        <img src={i.image} alt={i.name} className="w-16 h-16 rounded-xl object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate">{i.name}</p>
-                          <p className="text-primary font-bold">{fmt(i.price)}</p>
+            <SheetContent className="flex flex-col p-0" onOpenChange={(open) => { if (!open) { setCheckoutStep('cart'); setOrderDone(false); } }}>
+              {/* Шаги */}
+              {!orderDone && cartItems.length > 0 && (
+                <div className="flex items-center gap-1 px-6 pt-5 pb-3 border-b border-border flex-shrink-0">
+                  {[{ key: 'cart', label: 'Корзина', icon: 'ShoppingCart' }, { key: 'address', label: 'Адрес', icon: 'MapPin' }, { key: 'payment', label: 'Оплата', icon: 'CreditCard' }].map((s, idx, arr) => {
+                    const stepIdx = ['cart','address','payment'].indexOf(checkoutStep);
+                    const sIdx = idx;
+                    const done = stepIdx > sIdx;
+                    const active = stepIdx === sIdx;
+                    return (
+                      <div key={s.key} className="flex items-center gap-1 flex-1">
+                        <div className={`flex items-center gap-1.5 flex-shrink-0 ${active ? 'text-primary' : done ? 'text-emerald-500' : 'text-muted-foreground'}`}>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${active ? 'border-primary bg-primary text-white' : done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-muted-foreground/30'}`}>
+                            {done ? <Icon name="Check" size={12} /> : idx + 1}
+                          </div>
+                          <span className={`text-xs font-medium hidden sm:inline ${active ? 'text-primary' : ''}`}>{s.label}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, -1)}><Icon name="Minus" size={14} /></Button>
-                          <span className="w-5 text-center text-sm">{i.qty}</span>
-                          <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, 1)}><Icon name="Plus" size={14} /></Button>
-                        </div>
+                        {idx < arr.length - 1 && <div className={`flex-1 h-0.5 mx-1 rounded-full ${done ? 'bg-emerald-500' : 'bg-muted'}`} />}
                       </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-border pt-4 space-y-3">
-                    <div className="flex justify-between font-display font-bold text-lg">
-                      <span>Итого</span><span className="gradient-text">{fmt(total)}</span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Шаг 1: Корзина */}
+              {checkoutStep === 'cart' && (
+                <>
+                  <SheetHeader className="px-6 pt-4 pb-2 flex-shrink-0">
+                    <SheetTitle className="font-display text-2xl">Корзина</SheetTitle>
+                  </SheetHeader>
+                  {cartItems.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
+                      <Icon name="ShoppingCart" size={48} />
+                      <p>Корзина пуста</p>
                     </div>
-                    <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90">Оформить заказ</Button>
+                  ) : (
+                    <>
+                      <div className="flex-1 overflow-y-auto space-y-4 px-6 py-3">
+                        {cartItems.map((i) => (
+                          <div key={i.id} className="flex gap-3 items-center">
+                            <img src={i.image} alt={i.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm truncate">{i.name}</p>
+                              <p className="text-primary font-bold">{fmt(i.price)}</p>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, -1)}><Icon name="Minus" size={14} /></Button>
+                              <span className="w-5 text-center text-sm font-medium">{i.qty}</span>
+                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, 1)}><Icon name="Plus" size={14} /></Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="border-t border-border px-6 pt-4 pb-6 space-y-3 flex-shrink-0">
+                        <div className="flex justify-between font-display font-bold text-lg">
+                          <span>Итого</span><span className="gradient-text">{fmt(total)}</span>
+                        </div>
+                        <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={() => setCheckoutStep('address')}>
+                          Оформить доставку <Icon name="ArrowRight" size={18} className="ml-2" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* Шаг 2: Адрес */}
+              {checkoutStep === 'address' && (
+                <>
+                  <SheetHeader className="px-6 pt-4 pb-2 flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setCheckoutStep('cart')} className="text-muted-foreground hover:text-foreground">
+                        <Icon name="ArrowLeft" size={18} />
+                      </button>
+                      <SheetTitle className="font-display text-2xl">Адрес доставки</SheetTitle>
+                    </div>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1.5">Ваше имя</label>
+                      <Input value={address.name} onChange={e => setAddress({...address, name: e.target.value})} placeholder="Иван Иванов" className="h-12 rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1.5">Телефон</label>
+                      <Input value={address.phone} onChange={e => setAddress({...address, phone: e.target.value})} placeholder="+7 900 000-00-00" type="tel" className="h-12 rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1.5">Город</label>
+                      <Input value={address.city} onChange={e => setAddress({...address, city: e.target.value})} placeholder="Москва" className="h-12 rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1.5">Улица, дом</label>
+                      <Input value={address.street} onChange={e => setAddress({...address, street: e.target.value})} placeholder="ул. Ленина, д. 10" className="h-12 rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Квартира / офис</label>
+                        <Input value={address.apartment} onChange={e => setAddress({...address, apartment: e.target.value})} placeholder="кв. 5" className="h-12 rounded-xl" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Индекс</label>
+                        <Input value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} placeholder="123456" inputMode="numeric" className="h-12 rounded-xl" />
+                      </div>
+                    </div>
+                    <div className="bg-muted/50 rounded-2xl p-4 flex gap-3">
+                      <Icon name="Truck" size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium">Доставка курьером 1–2 дня</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Бесплатно при заказе от 2 000 ₽</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-border px-6 pt-4 pb-6 flex-shrink-0">
+                    <Button
+                      className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 disabled:opacity-50"
+                      disabled={!address.name || !address.phone || !address.city || !address.street}
+                      onClick={() => setCheckoutStep('payment')}>
+                      Перейти к оплате <Icon name="ArrowRight" size={18} className="ml-2" />
+                    </Button>
+                    {(!address.name || !address.phone || !address.city || !address.street) && (
+                      <p className="text-xs text-muted-foreground text-center mt-2">Заполните имя, телефон, город и улицу</p>
+                    )}
                   </div>
                 </>
+              )}
+
+              {/* Шаг 3: Оплата */}
+              {checkoutStep === 'payment' && !orderDone && (
+                <>
+                  <SheetHeader className="px-6 pt-4 pb-2 flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setCheckoutStep('address')} className="text-muted-foreground hover:text-foreground">
+                        <Icon name="ArrowLeft" size={18} />
+                      </button>
+                      <SheetTitle className="font-display text-2xl">Оплата</SheetTitle>
+                    </div>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                    {/* Адрес — сводка */}
+                    <div className="bg-muted/50 rounded-2xl p-4 space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">Доставка</p>
+                      <p className="text-sm font-semibold">{address.name} · {address.phone}</p>
+                      <p className="text-sm text-muted-foreground">{address.city}, {address.street}{address.apartment ? `, ${address.apartment}` : ''}{address.zip ? ` ${address.zip}` : ''}</p>
+                    </div>
+                    {/* Состав заказа */}
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Состав заказа</p>
+                      {cartItems.map(i => (
+                        <div key={i.id} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground truncate flex-1 mr-2">{i.name} × {i.qty}</span>
+                          <span className="font-medium flex-shrink-0">{fmt(i.price * i.qty)}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between font-display font-bold text-base pt-2 border-t border-border">
+                        <span>Итого</span><span className="gradient-text">{fmt(total)}</span>
+                      </div>
+                    </div>
+                    {/* Способы оплаты */}
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-3">Способ оплаты</p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          { icon: 'CreditCard', label: 'Картой онлайн', sub: 'Visa, Mastercard, МИР' },
+                          { icon: 'Smartphone', label: 'СБП', sub: 'Быстрый перевод по QR' },
+                          { icon: 'Banknote', label: 'При получении', sub: 'Наличными или картой' },
+                        ].map(m => (
+                          <div key={m.label} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Icon name={m.icon} size={16} className="text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{m.label}</p>
+                              <p className="text-xs text-muted-foreground">{m.sub}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-border px-6 pt-4 pb-6 flex-shrink-0">
+                    <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={() => { setOrderDone(true); setCart([]); }}>
+                      Подтвердить заказ на {fmt(total)}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {/* Успех */}
+              {orderDone && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-6 gap-4">
+                  <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <Icon name="CheckCircle2" size={48} className="text-emerald-500" />
+                  </div>
+                  <h2 className="font-display font-black text-2xl">Заказ принят!</h2>
+                  <p className="text-muted-foreground text-sm">Мы свяжемся с вами по номеру <span className="font-medium text-foreground">{address.phone}</span> для подтверждения</p>
+                  <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
+                </div>
               )}
             </SheetContent>
           </Sheet>
