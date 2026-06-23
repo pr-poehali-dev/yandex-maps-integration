@@ -398,11 +398,14 @@ export default function Index() {
           <span className="font-display font-black text-xl gradient-text">Се-Се 谢谢</span>
           <p className="text-sm text-muted-foreground">© 2026 Се-Се 谢谢. Все права защищены.</p>
           <div className="flex gap-3">
-            {['Instagram', 'Send', 'Youtube'].map((i) => (
+            {['Instagram', 'Youtube'].map((i) => (
               <button key={i} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
                 <Icon name={i} size={18} />
               </button>
             ))}
+            <a href="https://t.me/Chineshop1688" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
+              <Icon name="Send" size={18} />
+            </a>
           </div>
         </div>
       </footer>
