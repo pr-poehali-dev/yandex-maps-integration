@@ -161,7 +161,7 @@ export default function Index() {
           <div className="animate-fade-in">
             <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
             <h1 className="font-display font-black text-5xl md:text-7xl leading-[0.95] tracking-tight mb-6">
-              Гаджеты,<br /><span className="gradient-text">которые вдохновляют</span>
+              Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-md mb-8">
               Премиальная техника и стиль. Тщательно отобрано, доставим за 1 день.
