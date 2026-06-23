@@ -140,11 +140,40 @@ export default function Index() {
   const changeQty = (id: number, d: number) => setCart((c) =>
     c.map((i) => i.id === id ? { ...i, qty: i.qty + d } : i).filter((i) => i.qty > 0));
 
-  const cartItems = cart.map((i) => ({ ...allProducts.find((p) => p.id === i.id)!, qty: i.qty }));
+  const WHOLESALE_QTY_DEFAULT = 20;
+  const WHOLESALE_QTY_HEAVY = 5;
+
+  const getEffectivePrice = (product: Product, qty: number): { price: number; isWholesale: boolean } => {
+    const wholesaleQty = product.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT;
+    const isWholesaleQty = qty >= wholesaleQty;
+    if (isWholesaleQty) return { price: product.wholesale, isWholesale: true };
+    // Применяем скидку по карте если не оптовое кол-во
+    if (user && user.card) {
+      const cardPrice = Math.round(product.price * (1 - user.card.discount_percent / 100));
+      return { price: cardPrice, isWholesale: false };
+    }
+    return { price: product.price, isWholesale: false };
+  };
+
+  const cartItems = cart.map((i) => {
+    const product = allProducts.find((p) => p.id === i.id)!;
+    const { price, isWholesale } = getEffectivePrice(product, i.qty);
+    return { ...product, qty: i.qty, effectivePrice: price, isWholesale };
+  });
+
+  const total = cartItems.reduce((s, i) => s + i.effectivePrice * i.qty, 0);
   const rawTotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
-  const discountPercent = (user && user.card && !user.is_wholesale) ? user.card.discount_percent : 0;
-  const discountAmount = Math.round(rawTotal * discountPercent / 100);
-  const total = rawTotal - discountAmount;
+  // Для отображения скидки по карте (только на нeoптовые позиции)
+  const cardDiscountAmount = cartItems.reduce((s, i) => {
+    if (!i.isWholesale && user && user.card) return s + Math.round(i.price * user.card.discount_percent / 100) * i.qty;
+    return s;
+  }, 0);
+  const wholesaleDiscountAmount = cartItems.reduce((s, i) => {
+    if (i.isWholesale) return s + (i.price - i.wholesale) * i.qty;
+    return s;
+  }, 0);
+  const discountPercent = (user && user.card) ? user.card.discount_percent : 0;
+  const discountAmount = cardDiscountAmount;
   const count = cart.reduce((s, i) => s + i.qty, 0);
 
   const toggleBrand = (b: string) => setBrands((bs) => bs.includes(b) ? bs.filter((x) => x !== b) : [...bs, b]);
@@ -233,7 +262,11 @@ export default function Index() {
                             <img src={i.image} alt={i.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="font-semibold text-sm truncate">{i.name}</p>
-                              <p className="text-primary font-bold">{fmt(i.price)}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-primary font-bold">{fmt(i.effectivePrice)}</p>
+                                {i.isWholesale && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium">Опт</span>}
+                                {!i.isWholesale && i.effectivePrice < i.price && <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">−{discountPercent}%</span>}
+                              </div>
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, -1)}><Icon name="Minus" size={14} /></Button>
@@ -244,7 +277,13 @@ export default function Index() {
                         ))}
                       </div>
                       <div className="border-t border-border px-6 pt-4 pb-6 space-y-3 flex-shrink-0">
-                        {discountPercent > 0 && (
+                        {wholesaleDiscountAmount > 0 && (
+                          <div className="bg-emerald-50 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                            <span className="text-sm text-emerald-700 font-medium">Оптовая цена</span>
+                            <span className="text-sm font-bold text-emerald-700">−{fmt(wholesaleDiscountAmount)}</span>
+                          </div>
+                        )}
+                        {discountAmount > 0 && (
                           <div className="bg-primary/10 rounded-xl px-4 py-2.5 flex items-center justify-between">
                             <span className="text-sm text-primary font-medium">Скидка по карте {discountPercent}%</span>
                             <span className="text-sm font-bold text-primary">−{fmt(discountAmount)}</span>
@@ -393,12 +432,21 @@ export default function Index() {
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Состав заказа</p>
                       {cartItems.map(i => (
                         <div key={i.id} className="flex justify-between text-sm">
-                          <span className="text-muted-foreground truncate flex-1 mr-2">{i.name} × {i.qty}</span>
-                          <span className="font-medium flex-shrink-0">{fmt(i.price * i.qty)}</span>
+                          <span className="text-muted-foreground truncate flex-1 mr-2">
+                            {i.name} × {i.qty}
+                            {i.isWholesale && <span className="ml-1 text-xs bg-emerald-100 text-emerald-700 px-1 rounded">опт</span>}
+                          </span>
+                          <span className="font-medium flex-shrink-0">{fmt(i.effectivePrice * i.qty)}</span>
                         </div>
                       ))}
-                      {discountPercent > 0 && (
+                      {wholesaleDiscountAmount > 0 && (
                         <div className="flex justify-between text-sm pt-1">
+                          <span className="text-emerald-700 font-medium">Оптовая цена</span>
+                          <span className="text-emerald-700 font-bold">−{fmt(wholesaleDiscountAmount)}</span>
+                        </div>
+                      )}
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between text-sm">
                           <span className="text-primary font-medium">Скидка по карте {discountPercent}%</span>
                           <span className="text-primary font-bold">−{fmt(discountAmount)}</span>
                         </div>
@@ -451,9 +499,9 @@ export default function Index() {
                               zip: address.zip,
                               comment: address.comment,
                               delivery_service: deliveryService,
-                              total: rawTotal,
-                              is_wholesale: user?.is_wholesale || false,
-                              items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+                              total,
+                              is_wholesale: cartItems.some(i => i.isWholesale),
+                              items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.effectivePrice, qty: i.qty })),
                             }),
                           });
                         } finally {

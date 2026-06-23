@@ -1,5 +1,6 @@
 """
-Заказы: создание (со скидкой по карте лояльности), список для админа, обновление статуса, история покупок.
+Заказы: создание, список для админа, обновление статуса, история покупок.
+Скидки (оптовая и по карте) считаются на фронте.
 """
 import json
 import os
@@ -88,15 +89,8 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return err('Заполните все поля')
 
-        # Применяем скидку по карте лояльности (только для зарегистрированных, только розница)
-        discount_percent = 0
+        # Скидка уже применена на фронте (оптовая или по карте лояльности)
         original_total = total
-        if user_id and not is_wholesale:
-            cur.execute("SELECT discount_percent, total_purchases FROM discount_cards WHERE user_id = %s", (user_id,))
-            card = cur.fetchone()
-            if card:
-                discount_percent = card[0]
-                total = int(total * (1 - discount_percent / 100))
 
         cur.execute(
             "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'new',%s) RETURNING id",
@@ -124,7 +118,7 @@ def handler(event: dict, context) -> dict:
 
         conn.commit()
         cur.close(); conn.close()
-        return ok({'success': True, 'order_id': order_id, 'discount_percent': discount_percent, 'total': total})
+        return ok({'success': True, 'order_id': order_id, 'total': total})
 
     # История заказов пользователя
     if action == 'my_orders':
