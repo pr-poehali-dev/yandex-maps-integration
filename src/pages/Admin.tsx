@@ -589,7 +589,7 @@ export default function Admin() {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground mb-2">Фото товара</p>
-                  <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   <Button variant="outline" className="w-full rounded-xl h-10 text-sm" onClick={() => fileRef.current?.click()}>
                     <Icon name="Camera" size={15} className="mr-2" />Загрузить фото
                   </Button>
