@@ -798,8 +798,8 @@ export default function Index() {
               </a>
             )}
             {socials.social_max && (
-              <a href={socials.social_max} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
-                <Icon name="Tv" size={18} />
+              <a href={socials.social_max} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white border border-border flex items-center justify-center hover:opacity-80 transition-all overflow-hidden">
+                <img src="https://www.google.com/s2/favicons?domain=max.ru&sz=64" alt="MAX" className="w-6 h-6 object-contain" />
               </a>
             )}
           </div>
