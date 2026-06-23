@@ -1,10 +1,9 @@
 """
-Заказы: создание, список для админа, обновление статуса + Telegram-уведомление.
+Заказы: создание, список для админа, обновление статуса.
 """
 import json
 import os
 import psycopg2
-import urllib.request
 
 
 STATUSES = {
@@ -27,23 +26,6 @@ def ok(data: dict):
 def err(msg: str, status: int = 400):
     return {'statusCode': status, 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}, 'body': json.dumps({'error': msg}, ensure_ascii=False)}
 
-
-def send_telegram(text: str):
-    token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
-    if not token or not chat_id:
-        return
-    payload = json.dumps({'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}).encode()
-    req = urllib.request.Request(
-        f'https://api.telegram.org/bot{token}/sendMessage',
-        data=payload,
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
-    try:
-        urllib.request.urlopen(req, timeout=5)
-    except Exception:
-        pass
 
 
 def handler(event: dict, context) -> dict:
@@ -93,18 +75,6 @@ def handler(event: dict, context) -> dict:
 
         conn.commit()
 
-        # Telegram-уведомление
-        items_text = '\n'.join([f"  • {i.get('name')} × {i.get('qty')} = {int(i.get('price',0)) * int(i.get('qty',1)):,} ₽" for i in items])
-        tg_text = (
-            f"🛍 <b>Новый заказ #{order_id}</b>\n\n"
-            f"👤 {name}\n"
-            f"📞 {phone}\n"
-            f"📍 {city}, {street}" + (f", {apartment}" if apartment else "") + "\n\n"
-            f"<b>Состав:</b>\n{items_text}\n\n"
-            f"💰 <b>Итого: {int(total):,} ₽</b>"
-        )
-        send_telegram(tg_text)
-
         cur.close(); conn.close()
         return ok({'success': True, 'order_id': order_id})
 
@@ -152,15 +122,6 @@ def handler(event: dict, context) -> dict:
         cur.execute("UPDATE orders SET status=%s WHERE id=%s RETURNING customer_name, customer_phone, address_city, total", (status, order_id))
         row = cur.fetchone()
         conn.commit()
-
-        if row:
-            tg_text = (
-                f"📋 <b>Заказ #{order_id} обновлён</b>\n"
-                f"{STATUSES[status]}\n"
-                f"👤 {row[0]} · {row[1]}\n"
-                f"📍 {row[2]} · {int(row[3]):,} ₽"
-            )
-            send_telegram(tg_text)
 
         cur.close(); conn.close()
         return ok({'success': True})
