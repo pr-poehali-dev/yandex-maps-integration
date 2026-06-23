@@ -72,7 +72,7 @@ export default function Index() {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
         <div className="container flex items-center justify-between h-18 py-3">
           <button onClick={() => scrollTo('home')} className="font-display font-black text-2xl gradient-text tracking-tight">
-            NOVA
+            Се-Се 谢谢
           </button>
           <nav className="hidden lg:flex items-center gap-7">
             {NAV.map((n) => (
@@ -258,7 +258,7 @@ export default function Index() {
         <div>
           <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-6">О нас</h2>
           <p className="text-lg text-muted-foreground mb-4">
-            NOVA — это магазин для тех, кто ценит качество и стиль. Мы отбираем только лучшие гаджеты и аксессуары от проверенных брендов.
+            Се-Се 谢谢 — это магазин для тех, кто ценит качество и стиль. Мы отбираем только лучшие гаджеты и аксессуары от проверенных брендов.
           </p>
           <p className="text-lg text-muted-foreground mb-8">
             С 2020 года нам доверяют более 50 000 покупателей по всей стране.
@@ -312,8 +312,8 @@ export default function Index() {
 
       <footer className="border-t border-border py-10">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-display font-black text-xl gradient-text">NOVA</span>
-          <p className="text-sm text-muted-foreground">© 2026 NOVA. Все права защищены.</p>
+          <span className="font-display font-black text-xl gradient-text">Се-Се 谢谢</span>
+          <p className="text-sm text-muted-foreground">© 2026 Се-Се 谢谢. Все права защищены.</p>
           <div className="flex gap-3">
             {['Instagram', 'Send', 'Youtube'].map((i) => (
               <button key={i} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:gradient-brand hover:text-white transition-all">
