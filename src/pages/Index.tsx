@@ -5,12 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAuth } from '@/hooks/useAuth';
 
 type Product = {
   id: number;
   name: string;
   category: string;
   price: number;
+  wholesale: number;
   brand: string;
   rating: number;
   image: string;
@@ -32,23 +34,23 @@ const IMG = {
 };
 
 const PRODUCTS: Product[] = [
-  { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
-  { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, brand: 'HomeLife', rating: 4.7, image: IMG.home },
-  { id: 9, name: 'Снеки Chimi Mix', category: 'Снеки', price: 390, brand: 'Chimi', rating: 4.9, image: IMG.snacks, badge: 'Хит' },
-  { id: 10, name: 'Рамен Tonkotsu', category: 'Снеки', price: 290, brand: 'Chimi', rating: 4.8, image: IMG.snacks },
-  { id: 11, name: 'Bubble Tea Matcha', category: 'Напитки', price: 350, brand: 'Boba', rating: 4.9, image: IMG.drinks, badge: 'Хит' },
-  { id: 12, name: 'Газировка Yuzu', category: 'Напитки', price: 220, brand: 'Boba', rating: 4.7, image: IMG.drinks },
-  { id: 13, name: 'Набор ручек Kawaii', category: 'Канцелярия', price: 590, brand: 'Kansai', rating: 4.8, image: IMG.stationery, badge: 'Новинка' },
-  { id: 14, name: 'Скетчбук A5', category: 'Канцелярия', price: 490, brand: 'Kansai', rating: 4.6, image: IMG.stationery },
-  { id: 15, name: 'Плюшевый Куро', category: 'Игрушки', price: 1290, brand: 'ToyBox', rating: 4.9, image: IMG.toys, badge: 'Хит' },
-  { id: 16, name: 'Мягкая игрушка Уточка', category: 'Игрушки', price: 890, brand: 'ToyBox', rating: 4.8, image: IMG.toys },
-  { id: 17, name: 'Сыворотка Glow Essence', category: 'Косметика', price: 1990, brand: 'K-Beauty', rating: 4.9, image: IMG.cosmetics, badge: 'Хит' },
-  { id: 18, name: 'Маска для лица Jeju', category: 'Косметика', price: 390, brand: 'K-Beauty', rating: 4.8, image: IMG.cosmetics },
-  { id: 19, name: 'Маска-плёнка Bamboo', category: 'Косметика', price: 490, brand: 'K-Beauty', rating: 4.7, image: IMG.cosmetics },
-  { id: 20, name: 'Квадроцикл ATV 250cc', category: 'Тяжёлая техника', price: 189990, brand: 'MotoForce', rating: 4.9, image: IMG.atv, badge: 'Новинка' },
-  { id: 21, name: 'Квадроцикл ATV 110cc', category: 'Тяжёлая техника', price: 99990, brand: 'MotoForce', rating: 4.7, image: IMG.atv },
-  { id: 22, name: 'Питбайк MX 125', category: 'Тяжёлая техника', price: 79990, brand: 'MotoForce', rating: 4.8, image: IMG.pitbike, badge: 'Хит' },
-  { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
+  { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, wholesale: 1890, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
+  { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, wholesale: 670, brand: 'HomeLife', rating: 4.7, image: IMG.home },
+  { id: 9, name: 'Снеки Chimi Mix', category: 'Снеки', price: 390, wholesale: 290, brand: 'Chimi', rating: 4.9, image: IMG.snacks, badge: 'Хит' },
+  { id: 10, name: 'Рамен Tonkotsu', category: 'Снеки', price: 290, wholesale: 210, brand: 'Chimi', rating: 4.8, image: IMG.snacks },
+  { id: 11, name: 'Bubble Tea Matcha', category: 'Напитки', price: 350, wholesale: 260, brand: 'Boba', rating: 4.9, image: IMG.drinks, badge: 'Хит' },
+  { id: 12, name: 'Газировка Yuzu', category: 'Напитки', price: 220, wholesale: 160, brand: 'Boba', rating: 4.7, image: IMG.drinks },
+  { id: 13, name: 'Набор ручек Kawaii', category: 'Канцелярия', price: 590, wholesale: 440, brand: 'Kansai', rating: 4.8, image: IMG.stationery, badge: 'Новинка' },
+  { id: 14, name: 'Скетчбук A5', category: 'Канцелярия', price: 490, wholesale: 360, brand: 'Kansai', rating: 4.6, image: IMG.stationery },
+  { id: 15, name: 'Плюшевый Куро', category: 'Игрушки', price: 1290, wholesale: 970, brand: 'ToyBox', rating: 4.9, image: IMG.toys, badge: 'Хит' },
+  { id: 16, name: 'Мягкая игрушка Уточка', category: 'Игрушки', price: 890, wholesale: 670, brand: 'ToyBox', rating: 4.8, image: IMG.toys },
+  { id: 17, name: 'Сыворотка Glow Essence', category: 'Косметика', price: 1990, wholesale: 1490, brand: 'K-Beauty', rating: 4.9, image: IMG.cosmetics, badge: 'Хит' },
+  { id: 18, name: 'Маска для лица Jeju', category: 'Косметика', price: 390, wholesale: 290, brand: 'K-Beauty', rating: 4.8, image: IMG.cosmetics },
+  { id: 19, name: 'Маска-плёнка Bamboo', category: 'Косметика', price: 490, wholesale: 360, brand: 'K-Beauty', rating: 4.7, image: IMG.cosmetics },
+  { id: 20, name: 'Квадроцикл ATV 250cc', category: 'Тяжёлая техника', price: 189990, wholesale: 149990, brand: 'MotoForce', rating: 4.9, image: IMG.atv, badge: 'Новинка' },
+  { id: 21, name: 'Квадроцикл ATV 110cc', category: 'Тяжёлая техника', price: 99990, wholesale: 79990, brand: 'MotoForce', rating: 4.7, image: IMG.atv },
+  { id: 22, name: 'Питбайк MX 125', category: 'Тяжёлая техника', price: 79990, wholesale: 62990, brand: 'MotoForce', rating: 4.8, image: IMG.pitbike, badge: 'Хит' },
+  { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, wholesale: 94990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
 const CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
@@ -71,11 +73,29 @@ export default function Index() {
   const [brands, setBrands] = useState<string[]>([]);
   const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authOpen, setAuthOpen] = useState(false);
+  const [cabinetOpen, setCabinetOpen] = useState(false);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authError, setAuthError] = useState('');
+  const { user, loading, login, register, logout } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => setHeroIdx((i) => (i + 1) % PRODUCTS.length), 3000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleAuth = async () => {
+    setAuthError('');
+    const res = authMode === 'login'
+      ? await login(authEmail, authPassword)
+      : await register(authName, authEmail, authPassword);
+    if (res.error) { setAuthError(res.error); return; }
+    setAuthOpen(false);
+    setAuthEmail(''); setAuthPassword(''); setAuthName('');
+  };
 
   const filtered = useMemo(() => PRODUCTS.filter((p) =>
     (category === 'Все' || p.category === category) &&
@@ -112,6 +132,17 @@ export default function Index() {
               </button>
             ))}
           </nav>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <Button variant="ghost" className="rounded-full px-3 gap-2" onClick={() => setCabinetOpen(true)}>
+                <Icon name="UserCircle" size={20} />
+                <span className="hidden sm:inline text-sm font-medium">{user.name.split(' ')[0]}</span>
+              </Button>
+            ) : (
+              <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
+                Войти
+              </Button>
+            )}
           <Sheet>
             <SheetTrigger asChild>
               <Button className="gradient-brand text-white rounded-full px-5 relative hover:opacity-90">
@@ -159,6 +190,7 @@ export default function Index() {
               )}
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </header>
 
@@ -266,7 +298,13 @@ export default function Index() {
                   </div>
                   <h3 className="font-display font-bold text-lg mb-3">{p.name}</h3>
                   <div className="flex items-center justify-between">
-                    <span className="font-display font-black text-xl">{fmt(p.price)}</span>
+                    <div>
+                      <span className="font-display font-black text-xl">{fmt(p.price)}</span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-xs text-muted-foreground">Опт:</span>
+                        <span className="text-sm font-bold text-emerald-600">{fmt(p.wholesale)}</span>
+                      </div>
+                    </div>
                     <Button size="icon" onClick={() => addToCart(p.id)} className="gradient-brand text-white rounded-full w-11 h-11 hover:opacity-90">
                       <Icon name="Plus" size={20} />
                     </Button>
@@ -368,6 +406,89 @@ export default function Index() {
           </div>
         </div>
       </footer>
+
+      {/* Модалка авторизации */}
+      {authOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setAuthOpen(false)}>
+          <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display font-black text-2xl">{authMode === 'login' ? 'Вход' : 'Регистрация'}</h2>
+              <button onClick={() => setAuthOpen(false)} className="text-muted-foreground hover:text-foreground"><Icon name="X" size={20} /></button>
+            </div>
+            <div className="space-y-3">
+              {authMode === 'register' && (
+                <Input placeholder="Ваше имя" value={authName} onChange={(e) => setAuthName(e.target.value)} className="h-12 rounded-xl" />
+              )}
+              <Input placeholder="Email" type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="h-12 rounded-xl" />
+              <Input placeholder="Пароль" type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="h-12 rounded-xl"
+                onKeyDown={(e) => e.key === 'Enter' && handleAuth()} />
+              {authError && <p className="text-sm text-red-500">{authError}</p>}
+              <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={handleAuth} disabled={loading}>
+                {loading ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+              </Button>
+            </div>
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}{' '}
+              <button className="text-primary font-medium hover:underline" onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}>
+                {authMode === 'login' ? 'Зарегистрироваться' : 'Войти'}
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Личный кабинет */}
+      {cabinetOpen && user && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setCabinetOpen(false)}>
+          <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display font-black text-2xl">Личный кабинет</h2>
+              <button onClick={() => setCabinetOpen(false)} className="text-muted-foreground hover:text-foreground"><Icon name="X" size={20} /></button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-muted-foreground text-sm mb-1">Добро пожаловать,</p>
+              <p className="font-display font-bold text-xl">{user.name}</p>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-xs text-muted-foreground mt-1">С нами с {user.member_since}</p>
+            </div>
+
+            {user.card && (
+              <div className="relative rounded-2xl p-6 mb-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)' }}>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                <div className="relative">
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-white/80 text-xs font-medium tracking-widest uppercase">Скидочная карта</span>
+                    <span className="font-display font-black text-white text-2xl">{user.card.discount_percent}%</span>
+                  </div>
+                  <p className="text-white font-mono text-lg tracking-widest mb-4">
+                    {user.card.number.replace(/(.{4})/g, '$1 ').trim()}
+                  </p>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-white/60 text-xs">Владелец</p>
+                      <p className="text-white font-semibold">{user.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white/60 text-xs">Скидка на все покупки</p>
+                      <p className="text-white font-bold text-lg">{user.card.discount_percent}%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-muted/50 rounded-2xl p-4 mb-6">
+              <p className="text-sm text-muted-foreground mb-1">Ваша скидка на каждую покупку</p>
+              <p className="font-display font-black text-3xl gradient-text">{user.card?.discount_percent ?? 0}%</p>
+            </div>
+
+            <Button variant="outline" className="w-full rounded-full h-11" onClick={() => { logout(); setCabinetOpen(false); }}>
+              <Icon name="LogOut" size={16} className="mr-2" /> Выйти
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
