@@ -369,7 +369,7 @@ export default function Index() {
               {[
                 { icon: 'Phone', label: '+7 (916) 143-32-32' },
                 { icon: 'Mail', label: 'mag789-944@yandex.ru' },
-                { icon: 'MapPin', label: 'Москва, ул. Тверская, 1' },
+                { icon: 'MapPin', label: 'г. Долгопрудный, ул. Парковая, 44 к1' },
                 { icon: 'Clock', label: 'Ежедневно с 9:00 до 21:00' },
               ].map((c) => (
                 <div key={c.label} className="flex items-center gap-4">
