@@ -798,16 +798,16 @@ export default function Index() {
 
               {/* Скидочная карта */}
               {user.card && (() => {
-                const cardStyles: Record<string, { bg: string; label: string; next?: string; nextMin?: number }> = {
-                  silver:  { bg: 'linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #d1d5db 100%)', label: 'Серебряная', next: 'Золотая', nextMin: 50000 },
-                  gold:    { bg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #fcd34d 100%)', label: 'Золотая', next: 'Бриллиантовая', nextMin: 100000 },
-                  diamond: { bg: 'linear-gradient(135deg, #0369a1 0%, #7c3aed 50%, #06b6d4 100%)', label: 'Бриллиантовая' },
+                const cardInfo: Record<string, { label: string; next?: string; nextMin?: number }> = {
+                  silver:  { label: 'Серебряная', next: 'Золотая', nextMin: 50000 },
+                  gold:    { label: 'Золотая', next: 'Бриллиантовая', nextMin: 100000 },
+                  diamond: { label: 'Бриллиантовая' },
                 };
-                const style = cardStyles[user.card.card_type] || cardStyles.silver;
+                const style = cardInfo[user.card.card_type] || cardInfo.silver;
                 const toNext = style.nextMin ? style.nextMin - user.card.total_purchases : 0;
                 return (
                   <div className="space-y-2">
-                    <div className="relative rounded-2xl p-5 overflow-hidden" style={{ background: style.bg }}>
+                    <div className="relative rounded-2xl p-5 overflow-hidden" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)' }}>
                       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                       <div className="relative">
                         <div className="flex justify-between items-start mb-4">
