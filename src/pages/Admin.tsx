@@ -124,6 +124,7 @@ export default function Admin() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+  const [payFilter, setPayFilter] = useState<'all' | 'pending' | 'paid'>('all');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -387,6 +388,25 @@ export default function Admin() {
               <Icon name="RefreshCw" size={14} />
             </button>
           </div>
+          {/* Фильтр по оплате */}
+          {orders.length > 0 && (() => {
+            const unpaidCount = orders.filter(o => o.payment_status !== 'paid').length;
+            const paidCount = orders.filter(o => o.payment_status === 'paid').length;
+            return (
+              <div className="flex gap-2 mb-3">
+                {[
+                  { key: 'all', label: `Все (${orders.length})` },
+                  { key: 'pending', label: `⏳ Не оплачено (${unpaidCount})`, color: unpaidCount > 0 ? 'text-yellow-700' : '' },
+                  { key: 'paid', label: `✓ Оплачено (${paidCount})`, color: 'text-emerald-700' },
+                ].map(f => (
+                  <button key={f.key} onClick={() => setPayFilter(f.key as 'all' | 'pending' | 'paid')}
+                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${payFilter === f.key ? 'bg-primary text-white border-primary' : `border-border bg-card ${f.color || ''} hover:border-primary`}`}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
           {orders.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <Icon name="ClipboardList" size={40} className="mx-auto mb-3 opacity-30" />
@@ -394,7 +414,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="space-y-3">
-              {orders.map(o => {
+              {orders.filter(o => payFilter === 'all' || o.payment_status === payFilter || (payFilter === 'pending' && o.payment_status !== 'paid')).map(o => {
                 const st = STATUS_LABELS[o.status] || { label: o.status, color: 'bg-muted text-muted-foreground' };
                 const isExpanded = expandedOrder === o.id;
                 return (
