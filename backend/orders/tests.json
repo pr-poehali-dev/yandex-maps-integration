@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Create order",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "create",
+        "name": "Тест Клиент",
+        "phone": "+79001234567",
+        "city": "Москва",
+        "street": "ул. Ленина, д. 1",
+        "apartment": "кв. 10",
+        "zip": "123456",
+        "total": 1490,
+        "items": [{"id": 1, "name": "Тестовый товар", "price": 1490, "qty": 1}]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "List orders without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "Не авторизован"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

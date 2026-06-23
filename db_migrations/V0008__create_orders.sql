@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS orders (
+  id SERIAL PRIMARY KEY,
+  customer_name VARCHAR(200) NOT NULL DEFAULT '',
+  customer_phone VARCHAR(50) NOT NULL DEFAULT '',
+  address_city VARCHAR(200) NOT NULL DEFAULT '',
+  address_street VARCHAR(300) NOT NULL DEFAULT '',
+  address_apartment VARCHAR(100) NOT NULL DEFAULT '',
+  address_zip VARCHAR(20) NOT NULL DEFAULT '',
+  total INTEGER NOT NULL DEFAULT 0,
+  status VARCHAR(50) NOT NULL DEFAULT 'new',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id SERIAL PRIMARY KEY,
+  order_id INTEGER NOT NULL REFERENCES orders(id),
+  product_id INTEGER NOT NULL,
+  product_name VARCHAR(300) NOT NULL DEFAULT '',
+  price INTEGER NOT NULL DEFAULT 0,
+  qty INTEGER NOT NULL DEFAULT 1
+);

@@ -65,6 +65,7 @@ const NAV = [
 ];
 
 const PRODUCTS_URL = 'https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a';
+const ORDERS_URL = 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd';
 const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 
 export default function Index() {
@@ -76,6 +77,7 @@ export default function Index() {
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'address' | 'payment'>('cart');
   const [address, setAddress] = useState({ city: '', street: '', apartment: '', zip: '', name: '', phone: '' });
   const [orderDone, setOrderDone] = useState(false);
+  const [orderLoading, setOrderLoading] = useState(false);
   const [heroIdx, setHeroIdx] = useState(0);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authOpen, setAuthOpen] = useState(false);
@@ -356,8 +358,36 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="border-t border-border px-6 pt-4 pb-6 flex-shrink-0">
-                    <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={() => { setOrderDone(true); setCart([]); }}>
-                      Подтвердить заказ на {fmt(total)}
+                    <Button
+                      className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90"
+                      disabled={orderLoading}
+                      onClick={async () => {
+                        setOrderLoading(true);
+                        try {
+                          await fetch(ORDERS_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              action: 'create',
+                              name: address.name,
+                              phone: address.phone,
+                              city: address.city,
+                              street: address.street,
+                              apartment: address.apartment,
+                              zip: address.zip,
+                              total,
+                              items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+                            }),
+                          });
+                        } finally {
+                          setOrderLoading(false);
+                          setOrderDone(true);
+                          setCart([]);
+                        }
+                      }}>
+                      {orderLoading
+                        ? <span className="flex items-center gap-2"><Icon name="Loader2" size={18} className="animate-spin" />Отправляю...</span>
+                        : `Подтвердить заказ на ${fmt(total)}`}
                     </Button>
                   </div>
                 </>

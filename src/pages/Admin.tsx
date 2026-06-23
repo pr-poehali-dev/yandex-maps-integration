@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
+const ORDERS_URL = 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd';
 const CATEGORIES = ['Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
 const BADGES = ['', 'Хит', 'Новинка', 'Скидка'];
 
@@ -37,6 +38,27 @@ type Product = {
 };
 
 type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string };
+
+type Order = {
+  id: number;
+  customer_name: string;
+  customer_phone: string;
+  city: string;
+  street: string;
+  apartment: string;
+  total: number;
+  status: string;
+  created_at: string;
+  items: { name: string; price: number; qty: number }[];
+};
+
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  new:       { label: 'Новый',       color: 'bg-blue-100 text-blue-700' },
+  confirmed: { label: 'Подтверждён', color: 'bg-emerald-100 text-emerald-700' },
+  shipped:   { label: 'Отправлен',   color: 'bg-orange-100 text-orange-700' },
+  delivered: { label: 'Доставлен',   color: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Отменён',     color: 'bg-red-100 text-red-600' },
+};
 
 function SortableItem({ product, isActive, onClick, onDelete }: {
   product: Product; isActive: boolean; onClick: () => void; onDelete: () => void;
@@ -82,23 +104,48 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
-  const [tab, setTab] = useState<'products' | 'socials' | 'users'>('products');
+  const [tab, setTab] = useState<'products' | 'socials' | 'users' | 'orders'>('orders');
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string }[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const isAuth = !!token;
 
   useEffect(() => {
-    if (isAuth) { loadProducts(); loadSettings(); loadUsers(); }
+    if (isAuth) { loadProducts(); loadSettings(); loadUsers(); loadOrders(); }
   }, [isAuth]);
 
   const loadUsers = async () => {
     const data = await api('get_users', {}, token);
     if (data.users) setUsers(data.users);
+  };
+
+  const loadOrders = async () => {
+    const res = await fetch(ORDERS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'list' }),
+    });
+    const data = await res.json();
+    if (data.orders) setOrders(data.orders);
+  };
+
+  const updateOrderStatus = async (id: number, status: string) => {
+    setUpdatingStatus(id);
+    await fetch(ORDERS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'update_status', id, status }),
+    });
+    setUpdatingStatus(null);
+    showMsg('Статус обновлён!');
+    loadOrders();
   };
 
   const loadProducts = async () => {
@@ -256,17 +303,27 @@ export default function Admin() {
       {/* Вкладки */}
       <div className="px-4 pt-4">
         <div className="flex gap-1 bg-muted/60 rounded-2xl p-1">
+          <button onClick={() => setTab('orders')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'orders' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
+            <Icon name="ClipboardList" size={14} />
+            <span className="hidden sm:inline">Заказы</span>
+            {orders.filter(o => o.status === 'new').length > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {orders.filter(o => o.status === 'new').length}
+              </span>
+            )}
+          </button>
           <button onClick={() => setTab('products')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'products' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
-            <Icon name="Package" size={14} />Товары
+            <Icon name="Package" size={14} /><span className="hidden sm:inline">Товары</span>
           </button>
           <button onClick={() => setTab('users')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'users' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
-            <Icon name="Users" size={14} />Клиенты
+            <Icon name="Users" size={14} /><span className="hidden sm:inline">Клиенты</span>
           </button>
           <button onClick={() => setTab('socials')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
-            <Icon name="Link" size={14} />Соцсети
+            <Icon name="Link" size={14} /><span className="hidden sm:inline">Соцсети</span>
           </button>
         </div>
       </div>
@@ -294,6 +351,98 @@ export default function Admin() {
               {savingSettings ? 'Сохраняю...' : 'Сохранить'}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Заказы */}
+      {tab === 'orders' && (
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-xl">
+              Заказы <span className="text-muted-foreground font-normal text-base">({orders.length})</span>
+            </h2>
+            <button onClick={loadOrders} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+              <Icon name="RefreshCw" size={14} />
+            </button>
+          </div>
+          {orders.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Icon name="ClipboardList" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Заказов пока нет</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.map(o => {
+                const st = STATUS_LABELS[o.status] || { label: o.status, color: 'bg-muted text-muted-foreground' };
+                const isExpanded = expandedOrder === o.id;
+                return (
+                  <div key={o.id} className={`bg-card border rounded-2xl overflow-hidden transition-all ${o.status === 'new' ? 'border-blue-300' : 'border-border'}`}>
+                    {/* Шапка заказа */}
+                    <button className="w-full flex items-center gap-3 p-4 text-left" onClick={() => setExpandedOrder(isExpanded ? null : o.id)}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-sm">#{o.id}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
+                          {o.status === 'new' && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />}
+                        </div>
+                        <p className="font-medium text-sm truncate">{o.customer_name}</p>
+                        <p className="text-xs text-muted-foreground">{o.customer_phone} · {o.city}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-bold text-sm">{o.total.toLocaleString('ru-RU')} ₽</p>
+                        <p className="text-xs text-muted-foreground">{o.created_at}</p>
+                      </div>
+                      <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-muted-foreground flex-shrink-0" />
+                    </button>
+
+                    {/* Детали */}
+                    {isExpanded && (
+                      <div className="border-t border-border px-4 pb-4 space-y-4">
+                        {/* Состав */}
+                        <div className="pt-3 space-y-1.5">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Состав заказа</p>
+                          {o.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground truncate flex-1 mr-2">{item.name} × {item.qty}</span>
+                              <span className="font-medium flex-shrink-0">{(item.price * item.qty).toLocaleString('ru-RU')} ₽</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between font-bold text-sm pt-1 border-t border-border mt-2">
+                            <span>Итого</span><span>{o.total.toLocaleString('ru-RU')} ₽</span>
+                          </div>
+                        </div>
+
+                        {/* Адрес */}
+                        <div className="bg-muted/50 rounded-xl p-3">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Адрес доставки</p>
+                          <p className="text-sm">{o.city}, {o.street}{o.apartment ? `, ${o.apartment}` : ''}</p>
+                          <a href={`tel:${o.customer_phone}`} className="text-sm text-primary flex items-center gap-1 mt-1">
+                            <Icon name="Phone" size={12} />{o.customer_phone}
+                          </a>
+                        </div>
+
+                        {/* Смена статуса */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-2">Изменить статус</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {Object.entries(STATUS_LABELS).map(([key, val]) => (
+                              <button
+                                key={key}
+                                disabled={o.status === key || updatingStatus === o.id}
+                                onClick={() => updateOrderStatus(o.id, key)}
+                                className={`py-2 px-3 rounded-xl text-xs font-medium border transition-all ${o.status === key ? `${val.color} border-transparent` : 'border-border bg-card hover:border-primary disabled:opacity-40'}`}>
+                                {updatingStatus === o.id && o.status !== key ? '...' : val.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
