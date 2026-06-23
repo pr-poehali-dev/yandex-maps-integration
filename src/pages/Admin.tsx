@@ -118,6 +118,8 @@ export default function Admin() {
   const [msg, setMsg] = useState('');
   const [tab, setTab] = useState<'products' | 'socials' | 'users' | 'orders'>('orders');
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
+  const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState('50');
+  const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState('5');
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string; card_type: string; discount_percent: number; total_purchases: number }[]>([]);
@@ -178,14 +180,18 @@ export default function Admin() {
 
   const loadSettings = async () => {
     const data = await api('get_settings', {}, token);
-    if (data.settings) setSettings(data.settings);
+    if (data.settings) {
+      setSettings(data.settings);
+      if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(data.settings.wholesale_qty_default);
+      if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(data.settings.wholesale_qty_heavy);
+    }
   };
 
   const handleSaveSettings = async () => {
     setSavingSettings(true);
-    await api('save_settings', { settings }, token);
+    await api('save_settings', { settings: { ...settings, wholesale_qty_default: wholesaleQtyDefault, wholesale_qty_heavy: wholesaleQtyHeavy } }, token);
     setSavingSettings(false);
-    showMsg('Ссылки сохранены!');
+    showMsg('Настройки сохранены!');
   };
 
   const showMsg = (text: string) => {
@@ -354,8 +360,34 @@ export default function Admin() {
       {/* Соцсети */}
       {tab === 'socials' && (
         <div className="px-4 py-5 space-y-4">
-          <h2 className="font-display font-bold text-xl">Ссылки на соцсети</h2>
+          <h2 className="font-display font-bold text-xl">Настройки</h2>
+
+          {/* Оптовые пороги */}
           <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
+            <h3 className="font-semibold text-base flex items-center gap-2">
+              <Icon name="Package" size={16} className="text-primary" />Оптовые пороги
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Все товары, от шт.</label>
+                <Input type="number" min={1} value={wholesaleQtyDefault}
+                  onChange={e => setWholesaleQtyDefault(e.target.value)}
+                  className="h-11 rounded-xl text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Тяжёлая техника, от шт.</label>
+                <Input type="number" min={1} value={wholesaleQtyHeavy}
+                  onChange={e => setWholesaleQtyHeavy(e.target.value)}
+                  className="h-11 rounded-xl text-sm" />
+              </div>
+            </div>
+          </div>
+
+          {/* Соцсети */}
+          <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
+            <h3 className="font-semibold text-base flex items-center gap-2">
+              <Icon name="Link" size={16} className="text-primary" />Ссылки на соцсети
+            </h3>
             {([
               { key: 'social_instagram', label: 'Instagram', icon: 'Instagram', placeholder: 'https://instagram.com/...' },
               { key: 'social_youtube', label: 'YouTube', icon: 'Youtube', placeholder: 'https://youtube.com/...' },
@@ -370,10 +402,11 @@ export default function Admin() {
                   placeholder={s.placeholder} className="h-11 rounded-xl text-sm" />
               </div>
             ))}
-            <Button className="w-full gradient-brand text-white rounded-full h-12 hover:opacity-90" onClick={handleSaveSettings} disabled={savingSettings}>
-              {savingSettings ? 'Сохраняю...' : 'Сохранить'}
-            </Button>
           </div>
+
+          <Button className="w-full gradient-brand text-white rounded-full h-12 hover:opacity-90" onClick={handleSaveSettings} disabled={savingSettings}>
+            {savingSettings ? 'Сохраняю...' : 'Сохранить всё'}
+          </Button>
         </div>
       )}
 

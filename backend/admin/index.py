@@ -147,11 +147,11 @@ def handler(event: dict, context) -> dict:
         cur.close(); conn.close()
         return ok({'settings': {r[0]: r[1] for r in rows}})
 
-    # Сохранить настройки (соцсети)
+    # Сохранить настройки
     if action == 'save_settings':
         settings = body.get('settings', {})
         for key, value in settings.items():
-            cur.execute("UPDATE site_settings SET value=%s WHERE key=%s", (value, key))
+            cur.execute("INSERT INTO site_settings (key, value) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", (key, value))
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
 

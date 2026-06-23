@@ -95,13 +95,19 @@ export default function Index() {
   const { user, token, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/' });
+  const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
+  const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
       .then(r => r.json())
       .then(data => {
         if (data.products?.length) setDbProducts(data.products);
-        if (data.settings) setSocials(s => ({ ...s, ...data.settings }));
+        if (data.settings) {
+          setSocials(s => ({ ...s, ...data.settings }));
+          if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
+          if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
+        }
       });
   }, []);
 
@@ -140,8 +146,8 @@ export default function Index() {
   const changeQty = (id: number, d: number) => setCart((c) =>
     c.map((i) => i.id === id ? { ...i, qty: i.qty + d } : i).filter((i) => i.qty > 0));
 
-  const WHOLESALE_QTY_DEFAULT = 50;
-  const WHOLESALE_QTY_HEAVY = 5;
+  const WHOLESALE_QTY_DEFAULT = wholesaleQtyDefault;
+  const WHOLESALE_QTY_HEAVY = wholesaleQtyHeavy;
 
   const getEffectivePrice = (product: Product, qty: number): { price: number; isWholesale: boolean } => {
     const wholesaleQty = product.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT;
@@ -666,7 +672,7 @@ export default function Index() {
                     <div>
                       <span className="font-display font-black text-xl">{fmt(p.price)}</span>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-xs text-muted-foreground">Опт:</span>
+                        <span className="text-xs text-muted-foreground">Опт от {p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT} шт:</span>
                         <span className="text-sm font-bold text-emerald-600">{fmt(p.wholesale)}</span>
                       </div>
                     </div>
