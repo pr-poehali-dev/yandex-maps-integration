@@ -80,6 +80,7 @@ export default function Index() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
   const [authError, setAuthError] = useState('');
   const { user, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
@@ -105,10 +106,10 @@ export default function Index() {
     setAuthError('');
     const res = authMode === 'login'
       ? await login(authEmail, authPassword)
-      : await register(authName, authEmail, authPassword);
+      : await register(authName, authEmail, authPassword, authPhone);
     if (res.error) { setAuthError(res.error); return; }
     setAuthOpen(false);
-    setAuthEmail(''); setAuthPassword(''); setAuthName('');
+    setAuthEmail(''); setAuthPassword(''); setAuthName(''); setAuthPhone('');
   };
 
   const filtered = useMemo(() => allProducts.filter((p) =>
@@ -458,7 +459,10 @@ export default function Index() {
             </div>
             <div className="space-y-3">
               {authMode === 'register' && (
-                <Input placeholder="Ваше имя" value={authName} onChange={(e) => setAuthName(e.target.value)} className="h-12 rounded-xl" />
+                <>
+                  <Input placeholder="Ваше имя" value={authName} onChange={(e) => setAuthName(e.target.value)} className="h-12 rounded-xl" />
+                  <Input placeholder="Номер телефона" type="tel" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} className="h-12 rounded-xl" />
+                </>
               )}
               <Input placeholder="Email" type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="h-12 rounded-xl" />
               <Input placeholder="Пароль" type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="h-12 rounded-xl"

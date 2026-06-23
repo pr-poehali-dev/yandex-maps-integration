@@ -4,7 +4,7 @@
       "name": "Register new user",
       "method": "POST",
       "path": "/",
-      "body": {"action": "register", "name": "Тест Юзер", "email": "test_unique_99@example.com", "password": "123456"},
+      "body": {"action": "register", "name": "Тест Юзер", "email": "test_phone_42@example.com", "password": "123456", "phone": "+79001234567"},
       "expectedStatus": 200,
       "expectedBody": {"success": true},
       "bodyMatcher": "partial"

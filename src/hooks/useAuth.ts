@@ -47,9 +47,9 @@ export function useAuth() {
       });
   }, [token]);
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, phone: string) => {
     setLoading(true);
-    const data = await request('register', { name, email, password });
+    const data = await request('register', { name, email, password, phone });
     setLoading(false);
     if (data.success) {
       localStorage.setItem('auth_token', data.token);

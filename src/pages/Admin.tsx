@@ -86,7 +86,7 @@ export default function Admin() {
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [users, setUsers] = useState<{ id: number; name: string; email: string; created_at: string }[]>([]);
+  const [users, setUsers] = useState<{ id: number; name: string; email: string; phone: string; created_at: string }[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -321,8 +321,13 @@ export default function Admin() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{u.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                    {u.phone && (
+                      <a href={`tel:${u.phone}`} className="text-xs text-primary truncate flex items-center gap-1 mt-0.5">
+                        <Icon name="Phone" size={10} />{u.phone}
+                      </a>
+                    )}
                   </div>
-                  <p className="text-xs text-muted-foreground flex-shrink-0">{u.created_at}</p>
+                  <p className="text-xs text-muted-foreground flex-shrink-0 text-right">{u.created_at}</p>
                 </div>
               ))}
             </div>
