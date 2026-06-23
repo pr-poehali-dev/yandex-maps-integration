@@ -17,17 +17,48 @@ type Product = {
   badge?: string;
 };
 
+const IMG = {
+  headphones: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/c196a767-77cc-4bcf-964a-d920c38734c4.jpg',
+  watch: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f41c5f8f-a9e7-41bb-99d2-01813b511c25.jpg',
+  sneakers: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/653aa19f-5c27-4b40-8789-ca4f51a326c9.jpg',
+  home: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6797d70d-3499-4e5f-83d8-ec18a1d90669.jpg',
+  snacks: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/3477e609-5df9-465a-bd9a-f809917117cf.jpg',
+  drinks: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6600e17a-0053-4943-8a5e-5ad0885d4457.jpg',
+  stationery: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/8b6e7544-54d7-450d-8d5e-bac7533ffe7b.jpg',
+  toys: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/0cccad38-cfed-4df1-a6d1-b3a257fe1031.jpg',
+  cosmetics: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f196c31f-7def-43c7-a4bc-a4b4eb012afc.jpg',
+  atv: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/d74e3cbd-9798-44c8-adb0-2ef46a94d6b7.jpg',
+  pitbike: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/4d30d897-0c9b-49b4-bc2a-04a13bdcfd29.jpg',
+};
+
 const PRODUCTS: Product[] = [
-  { id: 1, name: 'Наушники Aura Pro', category: 'Аудио', price: 12990, brand: 'Aura', rating: 4.9, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/c196a767-77cc-4bcf-964a-d920c38734c4.jpg', badge: 'Хит' },
-  { id: 2, name: 'Смарт-часы Pulse X', category: 'Гаджеты', price: 19990, brand: 'Pulse', rating: 4.8, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f41c5f8f-a9e7-41bb-99d2-01813b511c25.jpg', badge: 'Новинка' },
-  { id: 3, name: 'Кроссовки Flux Air', category: 'Обувь', price: 8990, brand: 'Flux', rating: 4.7, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/653aa19f-5c27-4b40-8789-ca4f51a326c9.jpg' },
-  { id: 4, name: 'Наушники Aura Mini', category: 'Аудио', price: 6990, brand: 'Aura', rating: 4.6, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/c196a767-77cc-4bcf-964a-d920c38734c4.jpg' },
-  { id: 5, name: 'Смарт-часы Pulse Lite', category: 'Гаджеты', price: 11990, brand: 'Pulse', rating: 4.5, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f41c5f8f-a9e7-41bb-99d2-01813b511c25.jpg' },
-  { id: 6, name: 'Кроссовки Flux Run', category: 'Обувь', price: 10990, brand: 'Flux', rating: 4.9, image: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/653aa19f-5c27-4b40-8789-ca4f51a326c9.jpg', badge: 'Хит' },
+  { id: 1, name: 'Наушники Aura Pro', category: 'Аудио', price: 12990, brand: 'Aura', rating: 4.9, image: IMG.headphones, badge: 'Хит' },
+  { id: 2, name: 'Смарт-часы Pulse X', category: 'Гаджеты', price: 19990, brand: 'Pulse', rating: 4.8, image: IMG.watch, badge: 'Новинка' },
+  { id: 3, name: 'Кроссовки Flux Air', category: 'Обувь', price: 8990, brand: 'Flux', rating: 4.7, image: IMG.sneakers },
+  { id: 4, name: 'Наушники Aura Mini', category: 'Аудио', price: 6990, brand: 'Aura', rating: 4.6, image: IMG.headphones },
+  { id: 5, name: 'Смарт-часы Pulse Lite', category: 'Гаджеты', price: 11990, brand: 'Pulse', rating: 4.5, image: IMG.watch },
+  { id: 6, name: 'Кроссовки Flux Run', category: 'Обувь', price: 10990, brand: 'Flux', rating: 4.9, image: IMG.sneakers, badge: 'Хит' },
+  { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
+  { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, brand: 'HomeLife', rating: 4.7, image: IMG.home },
+  { id: 9, name: 'Снеки Chimi Mix', category: 'Снеки', price: 390, brand: 'Chimi', rating: 4.9, image: IMG.snacks, badge: 'Хит' },
+  { id: 10, name: 'Рамен Tonkotsu', category: 'Снеки', price: 290, brand: 'Chimi', rating: 4.8, image: IMG.snacks },
+  { id: 11, name: 'Bubble Tea Matcha', category: 'Напитки', price: 350, brand: 'Boba', rating: 4.9, image: IMG.drinks, badge: 'Хит' },
+  { id: 12, name: 'Газировка Yuzu', category: 'Напитки', price: 220, brand: 'Boba', rating: 4.7, image: IMG.drinks },
+  { id: 13, name: 'Набор ручек Kawaii', category: 'Канцелярия', price: 590, brand: 'Kansai', rating: 4.8, image: IMG.stationery, badge: 'Новинка' },
+  { id: 14, name: 'Скетчбук A5', category: 'Канцелярия', price: 490, brand: 'Kansai', rating: 4.6, image: IMG.stationery },
+  { id: 15, name: 'Плюшевый Куро', category: 'Игрушки', price: 1290, brand: 'ToyBox', rating: 4.9, image: IMG.toys, badge: 'Хит' },
+  { id: 16, name: 'Мягкая игрушка Уточка', category: 'Игрушки', price: 890, brand: 'ToyBox', rating: 4.8, image: IMG.toys },
+  { id: 17, name: 'Сыворотка Glow Essence', category: 'Косметика', price: 1990, brand: 'K-Beauty', rating: 4.9, image: IMG.cosmetics, badge: 'Хит' },
+  { id: 18, name: 'Маска для лица Jeju', category: 'Косметика', price: 390, brand: 'K-Beauty', rating: 4.8, image: IMG.cosmetics },
+  { id: 19, name: 'Маска-плёнка Bamboo', category: 'Косметика', price: 490, brand: 'K-Beauty', rating: 4.7, image: IMG.cosmetics },
+  { id: 20, name: 'Квадроцикл ATV 250cc', category: 'Тяжёлая техника', price: 189990, brand: 'MotoForce', rating: 4.9, image: IMG.atv, badge: 'Новинка' },
+  { id: 21, name: 'Квадроцикл ATV 110cc', category: 'Тяжёлая техника', price: 99990, brand: 'MotoForce', rating: 4.7, image: IMG.atv },
+  { id: 22, name: 'Питбайк MX 125', category: 'Тяжёлая техника', price: 79990, brand: 'MotoForce', rating: 4.8, image: IMG.pitbike, badge: 'Хит' },
+  { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
-const CATEGORIES = ['Все', 'Аудио', 'Гаджеты', 'Обувь'];
-const BRANDS = ['Aura', 'Pulse', 'Flux'];
+const CATEGORIES = ['Все', 'Аудио', 'Гаджеты', 'Обувь', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
+const BRANDS = ['Aura', 'Pulse', 'Flux', 'HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
 const NAV = [
   { id: 'home', label: 'Главная' },
@@ -42,7 +73,7 @@ const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 export default function Index() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Все');
-  const [maxPrice, setMaxPrice] = useState(20000);
+  const [maxPrice, setMaxPrice] = useState(200000);
   const [brands, setBrands] = useState<string[]>([]);
   const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
 
@@ -182,7 +213,7 @@ export default function Index() {
             </div>
             <div>
               <h3 className="font-display font-bold mb-3">Цена до</h3>
-              <Slider value={[maxPrice]} onValueChange={(v) => setMaxPrice(v[0])} max={20000} min={5000} step={1000} />
+              <Slider value={[maxPrice]} onValueChange={(v) => setMaxPrice(v[0])} max={200000} min={200} step={500} />
               <p className="text-primary font-bold mt-3">{fmt(maxPrice)}</p>
             </div>
             <div>
