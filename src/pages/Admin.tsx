@@ -32,33 +32,34 @@ type Product = {
   rating: number;
   image: string;
   badge: string | null;
+  description?: string;
   sort_order?: number;
 };
 
+type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string };
+
 function SortableItem({ product, isActive, onClick, onDelete }: {
-  product: Product;
-  isActive: boolean;
-  onClick: () => void;
-  onDelete: () => void;
+  product: Product; isActive: boolean; onClick: () => void; onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: product.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
-
   return (
     <div ref={setNodeRef} style={style}
       className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/50'}`}
-      onClick={onClick}
-    >
-      <button {...attributes} {...listeners} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing flex-shrink-0" onClick={e => e.stopPropagation()}>
+      onClick={onClick}>
+      <button {...attributes} {...listeners} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing flex-shrink-0 touch-none" onClick={e => e.stopPropagation()}>
         <Icon name="GripVertical" size={16} />
       </button>
-      <img src={product.image} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 bg-muted" />
+      <img src={product.image || 'https://placehold.co/48x48/f4f4f5/a1a1aa?text=?'} alt={product.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0 bg-muted" />
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-sm truncate">{product.name}</p>
         <p className="text-xs text-muted-foreground">{product.price.toLocaleString('ru-RU')} ₽</p>
       </div>
+      {product.badge && (
+        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium flex-shrink-0">{product.badge}</span>
+      )}
       <button onClick={e => { e.stopPropagation(); onDelete(); }}
-        className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0">
+        className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0 p-1">
         <Icon name="Trash2" size={16} />
       </button>
     </div>
@@ -72,8 +73,6 @@ async function api(action: string, body: object = {}, token?: string) {
   return res.json();
 }
 
-type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string };
-
 export default function Admin() {
   const [token, setToken] = useState(() => localStorage.getItem('admin_token') || '');
   const [password, setPassword] = useState('');
@@ -86,10 +85,10 @@ export default function Admin() {
   const [tab, setTab] = useState<'products' | 'socials'>('products');
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-
   const isAuth = !!token;
 
   useEffect(() => {
@@ -110,8 +109,12 @@ export default function Admin() {
     setSavingSettings(true);
     await api('save_settings', { settings }, token);
     setSavingSettings(false);
-    setMsg('Ссылки сохранены!');
-    setTimeout(() => setMsg(''), 2000);
+    showMsg('Ссылки сохранены!');
+  };
+
+  const showMsg = (text: string) => {
+    setMsg(text);
+    setTimeout(() => setMsg(''), 2500);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -122,8 +125,7 @@ export default function Admin() {
     const newOrder = arrayMove(products, oldIndex, newIndex);
     setProducts(newOrder);
     await api('reorder', { order: newOrder.map(p => p.id) }, token);
-    setMsg('Порядок сохранён!');
-    setTimeout(() => setMsg(''), 2000);
+    showMsg('Порядок сохранён!');
   };
 
   const handleLogin = async () => {
@@ -137,6 +139,16 @@ export default function Admin() {
     }
   };
 
+  const openEditor = (product: Product) => {
+    setEditing({ ...product });
+    setDrawerOpen(true);
+  };
+
+  const closeEditor = () => {
+    setDrawerOpen(false);
+    setTimeout(() => setEditing(null), 300);
+  };
+
   const handleSave = async () => {
     if (!editing) return;
     setSaving(true);
@@ -148,11 +160,12 @@ export default function Admin() {
       price: Number(editing.price),
       wholesale: Number(editing.wholesale),
       badge: editing.badge || null,
+      description: editing.description || '',
     }, token);
     setSaving(false);
-    setMsg('Сохранено!');
-    setTimeout(() => setMsg(''), 2000);
+    showMsg('Сохранено!');
     loadProducts();
+    closeEditor();
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,41 +177,33 @@ export default function Admin() {
       setUploading(true);
       const base64 = (reader.result as string).split(',')[1];
       const data = await api('upload_image', { id: editing.id, image: base64, ext }, token);
-      if (data.image) setEditing({ ...editing, image: data.image });
+      if (data.image) setEditing(prev => prev ? { ...prev, image: data.image } : prev);
       setUploading(false);
-      setMsg('Фото обновлено!');
-      setTimeout(() => setMsg(''), 2000);
+      showMsg('Фото обновлено!');
     };
     reader.readAsDataURL(file);
   };
 
   const handleCreate = async () => {
-    const data = await api('create', {
-      name: 'Новый товар',
-      category: 'Товары для дома',
-      brand: '',
-      price: 0,
-      wholesale: 0,
-      image: '',
-    }, token);
+    const data = await api('create', { name: 'Новый товар', category: 'Товары для дома', brand: '', price: 0, wholesale: 0, image: '' }, token);
     if (data.id) {
       await loadProducts();
-      const fresh = products.find(p => p.id === data.id) || { id: data.id, name: 'Новый товар', category: 'Товары для дома', brand: '', price: 0, wholesale: 0, rating: 4.8, image: '', badge: null };
-      setEditing(fresh as Product);
+      const fresh: Product = { id: data.id, name: 'Новый товар', category: 'Товары для дома', brand: '', price: 0, wholesale: 0, rating: 4.8, image: '', badge: null, description: '' };
+      openEditor(fresh);
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('Удалить товар?')) return;
     await api('delete', { id }, token);
-    if (editing?.id === id) setEditing(null);
+    if (editing?.id === id) closeEditor();
     loadProducts();
   };
 
   if (!isAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="bg-card border border-border rounded-3xl p-10 w-full max-w-sm shadow-2xl">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-sm shadow-2xl">
           <div className="text-center mb-8">
             <div className="w-16 h-16 gradient-brand rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Icon name="ShieldCheck" size={32} className="text-white" />
@@ -207,14 +212,10 @@ export default function Admin() {
             <p className="text-muted-foreground text-sm mt-1">Се-Се 谢谢</p>
           </div>
           <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="Пароль"
-              value={password}
+            <Input type="password" placeholder="Пароль" value={password}
               onChange={e => setPassword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              className="h-12 rounded-xl"
-            />
+              className="h-12 rounded-xl" />
             {loginError && <p className="text-sm text-red-500 text-center">{loginError}</p>}
             <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={handleLogin}>
               Войти
@@ -227,42 +228,44 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Шапка */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 gradient-brand rounded-xl flex items-center justify-center">
-              <Icon name="ShieldCheck" size={16} className="text-white" />
+        <div className="flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 gradient-brand rounded-lg flex items-center justify-center">
+              <Icon name="ShieldCheck" size={14} className="text-white" />
             </div>
-            <span className="font-display font-black text-lg">Админ-панель</span>
+            <span className="font-display font-black text-base">Админ</span>
           </div>
-          <div className="flex items-center gap-3">
-            {msg && <span className="text-sm text-emerald-600 font-medium">{msg}</span>}
-            <Button variant="outline" className="rounded-full" onClick={() => { localStorage.removeItem('admin_token'); setToken(''); }}>
-              <Icon name="LogOut" size={16} className="mr-2" /> Выйти
+          <div className="flex items-center gap-2">
+            {msg && <span className="text-xs text-emerald-600 font-medium">{msg}</span>}
+            <a href="/" className="text-xs text-muted-foreground hover:text-foreground px-2 py-1">← Сайт</a>
+            <Button variant="outline" size="sm" className="rounded-full h-8 px-3 text-xs" onClick={() => { localStorage.removeItem('admin_token'); setToken(''); }}>
+              <Icon name="LogOut" size={13} className="mr-1" />Выйти
             </Button>
-            <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">← На сайт</a>
           </div>
         </div>
       </header>
 
       {/* Вкладки */}
-      <div className="container pt-6">
-        <div className="flex gap-2 bg-muted/50 rounded-2xl p-1 w-fit">
+      <div className="px-4 pt-4">
+        <div className="flex gap-1 bg-muted/60 rounded-2xl p-1">
           <button onClick={() => setTab('products')}
-            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'products' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-            <Icon name="Package" size={14} className="inline mr-1.5" />Товары
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'products' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
+            <Icon name="Package" size={14} />Товары
           </button>
           <button onClick={() => setTab('socials')}
-            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-            <Icon name="Link" size={14} className="inline mr-1.5" />Соцсети
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
+            <Icon name="Link" size={14} />Соцсети
           </button>
         </div>
       </div>
 
+      {/* Соцсети */}
       {tab === 'socials' && (
-        <div className="container py-8 max-w-lg">
-          <div className="bg-card border border-border rounded-3xl p-8 space-y-5">
-            <h2 className="font-display font-bold text-2xl mb-2">Ссылки на соцсети</h2>
+        <div className="px-4 py-5 space-y-4">
+          <h2 className="font-display font-bold text-xl">Ссылки на соцсети</h2>
+          <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
             {([
               { key: 'social_instagram', label: 'Instagram', icon: 'Instagram', placeholder: 'https://instagram.com/...' },
               { key: 'social_youtube', label: 'YouTube', icon: 'Youtube', placeholder: 'https://youtube.com/...' },
@@ -270,131 +273,195 @@ export default function Admin() {
               { key: 'social_max', label: 'Max', icon: 'Tv', placeholder: 'https://web.max.ru/...' },
             ] as { key: keyof Settings; label: string; icon: string; placeholder: string }[]).map(s => (
               <div key={s.key}>
-                <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-1.5">
-                  <Icon name={s.icon} size={14} /> {s.label}
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
+                  <Icon name={s.icon} size={12} /> {s.label}
                 </label>
-                <Input
-                  value={settings[s.key]}
-                  onChange={e => setSettings({ ...settings, [s.key]: e.target.value })}
-                  placeholder={s.placeholder}
-                  className="h-11 rounded-xl"
-                />
+                <Input value={settings[s.key]} onChange={e => setSettings({ ...settings, [s.key]: e.target.value })}
+                  placeholder={s.placeholder} className="h-11 rounded-xl text-sm" />
               </div>
             ))}
-            <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 mt-2" onClick={handleSaveSettings} disabled={savingSettings}>
-              {savingSettings ? 'Сохраняю...' : 'Сохранить ссылки'}
+            <Button className="w-full gradient-brand text-white rounded-full h-12 hover:opacity-90" onClick={handleSaveSettings} disabled={savingSettings}>
+              {savingSettings ? 'Сохраняю...' : 'Сохранить'}
             </Button>
           </div>
         </div>
       )}
 
-      {tab === 'products' && <div className="container py-8 grid lg:grid-cols-[320px_1fr] gap-8">
-        {/* Список товаров */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-xl">Товары ({products.length})</h2>
-            <Button size="sm" className="gradient-brand text-white rounded-full hover:opacity-90" onClick={handleCreate}>
-              <Icon name="Plus" size={16} className="mr-1" /> Добавить
+      {/* Товары */}
+      {tab === 'products' && (
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-xl">Товары <span className="text-muted-foreground font-normal text-base">({products.length})</span></h2>
+            <Button size="sm" className="gradient-brand text-white rounded-full h-9 px-4 hover:opacity-90" onClick={handleCreate}>
+              <Icon name="Plus" size={15} className="mr-1" />Добавить
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-            <Icon name="GripVertical" size={12} /> Перетащите для изменения порядка
+          <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+            <Icon name="GripVertical" size={11} />Перетащите для изменения порядка
           </p>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={products.map(p => p.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-2">
                 {products.map(p => (
-                  <SortableItem
-                    key={p.id}
-                    product={p}
+                  <SortableItem key={p.id} product={p}
                     isActive={editing?.id === p.id}
-                    onClick={() => setEditing({ ...p })}
-                    onDelete={() => handleDelete(p.id)}
-                  />
+                    onClick={() => openEditor(p)}
+                    onDelete={() => handleDelete(p.id)} />
                 ))}
               </div>
             </SortableContext>
           </DndContext>
-        </div>
 
-        {/* Редактор */}
-        {editing ? (
-          <div className="bg-card border border-border rounded-3xl p-8">
-            <h2 className="font-display font-bold text-2xl mb-6">Редактирование</h2>
-            <div className="grid md:grid-cols-2 gap-8">
+          {products.length === 0 && (
+            <div className="text-center py-16 text-muted-foreground">
+              <Icon name="Package" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Товаров пока нет</p>
+              <Button className="gradient-brand text-white rounded-full mt-4 hover:opacity-90" onClick={handleCreate}>
+                Добавить первый товар
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Drawer-редактор (снизу, на весь экран) */}
+      {editing && (
+        <>
+          {/* Оверлей */}
+          <div
+            className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${drawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            onClick={closeEditor}
+          />
+
+          {/* Панель */}
+          <div className={`fixed inset-x-0 bottom-0 z-50 bg-background rounded-t-3xl shadow-2xl transition-transform duration-300 flex flex-col ${drawerOpen ? 'translate-y-0' : 'translate-y-full'}`}
+            style={{ maxHeight: '92dvh' }}>
+
+            {/* Ручка + шапка */}
+            <div className="flex-shrink-0 px-5 pt-4 pb-3 border-b border-border">
+              <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-display font-bold text-xl leading-tight">{editing.name || 'Новый товар'}</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">{editing.category}</p>
+                </div>
+                <button onClick={closeEditor} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <Icon name="X" size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Скролл-контент */}
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+
               {/* Фото */}
-              <div>
-                <p className="text-sm font-medium mb-3 text-muted-foreground">Фото товара</p>
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border mb-3">
+              <div className="flex gap-4 items-start">
+                <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-muted border border-border flex-shrink-0">
                   {editing.image
-                    ? <img src={editing.image} alt={editing.name} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Icon name="ImageOff" size={48} /></div>
+                    ? <img src={editing.image} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Icon name="ImageOff" size={24} /></div>
                   }
                   {uploading && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <div className="text-white text-sm">Загружаю...</div>
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <Icon name="Loader2" size={20} className="text-white animate-spin" />
                     </div>
                   )}
                 </div>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                <Button variant="outline" className="w-full rounded-xl" onClick={() => fileRef.current?.click()}>
-                  <Icon name="Upload" size={16} className="mr-2" /> Загрузить фото
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground mb-2">Фото товара</p>
+                  <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+                  <Button variant="outline" className="w-full rounded-xl h-10 text-sm" onClick={() => fileRef.current?.click()}>
+                    <Icon name="Camera" size={15} className="mr-2" />Загрузить фото
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1.5">Можно сфотографировать с телефона</p>
+                </div>
+              </div>
+
+              {/* Название */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Название товара</label>
+                <Input value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })}
+                  className="h-12 rounded-xl text-base" placeholder="Введите название" />
+              </div>
+
+              {/* Описание */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Описание</label>
+                <textarea value={editing.description || ''}
+                  onChange={e => setEditing({ ...editing, description: e.target.value })}
+                  placeholder="Опишите товар — состав, особенности, применение..."
+                  rows={4}
+                  className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+
+              {/* Бренд */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Бренд / производитель</label>
+                <Input value={editing.brand} onChange={e => setEditing({ ...editing, brand: e.target.value })}
+                  className="h-12 rounded-xl" placeholder="Например: Xiaomi" />
+              </div>
+
+              {/* Категория */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Категория</label>
+                <select value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })}
+                  className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm">
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+
+              {/* Цены */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5">Розничная цена ₽</label>
+                  <Input type="number" inputMode="numeric" value={editing.price}
+                    onChange={e => setEditing({ ...editing, price: Number(e.target.value) })}
+                    className="h-12 rounded-xl text-base font-semibold" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5">Оптовая цена ₽</label>
+                  <Input type="number" inputMode="numeric" value={editing.wholesale}
+                    onChange={e => setEditing({ ...editing, wholesale: Number(e.target.value) })}
+                    className="h-12 rounded-xl text-base" />
+                </div>
+              </div>
+
+              {/* Значок */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-2">Значок</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {BADGES.map(b => (
+                    <button key={b} onClick={() => setEditing({ ...editing, badge: b || null })}
+                      className={`py-2.5 rounded-xl text-sm font-medium border transition-all ${editing.badge === (b || null) ? 'gradient-brand text-white border-transparent' : 'border-border bg-card hover:border-primary'}`}>
+                      {b || 'Нет'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Опасная зона */}
+              <div className="border border-red-200 rounded-2xl p-4">
+                <p className="text-xs text-muted-foreground mb-2">Удаление товара</p>
+                <Button variant="outline" className="w-full rounded-xl text-red-500 border-red-200 hover:bg-red-50 h-10 text-sm"
+                  onClick={() => handleDelete(editing.id)}>
+                  <Icon name="Trash2" size={14} className="mr-2" />Удалить товар
                 </Button>
               </div>
 
-              {/* Поля */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-1.5">Название</label>
-                  <Input value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} className="h-11 rounded-xl" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-1.5">Бренд</label>
-                  <Input value={editing.brand} onChange={e => setEditing({ ...editing, brand: e.target.value })} className="h-11 rounded-xl" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-1.5">Категория</label>
-                  <select value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })}
-                    className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm">
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground block mb-1.5">Розничная цена ₽</label>
-                    <Input type="number" value={editing.price} onChange={e => setEditing({ ...editing, price: Number(e.target.value) })} className="h-11 rounded-xl" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground block mb-1.5">Оптовая цена ₽</label>
-                    <Input type="number" value={editing.wholesale} onChange={e => setEditing({ ...editing, wholesale: Number(e.target.value) })} className="h-11 rounded-xl" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground block mb-1.5">Значок</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {BADGES.map(b => (
-                      <button key={b} onClick={() => setEditing({ ...editing, badge: b || null })}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${editing.badge === (b || null) ? 'gradient-brand text-white border-transparent' : 'border-border hover:border-primary'}`}>
-                        {b || 'Нет'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 mt-2" onClick={handleSave} disabled={saving}>
-                  {saving ? 'Сохраняю...' : 'Сохранить изменения'}
-                </Button>
-              </div>
+              <div className="h-4" />
+            </div>
+
+            {/* Кнопка сохранить — прилипает к низу */}
+            <div className="flex-shrink-0 px-5 py-4 border-t border-border bg-background">
+              <Button className="w-full gradient-brand text-white rounded-full h-14 text-base font-semibold hover:opacity-90" onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <span className="flex items-center gap-2"><Icon name="Loader2" size={18} className="animate-spin" />Сохраняю...</span>
+                ) : 'Сохранить изменения'}
+              </Button>
             </div>
           </div>
-        ) : (
-          <div className="bg-card border border-dashed border-border rounded-3xl flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <Icon name="MousePointerClick" size={48} className="mx-auto mb-3" />
-              <p>Выберите товар для редактирования</p>
-            </div>
-          </div>
-        )}
-      </div>}
+        </>
+      )}
     </div>
   );
 }

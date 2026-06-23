@@ -90,10 +90,11 @@ def handler(event: dict, context) -> dict:
         price = body.get('price')
         wholesale = body.get('wholesale')
         badge = body.get('badge') or None
+        description = body.get('description', '')
 
         cur.execute(
-            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, updated_at=NOW() WHERE id=%s",
-            (name, category, brand, price, wholesale, badge, pid)
+            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, description=%s, updated_at=NOW() WHERE id=%s",
+            (name, category, brand, price, wholesale, badge, description, pid)
         )
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
