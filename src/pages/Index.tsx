@@ -268,10 +268,20 @@ export default function Index() {
                                 {!i.isWholesale && i.effectivePrice < i.price && <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">−{discountPercent}%</span>}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, -1)}><Icon name="Minus" size={14} /></Button>
-                              <span className="w-5 text-center text-sm font-medium">{i.qty}</span>
-                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full" onClick={() => changeQty(i.id, 1)}><Icon name="Plus" size={14} /></Button>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full flex-shrink-0" onClick={() => changeQty(i.id, -1)}><Icon name="Minus" size={14} /></Button>
+                              <input
+                                type="number"
+                                min={1}
+                                value={i.qty}
+                                onChange={e => {
+                                  const v = parseInt(e.target.value);
+                                  if (!isNaN(v) && v >= 1) setCart(c => c.map(x => x.id === i.id ? { ...x, qty: v } : x));
+                                  else if (e.target.value === '') setCart(c => c.map(x => x.id === i.id ? { ...x, qty: 1 } : x));
+                                }}
+                                className="w-12 text-center text-sm font-medium border border-input rounded-lg h-7 bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                              />
+                              <Button size="icon" variant="outline" className="w-7 h-7 rounded-full flex-shrink-0" onClick={() => changeQty(i.id, 1)}><Icon name="Plus" size={14} /></Button>
                             </div>
                           </div>
                         ))}
