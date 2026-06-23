@@ -53,6 +53,7 @@ type Order = {
   delivery_service: string;
   total: number;
   status: string;
+  payment_status: string;
   created_at: string;
   items: { name: string; price: number; qty: number }[];
 };
@@ -156,6 +157,16 @@ export default function Admin() {
     });
     setUpdatingStatus(null);
     showMsg('Статус обновлён!');
+    loadOrders();
+  };
+
+  const updatePaymentStatus = async (id: number, payment_status: string) => {
+    await fetch(ORDERS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'update_payment_status', id, payment_status }),
+    });
+    showMsg(payment_status === 'paid' ? 'Оплата подтверждена!' : 'Статус оплаты сброшен');
     loadOrders();
   };
 
@@ -391,10 +402,13 @@ export default function Admin() {
                     {/* Шапка заказа */}
                     <button className="w-full flex items-center gap-3 p-4 text-left" onClick={() => setExpandedOrder(isExpanded ? null : o.id)}>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="font-bold text-sm">#{o.id}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
                           {o.status === 'new' && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />}
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${o.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            {o.payment_status === 'paid' ? '✓ Оплачен' : '⏳ Не оплачен'}
+                          </span>
                         </div>
                         <p className="font-medium text-sm truncate">{o.customer_name}</p>
                         <p className="text-xs text-muted-foreground">{o.customer_phone} · {o.city}</p>
@@ -442,6 +456,21 @@ export default function Admin() {
                           <a href={`tel:${o.customer_phone}`} className="text-sm text-primary flex items-center gap-1 mt-1">
                             <Icon name="Phone" size={12} />{o.customer_phone}
                           </a>
+                        </div>
+
+                        {/* Статус оплаты */}
+                        <div className={`rounded-xl p-3 flex items-center justify-between ${o.payment_status === 'paid' ? 'bg-emerald-50 border border-emerald-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-0.5">Оплата</p>
+                            <p className={`text-sm font-bold ${o.payment_status === 'paid' ? 'text-emerald-700' : 'text-yellow-700'}`}>
+                              {o.payment_status === 'paid' ? '✓ Оплачен' : '⏳ Ожидает оплаты'}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => updatePaymentStatus(o.id, o.payment_status === 'paid' ? 'pending' : 'paid')}
+                            className={`text-xs font-medium px-3 py-2 rounded-xl border transition-all ${o.payment_status === 'paid' ? 'border-red-200 bg-white text-red-600 hover:bg-red-50' : 'border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700'}`}>
+                            {o.payment_status === 'paid' ? 'Сбросить' : 'Отметить оплаченным'}
+                          </button>
                         </div>
 
                         {/* Смена статуса */}

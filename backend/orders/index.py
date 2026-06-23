@@ -88,7 +88,7 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return err('Не авторизован', 401)
 
-        cur.execute("SELECT id, customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, created_at FROM orders ORDER BY created_at DESC LIMIT 100")
+        cur.execute("SELECT id, customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, created_at, payment_status FROM orders ORDER BY created_at DESC LIMIT 100")
         rows = cur.fetchall()
 
         orders = []
@@ -111,6 +111,7 @@ def handler(event: dict, context) -> dict:
                 'status': r[12],
                 'created_at': r[13].strftime('%d.%m.%Y %H:%M'),
                 'items': items,
+                'payment_status': r[14],
             })
 
         cur.close(); conn.close()
@@ -132,6 +133,23 @@ def handler(event: dict, context) -> dict:
         row = cur.fetchone()
         conn.commit()
 
+        cur.close(); conn.close()
+        return ok({'success': True})
+
+    # Обновить статус оплаты (только для админа)
+    if action == 'update_payment_status':
+        if admin_token != admin_password:
+            cur.close(); conn.close()
+            return err('Не авторизован', 401)
+
+        order_id = body.get('id')
+        payment_status = body.get('payment_status')
+        if payment_status not in ('pending', 'paid'):
+            cur.close(); conn.close()
+            return err('Неверный статус оплаты')
+
+        cur.execute("UPDATE orders SET payment_status=%s WHERE id=%s", (payment_status, order_id))
+        conn.commit()
         cur.close(); conn.close()
         return ok({'success': True})
 
