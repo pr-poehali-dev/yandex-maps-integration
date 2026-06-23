@@ -379,6 +379,13 @@ export default function Index() {
                   <span className="font-medium">{c.label}</span>
                 </div>
               ))}
+              <a href="https://t.me/Chineshop1688" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-4 group">
+                <div className="w-12 h-12 rounded-2xl bg-[#229ED9] flex items-center justify-center text-white group-hover:opacity-80 transition-opacity">
+                  <Icon name="Send" size={20} />
+                </div>
+                <span className="font-medium group-hover:text-primary transition-colors">Написать в Telegram</span>
+              </a>
             </div>
           </div>
           <div className="bg-card rounded-3xl p-8 border border-border">
