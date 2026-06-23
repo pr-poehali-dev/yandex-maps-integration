@@ -78,6 +78,8 @@ export default function Index() {
   const [address, setAddress] = useState({ city: '', street: '', apartment: '', entrance: '', floor: '', zip: '', name: '', phone: '', comment: '' });
   const [deliveryService, setDeliveryService] = useState<'yandex' | 'courier' | 'post'>('yandex');
   const [orderDone, setOrderDone] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
+  const SBP_URL = 'https://b2b.cbrpay.ru/BS1C0060E74II4FJ8I9OS3LCKOFL877K';
   const [orderLoading, setOrderLoading] = useState(false);
   const [heroIdx, setHeroIdx] = useState(0);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -393,18 +395,18 @@ export default function Index() {
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-3">Способ оплаты</p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
-                          { icon: 'CreditCard', label: 'Картой онлайн', sub: 'Visa, Mastercard, МИР' },
-                          { icon: 'Smartphone', label: 'СБП', sub: 'Быстрый перевод по QR' },
-                          { icon: 'Banknote', label: 'При получении', sub: 'Наличными или картой' },
+                          { key: 'sbp', icon: 'Smartphone', label: 'СБП', sub: 'Оплата по QR-коду или ссылке' },
+                          { key: 'cash', icon: 'Banknote', label: 'При получении', sub: 'Наличными или картой курьеру' },
                         ].map(m => (
-                          <div key={m.label} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <Icon name={m.icon} size={16} className="text-primary" />
+                          <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'cash')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${paymentMethod === m.key ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
+                              <Icon name={m.icon} size={16} />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <p className="text-sm font-medium">{m.label}</p>
                               <p className="text-xs text-muted-foreground">{m.sub}</p>
                             </div>
+                            {paymentMethod === m.key && <Icon name="CheckCircle2" size={18} className="text-primary flex-shrink-0" />}
                           </div>
                         ))}
                       </div>
@@ -459,6 +461,16 @@ export default function Index() {
                   <h2 className="font-display font-black text-2xl">Заказ принят!</h2>
                   <p className="text-muted-foreground text-sm">Мы свяжемся с вами по номеру <span className="font-medium text-foreground">{address.phone}</span> для подтверждения</p>
                   <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
+                  {paymentMethod === 'sbp' && (
+                    <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
+                      <p className="text-sm font-medium text-emerald-800">Оплатите заказ через СБП</p>
+                      <p className="text-xs text-emerald-700">Нажмите кнопку ниже — откроется страница оплаты. После оплаты вернитесь сюда.</p>
+                      <a href={SBP_URL} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium">
+                        <Icon name="Smartphone" size={16} />
+                        Оплатить по СБП
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </SheetContent>
