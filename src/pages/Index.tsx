@@ -32,8 +32,6 @@ const IMG = {
 };
 
 const PRODUCTS: Product[] = [
-  { id: 3, name: 'Кроссовки Flux Air', category: 'Обувь', price: 8990, brand: 'Flux', rating: 4.7, image: IMG.sneakers },
-  { id: 6, name: 'Кроссовки Flux Run', category: 'Обувь', price: 10990, brand: 'Flux', rating: 4.9, image: IMG.sneakers, badge: 'Хит' },
   { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
   { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, brand: 'HomeLife', rating: 4.7, image: IMG.home },
   { id: 9, name: 'Снеки Chimi Mix', category: 'Снеки', price: 390, brand: 'Chimi', rating: 4.9, image: IMG.snacks, badge: 'Хит' },
@@ -53,8 +51,8 @@ const PRODUCTS: Product[] = [
   { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
-const CATEGORIES = ['Все', 'Обувь', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
-const BRANDS = ['Flux', 'HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
+const CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
+const BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
 const NAV = [
   { id: 'home', label: 'Главная' },
