@@ -53,7 +53,11 @@ def handler(event: dict, context) -> dict:
         city = body.get('city', '').strip()
         street = body.get('street', '').strip()
         apartment = body.get('apartment', '').strip()
+        entrance = body.get('entrance', '').strip()
+        floor_ = body.get('floor', '').strip()
         zip_code = body.get('zip', '').strip()
+        comment = body.get('comment', '').strip()
+        delivery_service = body.get('delivery_service', 'courier').strip()
         items = body.get('items', [])
         total = body.get('total', 0)
 
@@ -62,8 +66,8 @@ def handler(event: dict, context) -> dict:
             return err('Заполните все поля')
 
         cur.execute(
-            "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_zip, total, status) VALUES (%s,%s,%s,%s,%s,%s,%s,'new') RETURNING id",
-            (name, phone, city, street, apartment, zip_code, int(total))
+            "INSERT INTO orders (customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'new') RETURNING id",
+            (name, phone, city, street, apartment, entrance, floor_, zip_code, comment, delivery_service, int(total))
         )
         order_id = cur.fetchone()[0]
 
@@ -84,7 +88,7 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return err('Не авторизован', 401)
 
-        cur.execute("SELECT id, customer_name, customer_phone, address_city, address_street, address_apartment, total, status, created_at FROM orders ORDER BY created_at DESC LIMIT 100")
+        cur.execute("SELECT id, customer_name, customer_phone, address_city, address_street, address_apartment, address_entrance, address_floor, address_zip, comment, delivery_service, total, status, created_at FROM orders ORDER BY created_at DESC LIMIT 100")
         rows = cur.fetchall()
 
         orders = []
@@ -98,9 +102,14 @@ def handler(event: dict, context) -> dict:
                 'city': r[3],
                 'street': r[4],
                 'apartment': r[5],
-                'total': r[6],
-                'status': r[7],
-                'created_at': r[8].strftime('%d.%m.%Y %H:%M'),
+                'entrance': r[6],
+                'floor': r[7],
+                'zip': r[8],
+                'comment': r[9],
+                'delivery_service': r[10],
+                'total': r[11],
+                'status': r[12],
+                'created_at': r[13].strftime('%d.%m.%Y %H:%M'),
                 'items': items,
             })
 

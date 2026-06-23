@@ -46,10 +46,21 @@ type Order = {
   city: string;
   street: string;
   apartment: string;
+  entrance: string;
+  floor: string;
+  zip: string;
+  comment: string;
+  delivery_service: string;
   total: number;
   status: string;
   created_at: string;
   items: { name: string; price: number; qty: number }[];
+};
+
+const DELIVERY_LABELS: Record<string, string> = {
+  yandex: '⚡ Яндекс Доставка',
+  courier: '🚚 Курьер',
+  post: '📮 Почта РФ',
 };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -413,9 +424,21 @@ export default function Admin() {
                         </div>
 
                         {/* Адрес */}
-                        <div className="bg-muted/50 rounded-xl p-3">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">Адрес доставки</p>
-                          <p className="text-sm">{o.city}, {o.street}{o.apartment ? `, ${o.apartment}` : ''}</p>
+                        <div className="bg-muted/50 rounded-xl p-3 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-medium text-muted-foreground">Адрес доставки</p>
+                            <span className="text-xs text-primary font-medium">{DELIVERY_LABELS[o.delivery_service] || o.delivery_service}</span>
+                          </div>
+                          <p className="text-sm">{o.city}, {o.street}</p>
+                          {(o.entrance || o.floor || o.apartment) && (
+                            <p className="text-sm text-muted-foreground">
+                              {o.entrance ? `подъезд ${o.entrance}` : ''}
+                              {o.floor ? `${o.entrance ? ', ' : ''}этаж ${o.floor}` : ''}
+                              {o.apartment ? `${(o.entrance || o.floor) ? ', ' : ''}кв. ${o.apartment}` : ''}
+                            </p>
+                          )}
+                          {o.zip && <p className="text-xs text-muted-foreground">Индекс: {o.zip}</p>}
+                          {o.comment && <p className="text-xs text-muted-foreground italic">💬 {o.comment}</p>}
                           <a href={`tel:${o.customer_phone}`} className="text-sm text-primary flex items-center gap-1 mt-1">
                             <Icon name="Phone" size={12} />{o.customer_phone}
                           </a>
