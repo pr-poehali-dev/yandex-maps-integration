@@ -50,37 +50,47 @@ export function useAuth() {
 
   const register = async (name: string, email: string, password: string, phone: string) => {
     setLoading(true);
-    const data = await request('register', { name, email, password, phone });
-    setLoading(false);
-    if (data.success) {
-      localStorage.setItem('auth_token', data.token);
-      setToken(data.token);
-      setUser({ id: 0, name: data.name, email, is_wholesale: false, member_since: '', card: null });
-      const profile = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': data.token },
-        body: JSON.stringify({ action: 'profile' }),
-      }).then((r) => r.json());
-      if (profile.id) setUser(profile);
+    try {
+      const data = await request('register', { name, email, password, phone });
+      if (data.success) {
+        localStorage.setItem('auth_token', data.token);
+        setToken(data.token);
+        setUser({ id: 0, name: data.name, email, is_wholesale: false, member_since: '', card: null });
+        try {
+          const profile = await fetch(AUTH_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': data.token },
+            body: JSON.stringify({ action: 'profile' }),
+          }).then((r) => r.json());
+          if (profile.id) setUser(profile);
+        } catch (e) { console.error(e); }
+      }
+      return data;
+    } finally {
+      setLoading(false);
     }
-    return data;
   };
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    const data = await request('login', { email, password });
-    setLoading(false);
-    if (data.success) {
-      localStorage.setItem('auth_token', data.token);
-      setToken(data.token);
-      const profile = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': data.token },
-        body: JSON.stringify({ action: 'profile' }),
-      }).then((r) => r.json());
-      if (profile.id) setUser(profile);
+    try {
+      const data = await request('login', { email, password });
+      if (data.success) {
+        localStorage.setItem('auth_token', data.token);
+        setToken(data.token);
+        try {
+          const profile = await fetch(AUTH_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': data.token },
+            body: JSON.stringify({ action: 'profile' }),
+          }).then((r) => r.json());
+          if (profile.id) setUser(profile);
+        } catch (e) { console.error(e); }
+      }
+      return data;
+    } finally {
+      setLoading(false);
     }
-    return data;
   };
 
   const logout = async () => {
