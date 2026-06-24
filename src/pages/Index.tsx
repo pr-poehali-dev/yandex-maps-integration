@@ -230,6 +230,7 @@ export default function Index() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentFail, setPaymentFail] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [expandedMyOrder, setExpandedMyOrder] = useState<number | null>(null);
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
@@ -1941,25 +1942,40 @@ export default function Index() {
                       cancelled: { label: 'Отменён', color: 'bg-red-100 text-red-600' },
                     };
                     const st = statusMap[o.status] || { label: o.status, color: 'bg-muted text-muted-foreground' };
+                    const isExpanded = expandedMyOrder === o.id;
                     return (
-                      <div key={o.id} className="border border-border rounded-2xl p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm">#{o.id}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
-                            {o.payment_status === 'paid' && <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">✓ Оплачен</span>}
-                          </div>
-                          <span className="font-bold text-sm">{fmt(o.total)}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">{o.created_at} · {o.city}</p>
-                        <div className="space-y-1">
-                          {o.items.map((item, idx) => (
-                            <div key={idx} className="flex justify-between text-xs">
-                              <span className="text-muted-foreground truncate flex-1 mr-2">{item.name} × {item.qty}</span>
-                              <span className="font-medium flex-shrink-0">{fmt(item.price * item.qty)}</span>
+                      <div key={o.id} className="border border-border rounded-2xl overflow-hidden">
+                        <button className="w-full p-4 text-left" onClick={() => setExpandedMyOrder(isExpanded ? null : o.id)}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-sm">#{o.id}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
+                              {o.payment_status === 'paid' && <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">✓ Оплачен</span>}
                             </div>
-                          ))}
-                        </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <span className="font-bold text-sm">{fmt(o.total)}</span>
+                              <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={14} className="text-muted-foreground" />
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{o.created_at} · {o.city}</p>
+                          {!isExpanded && (
+                            <p className="text-xs text-muted-foreground mt-1 truncate">{o.items.map(i => i.name).join(', ')}</p>
+                          )}
+                        </button>
+                        {isExpanded && (
+                          <div className="border-t border-border px-4 pb-4 pt-3 space-y-1">
+                            {o.items.map((item, idx) => (
+                              <div key={idx} className="flex justify-between text-sm">
+                                <span className="text-muted-foreground flex-1 mr-2">{item.name} × {item.qty}</span>
+                                <span className="font-medium flex-shrink-0">{fmt(item.price * item.qty)}</span>
+                              </div>
+                            ))}
+                            <div className="flex justify-between text-sm font-bold pt-2 border-t border-border mt-2">
+                              <span>Итого</span>
+                              <span>{fmt(o.total)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
