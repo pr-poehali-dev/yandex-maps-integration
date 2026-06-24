@@ -802,7 +802,7 @@ export default function Index() {
                   Посмотреть адрес
                 </Button>
                 <a
-                  href="https://yandex.ru/maps/?text=%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9%2C+%D1%83%D0%BB.+%D0%9F%D0%B0%D1%80%D0%BA%D0%BE%D0%B2%D0%B0%D1%8F%2C+44+%D0%BA1"
+                  href="https://yandex.ru/maps/-/CTQfNKix"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 border border-border rounded-full px-6 h-12 text-sm font-medium hover:bg-muted transition-colors"
