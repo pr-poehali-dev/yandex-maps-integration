@@ -1,10 +1,37 @@
 """
 Заказы: создание, список для админа, обновление статуса, история покупок.
-Скидки (оптовая и по карте) считаются на фронте.
+Скидки (оптовая и по карте) считаются на фронте. Оплата через Т-Банк T-Kassa.
 """
 import json
 import os
+import hashlib
+import urllib.request
+import urllib.error
 import psycopg2
+
+
+TBANK_API = 'https://securepay.tinkoff.ru/v2'
+
+
+def tbank_token(params: dict, password: str) -> str:
+    filtered = {k: v for k, v in params.items() if k not in ('Token', 'DATA', 'Receipt', 'Items')}
+    filtered['Password'] = password
+    sorted_vals = ''.join(str(v) for k, v in sorted(filtered.items()))
+    return hashlib.sha256(sorted_vals.encode()).hexdigest()
+
+
+def tbank_request(method: str, params: dict) -> dict:
+    terminal_key = os.environ.get('TBANK_TERMINAL_KEY', '')
+    password = os.environ.get('TBANK_PASSWORD', '')
+    params['TerminalKey'] = terminal_key
+    params['Token'] = tbank_token(params, password)
+    data = json.dumps(params).encode()
+    req = urllib.request.Request(f'{TBANK_API}/{method}', data=data, headers={'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        return {'Success': False, 'Message': str(e)}
 
 
 STATUSES = {
@@ -216,6 +243,64 @@ def handler(event: dict, context) -> dict:
         conn.commit()
         cur.close(); conn.close()
         return ok({'success': True})
+
+    # Инициализация платежа Т-Банк
+    if action == 'pay_init':
+        order_id = body.get('order_id')
+        amount = int(body.get('amount', 0))
+        origin = event.get('headers', {}).get('origin', 'https://yandex-maps-integration.poehali.dev')
+
+        if not order_id or amount <= 0:
+            cur.close(); conn.close()
+            return err('Укажите order_id и сумму')
+
+        params = {
+            'Amount': amount * 100,
+            'OrderId': str(order_id),
+            'Description': f'Заказ №{order_id} в Се-Се',
+            'SuccessURL': f'{origin}/?payment=success&order_id={order_id}',
+            'FailURL': f'{origin}/?payment=fail&order_id={order_id}',
+        }
+        result = tbank_request('Init', params)
+
+        if result.get('Success'):
+            payment_id = result.get('PaymentId')
+            cur.execute("UPDATE orders SET payment_id = %s WHERE id = %s", (str(payment_id), order_id))
+            conn.commit()
+            cur.close(); conn.close()
+            return ok({'success': True, 'payment_url': result.get('PaymentURL'), 'payment_id': payment_id})
+        else:
+            cur.close(); conn.close()
+            return err(result.get('Message', 'Ошибка создания платежа'))
+
+    # Проверка статуса платежа
+    if action == 'pay_check':
+        order_id = body.get('order_id')
+        cur.execute("SELECT payment_status FROM orders WHERE id = %s", (order_id,))
+        row = cur.fetchone()
+        cur.close(); conn.close()
+        if not row:
+            return err('Заказ не найден', 404)
+        return ok({'payment_status': row[0]})
+
+    # Webhook от Т-Банк
+    if action == 'tbank_webhook':
+        terminal_key = os.environ.get('TBANK_TERMINAL_KEY', '')
+        password = os.environ.get('TBANK_PASSWORD', '')
+        if body.get('TerminalKey') != terminal_key:
+            cur.close(); conn.close()
+            return {'statusCode': 200, 'body': 'FAIL'}
+        expected = tbank_token(body, password)
+        if body.get('Token') != expected:
+            cur.close(); conn.close()
+            return {'statusCode': 200, 'body': 'FAIL'}
+        status = body.get('Status')
+        wb_order_id = body.get('OrderId')
+        if status == 'CONFIRMED' and wb_order_id:
+            cur.execute("UPDATE orders SET payment_status = 'paid' WHERE id = %s", (wb_order_id,))
+            conn.commit()
+        cur.close(); conn.close()
+        return {'statusCode': 200, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': 'OK'}
 
     cur.close(); conn.close()
     return err('Неизвестное действие', 400)

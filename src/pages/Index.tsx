@@ -648,7 +648,7 @@ export default function Index() {
                       onClick={async () => {
                         setOrderLoading(true);
                         try {
-                          await fetch(ORDERS_URL, {
+                          const res = await fetch(ORDERS_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
                             body: JSON.stringify({
@@ -668,11 +668,24 @@ export default function Index() {
                               items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.effectivePrice, qty: i.qty })),
                             }),
                           });
-                        } finally {
-                          setOrderLoading(false);
+                          const orderData = await res.json();
                           setOrderTotal(total);
                           setOrderDone(true);
                           setCart([]);
+                          // Если СБП — сразу инициируем платёж Т-Банк
+                          if (paymentMethod === 'sbp' && orderData.order_id) {
+                            const payRes = await fetch(ORDERS_URL, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'pay_init', order_id: orderData.order_id, amount: total }),
+                            });
+                            const payData = await payRes.json();
+                            if (payData.payment_url) {
+                              window.location.href = payData.payment_url;
+                            }
+                          }
+                        } finally {
+                          setOrderLoading(false);
                         }
                       }}>
                       {orderLoading
@@ -694,15 +707,18 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
                   {paymentMethod === 'sbp' && (
                     <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                      <p className="text-sm font-medium text-emerald-800">Оплатите заказ через СБП</p>
+                      <div className="flex items-center gap-2">
+                        <Icon name="Loader2" size={16} className="text-emerald-600 animate-spin" />
+                        <p className="text-sm font-medium text-emerald-800">Переводим на страницу оплаты...</p>
+                      </div>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
                         <span className="text-xs text-emerald-700">Сумма к оплате</span>
                         <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
                       </div>
-                      <p className="text-xs text-emerald-700">Введите эту сумму при переводе. После оплаты вернитесь сюда.</p>
+                      <p className="text-xs text-emerald-700">Если редирект не произошёл — нажмите кнопку ниже.</p>
                       <a href={SBP_URL} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium">
                         <Icon name="Smartphone" size={16} />
-                        Оплатить по СБП
+                        Оплатить через Т-Банк
                       </a>
                     </div>
                   )}
