@@ -280,6 +280,18 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return ok({'success': False, 'error': result.get('Message', 'Ошибка'), 'raw': result})
 
+    # Удаление заказа (только для админа)
+    if action == 'delete_order':
+        if admin_token != admin_password:
+            cur.close(); conn.close()
+            return err('Не авторизован', 401)
+        order_id = body.get('id')
+        cur.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
+        cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
+        conn.commit()
+        cur.close(); conn.close()
+        return ok({'success': True})
+
     # Проверка статуса платежа
     if action == 'pay_check':
         order_id = body.get('order_id')
@@ -304,7 +316,11 @@ def handler(event: dict, context) -> dict:
         status = body.get('Status')
         wb_order_id = body.get('OrderId')
         if status == 'CONFIRMED' and wb_order_id:
-            cur.execute("UPDATE orders SET payment_status = 'paid', status = 'confirmed' WHERE id = %s", (wb_order_id,))
+            cur.execute("SELECT delivery_service FROM orders WHERE id = %s", (wb_order_id,))
+            order_row = cur.fetchone()
+            is_pickup = order_row and order_row[0] == 'pickup'
+            new_status = 'confirmed' if is_pickup else 'new'
+            cur.execute("UPDATE orders SET payment_status = 'paid', status = %s WHERE id = %s", (new_status, wb_order_id))
             conn.commit()
         cur.close(); conn.close()
         return {'statusCode': 200, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': 'OK'}

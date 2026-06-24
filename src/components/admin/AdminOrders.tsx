@@ -14,6 +14,8 @@ type PayFilter = 'all' | 'pending' | 'paid';
 export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) {
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [payFilter, setPayFilter] = useState<PayFilter>('all');
 
   const updateOrderStatus = async (id: number, status: string) => {
@@ -25,6 +27,20 @@ export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) 
     });
     setUpdatingStatus(null);
     onMsg('Статус обновлён!');
+    onRefresh();
+  };
+
+  const deleteOrder = async (id: number) => {
+    setDeletingOrder(id);
+    await fetch(ORDERS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'delete_order', id }),
+    });
+    setDeletingOrder(null);
+    setConfirmDelete(null);
+    setExpandedOrder(null);
+    onMsg('Заказ удалён');
     onRefresh();
   };
 
@@ -152,6 +168,28 @@ export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) 
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    <div className="pt-1 border-t border-border">
+                      {confirmDelete === o.id ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-red-600 flex-1">Удалить заказ #{o.id}?</span>
+                          <button onClick={() => deleteOrder(o.id)} disabled={deletingOrder === o.id}
+                            className="py-1.5 px-3 rounded-xl text-xs font-medium bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-all">
+                            {deletingOrder === o.id ? '...' : 'Да, удалить'}
+                          </button>
+                          <button onClick={() => setConfirmDelete(null)}
+                            className="py-1.5 px-3 rounded-xl text-xs font-medium border border-border bg-card hover:border-primary transition-all">
+                            Отмена
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfirmDelete(o.id)}
+                          className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors py-1">
+                          <Icon name="Trash2" size={13} />
+                          Удалить заказ
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
