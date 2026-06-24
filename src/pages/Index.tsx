@@ -198,7 +198,7 @@ export default function Index() {
   const [orderTotal, setOrderTotal] = useState(0);
   const [paymentUrl, setPaymentUrl] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
+  const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash_store' | 'card_store' | 'pickup'>('sbp');
   const SBP_URL = 'https://771385585715.tb.ru';
   const [orderLoading, setOrderLoading] = useState(false);
   const [myOrders, setMyOrders] = useState<{ id: number; total: number; status: string; payment_status: string; created_at: string; delivery_service: string; city: string; street: string; items: { name: string; price: number; qty: number }[] }[]>([]);
@@ -626,10 +626,12 @@ export default function Index() {
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-3">Способ оплаты</p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
-                          { key: 'sbp', icon: 'Smartphone', label: 'СБП', sub: 'Оплата по QR-коду или ссылке' },
-                          { key: 'cash', icon: 'Banknote', label: 'При получении', sub: 'Наличными или картой курьеру' },
+                          { key: 'sbp', icon: 'Smartphone', label: 'СБП онлайн', sub: 'Оплата через Т-Банк по ссылке — быстро и удобно' },
+                          { key: 'pickup', icon: 'ShoppingBag', label: 'Самовывоз из магазина', sub: 'Заберите заказ сами — наличными или картой на месте' },
+                          { key: 'cash_store', icon: 'Banknote', label: 'Наличными в магазине', sub: 'Только при самовывозе или посещении магазина' },
+                          { key: 'card_store', icon: 'CreditCard', label: 'Картой в магазине', sub: 'Оплата картой при самовывозе или в магазине' },
                         ].map(m => (
-                          <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'cash')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+                          <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'cash_store' | 'card_store' | 'pickup')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${paymentMethod === m.key ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
                               <Icon name={m.icon} size={16} />
                             </div>
@@ -715,29 +717,67 @@ export default function Index() {
                   </div>
                   <h2 className="font-display font-black text-2xl">Заказ принят!</h2>
                   <p className="text-muted-foreground text-sm">Мы свяжемся с вами по номеру <span className="font-medium text-foreground">{address.phone}</span> для подтверждения</p>
-                  <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
+
                   {paymentMethod === 'sbp' && (
-                    <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                      <p className="text-sm font-bold text-emerald-800">Оплата через Т-Банк</p>
+                    <div className="w-full p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
+                      <p className="text-sm font-bold text-emerald-800">Оплата через Т-Банк (СБП)</p>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
-                        <span className="text-xs text-emerald-700">Сумма к оплате</span>
+                        <span className="text-xs text-emerald-700">Сумма</span>
                         <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
                       </div>
                       {paymentLoading ? (
                         <div className="flex items-center justify-center gap-2 py-2">
                           <Icon name="Loader2" size={18} className="text-emerald-600 animate-spin" />
-                          <span className="text-sm text-emerald-700">Создаём ссылку на оплату...</span>
+                          <span className="text-sm text-emerald-700">Создаём ссылку...</span>
                         </div>
                       ) : (
-                        <a
-                          href={paymentUrl || SBP_URL}
-                          className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90 cursor-pointer"
-                          onClick={() => { if (paymentUrl) window.location.href = paymentUrl; }}
-                        >
+                        <a href={paymentUrl || SBP_URL} className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90">
                           <Icon name="Smartphone" size={16} />
                           Перейти к оплате
                         </a>
                       )}
+                    </div>
+                  )}
+
+                  {paymentMethod === 'pickup' && (
+                    <div className="w-full p-4 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="ShoppingBag" size={18} className="text-blue-600" />
+                        <p className="text-sm font-bold text-blue-800">Самовывоз из магазина</p>
+                      </div>
+                      <p className="text-sm text-blue-700">Мы свяжемся с вами, чтобы согласовать время. Оплата наличными или картой на месте.</p>
+                      <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-blue-100">
+                        <span className="text-xs text-blue-700">К оплате при получении</span>
+                        <span className="text-base font-black text-blue-800">{fmt(orderTotal)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'cash_store' && (
+                    <div className="w-full p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Banknote" size={18} className="text-amber-600" />
+                        <p className="text-sm font-bold text-amber-800">Оплата наличными в магазине</p>
+                      </div>
+                      <p className="text-sm text-amber-700">Мы свяжемся с вами для подтверждения. Оплатите наличными при визите в магазин.</p>
+                      <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-amber-100">
+                        <span className="text-xs text-amber-700">Сумма заказа</span>
+                        <span className="text-base font-black text-amber-800">{fmt(orderTotal)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'card_store' && (
+                    <div className="w-full p-4 rounded-2xl bg-purple-50 border border-purple-200 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="CreditCard" size={18} className="text-purple-600" />
+                        <p className="text-sm font-bold text-purple-800">Оплата картой в магазине</p>
+                      </div>
+                      <p className="text-sm text-purple-700">Мы свяжемся с вами для подтверждения. Оплатите картой при визите в магазин.</p>
+                      <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-purple-100">
+                        <span className="text-xs text-purple-700">Сумма заказа</span>
+                        <span className="text-base font-black text-purple-800">{fmt(orderTotal)}</span>
+                      </div>
                     </div>
                   )}
                 </div>
