@@ -626,9 +626,9 @@ export default function Index() {
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-3">Способ оплаты</p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
-                          { key: 'sbp', icon: 'Smartphone', label: 'СБП онлайн', sub: 'Оплата через Т-Банк по ссылке — быстро и удобно' },
-                          { key: 'card_store', icon: 'CreditCard', label: 'Картой в магазине', sub: 'Оплата картой при самовывозе или в магазине' },
-                          { key: 'pickup', icon: 'ShoppingBag', label: 'Самовывоз из магазина', sub: 'Заберите заказ сами — оплата картой на месте' },
+                          { key: 'sbp', icon: 'Smartphone', label: 'СБП', sub: 'Оплата через Т-Банк по QR-коду или ссылке' },
+                          { key: 'card_store', icon: 'CreditCard', label: 'Банковская карта', sub: 'Онлайн-оплата картой — перейдёте на страницу ввода данных' },
+                          { key: 'pickup', icon: 'ShoppingBag', label: 'Самовывоз', sub: 'Забираете сами — оплата при получении в магазине' },
                         ].map(m => (
                           <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'card_store' | 'pickup')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${paymentMethod === m.key ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
@@ -676,8 +676,8 @@ export default function Index() {
                           setOrderTotal(savedTotal);
                           setCart([]);
                           setOrderDone(true);
-                          // Если СБП — инициируем платёж Т-Банк
-                          if (paymentMethod === 'sbp' && orderData.order_id) {
+                          // Если СБП или карта — инициируем платёж Т-Банк
+                          if ((paymentMethod === 'sbp' || paymentMethod === 'card_store') && orderData.order_id) {
                             setPaymentLoading(true);
                             try {
                               const payRes = await fetch(ORDERS_URL, {
@@ -717,9 +717,11 @@ export default function Index() {
                   <h2 className="font-display font-black text-2xl">Заказ принят!</h2>
                   <p className="text-muted-foreground text-sm">Мы свяжемся с вами по номеру <span className="font-medium text-foreground">{address.phone}</span> для подтверждения</p>
 
-                  {paymentMethod === 'sbp' && (
+                  {(paymentMethod === 'sbp' || paymentMethod === 'card_store') && (
                     <div className="w-full p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                      <p className="text-sm font-bold text-emerald-800">Оплата через Т-Банк (СБП)</p>
+                      <p className="text-sm font-bold text-emerald-800">
+                        {paymentMethod === 'sbp' ? 'Оплата через СБП' : 'Оплата банковской картой'}
+                      </p>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
                         <span className="text-xs text-emerald-700">Сумма</span>
                         <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
@@ -727,11 +729,11 @@ export default function Index() {
                       {paymentLoading ? (
                         <div className="flex items-center justify-center gap-2 py-2">
                           <Icon name="Loader2" size={18} className="text-emerald-600 animate-spin" />
-                          <span className="text-sm text-emerald-700">Создаём ссылку...</span>
+                          <span className="text-sm text-emerald-700">Создаём ссылку на оплату...</span>
                         </div>
                       ) : (
                         <a href={paymentUrl || SBP_URL} className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90">
-                          <Icon name="Smartphone" size={16} />
+                          <Icon name={paymentMethod === 'sbp' ? 'Smartphone' : 'CreditCard'} size={16} />
                           Перейти к оплате
                         </a>
                       )}
@@ -742,26 +744,12 @@ export default function Index() {
                     <div className="w-full p-4 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <Icon name="ShoppingBag" size={18} className="text-blue-600" />
-                        <p className="text-sm font-bold text-blue-800">Самовывоз из магазина</p>
+                        <p className="text-sm font-bold text-blue-800">Самовывоз подтверждён</p>
                       </div>
-                      <p className="text-sm text-blue-700">Мы свяжемся с вами, чтобы согласовать время. Оплата наличными или картой на месте.</p>
+                      <p className="text-sm text-blue-700">Мы свяжемся с вами, чтобы согласовать время. Оплата картой на месте.</p>
                       <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-blue-100">
                         <span className="text-xs text-blue-700">К оплате при получении</span>
                         <span className="text-base font-black text-blue-800">{fmt(orderTotal)}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentMethod === 'card_store' && (
-                    <div className="w-full p-4 rounded-2xl bg-purple-50 border border-purple-200 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Icon name="CreditCard" size={18} className="text-purple-600" />
-                        <p className="text-sm font-bold text-purple-800">Оплата картой в магазине</p>
-                      </div>
-                      <p className="text-sm text-purple-700">Мы свяжемся с вами для подтверждения. Оплатите картой при визите в магазин.</p>
-                      <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-purple-100">
-                        <span className="text-xs text-purple-700">Сумма заказа</span>
-                        <span className="text-base font-black text-purple-800">{fmt(orderTotal)}</span>
                       </div>
                     </div>
                   )}
