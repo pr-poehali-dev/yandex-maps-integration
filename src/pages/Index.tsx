@@ -928,10 +928,16 @@ export default function Index() {
                   ))}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
                   <div className="absolute top-5 left-5">
-                    <span className="bg-white text-foreground font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Открыто сейчас
-                    </span>
+                    {(() => {
+                      const hour = new Date().getHours();
+                      const isOpen = hour >= 9 && hour < 22;
+                      return (
+                        <span className={`font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 ${isOpen ? 'bg-white text-foreground' : 'bg-gray-800/80 text-white'}`}>
+                          <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></span>
+                          {isOpen ? 'Открыто сейчас' : 'Закрыто · с 9:00 до 22:00'}
+                        </span>
+                      );
+                    })()}
                   </div>
                   {imgs.length > 1 && (
                     <>
