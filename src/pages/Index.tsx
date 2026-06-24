@@ -197,7 +197,7 @@ export default function Index() {
   const [orderDone, setOrderDone] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
-  const SBP_URL = 'https://b2b.cbrpay.ru/BS1C0060E74II4FJ8I9OS3LCKOFL877K';
+  const SBP_URL = 'https://771385585715.tb.ru';
   const [orderLoading, setOrderLoading] = useState(false);
   const [myOrders, setMyOrders] = useState<{ id: number; total: number; status: string; payment_status: string; created_at: string; delivery_service: string; city: string; street: string; items: { name: string; price: number; qty: number }[] }[]>([]);
   const [myOrdersLoading, setMyOrdersLoading] = useState(false);
