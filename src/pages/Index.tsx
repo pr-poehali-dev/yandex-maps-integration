@@ -747,6 +747,96 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Блок офлайн-магазина */}
+      <section className="container py-6 pb-20">
+        <div className="relative overflow-hidden rounded-3xl bg-card border border-border">
+          <div className="grid md:grid-cols-2 gap-0">
+            {/* Фото */}
+            <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden">
+              <img
+                src="https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6f802402-56c8-4228-bd60-a676b940611d.jpg"
+                alt="Наш магазин"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
+              <div className="absolute top-5 left-5">
+                <span className="bg-white text-foreground font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Открыто сейчас
+                </span>
+              </div>
+            </div>
+
+            {/* Контент */}
+            <div className="p-8 md:p-10 flex flex-col justify-center">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-bold px-4 py-2 rounded-full mb-5 w-fit">
+                <Icon name="Store" size={16} />
+                Офлайн-магазин
+              </div>
+              <h2 className="font-display font-black text-3xl md:text-4xl tracking-tight leading-tight mb-4">
+                🏪 У нас есть<br />настоящий магазин
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                Мы работаем не только онлайн — приходите к нам в магазин, где можно посмотреть товары вживую, получить консультацию и подобрать уход.
+              </p>
+
+              {/* Мини-доверие */}
+              <div className="grid grid-cols-2 gap-3 mb-7">
+                {[
+                  { icon: 'Eye', text: 'Товары вживую' },
+                  { icon: 'MessageCircle', text: 'Консультация' },
+                  { icon: 'PackageCheck', text: 'Самовывоз' },
+                  { icon: 'Clock', text: 'Ежедневно 9–21' },
+                ].map(item => (
+                  <div key={item.text} className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5">
+                    <Icon name={item.icon} size={16} className="text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Кнопки */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={() => scrollTo('contacts')} className="gradient-brand text-white rounded-full px-6 h-12 font-medium hover:opacity-90 gap-2">
+                  <Icon name="MapPin" size={16} />
+                  Посмотреть адрес
+                </Button>
+                <a
+                  href="https://yandex.ru/maps/?text=%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9%2C+%D1%83%D0%BB.+%D0%9F%D0%B0%D1%80%D0%BA%D0%BE%D0%B2%D0%B0%D1%8F%2C+44+%D0%BA1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 border border-border rounded-full px-6 h-12 text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  <Icon name="Navigation" size={16} />
+                  Проложить маршрут
+                </a>
+              </div>
+              <button onClick={() => scrollTo('delivery')} className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1.5 w-fit">
+                <Icon name="ShoppingBag" size={14} />
+                Самовывоз из магазина — бесплатно
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Блок доверия — строка */}
+        <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { icon: 'BadgeCheck', label: 'Оригинальная продукция', color: 'text-emerald-600 bg-emerald-50' },
+            { icon: 'MessageSquare', label: 'Консультация', color: 'text-blue-600 bg-blue-50' },
+            { icon: 'Zap', label: 'Быстрая доставка', color: 'text-amber-600 bg-amber-50' },
+            { icon: 'Store', label: 'Офлайн-магазин', color: 'text-purple-600 bg-purple-50' },
+          ].map(item => (
+            <div key={item.label} className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                <Icon name={item.icon} size={18} />
+              </div>
+              <span className="text-sm font-medium leading-tight">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section id="catalog" className="container py-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
