@@ -609,6 +609,28 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Блок преимуществ */}
+      <section className="container py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { icon: 'Zap', title: 'Доставка за 1 день', sub: 'По городу курьером', color: 'bg-amber-50 text-amber-600' },
+            { icon: 'ShieldCheck', title: 'Гарантия качества', sub: 'Возврат 14 дней', color: 'bg-emerald-50 text-emerald-600' },
+            { icon: 'BadgePercent', title: 'Оптовые цены', sub: 'Скидки от 20%', color: 'bg-blue-50 text-blue-600' },
+            { icon: 'Headphones', title: 'Поддержка 24/7', sub: 'Всегда на связи', color: 'bg-purple-50 text-purple-600' },
+          ].map((f) => (
+            <div key={f.title} className="bg-card rounded-2xl border border-border p-5 flex flex-col gap-3 hover-scale">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${f.color}`}>
+                <Icon name={f.icon} size={22} />
+              </div>
+              <div>
+                <p className="font-display font-bold text-sm">{f.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{f.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section id="catalog" className="container py-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
@@ -662,72 +684,195 @@ export default function Index() {
                 Ничего не найдено
               </div>
             )}
-            {filtered.map((p, idx) => (
-              <div key={p.id} className="group bg-card rounded-3xl border border-border overflow-hidden hover-scale animate-fade-in" style={{ animationDelay: `${idx * 60}ms`, opacity: 0 }}>
-                <div className="relative aspect-square overflow-hidden">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  {p.badge && <Badge className="absolute top-4 left-4 gradient-brand text-white border-0 rounded-full">{p.badge}</Badge>}
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
-                    <Icon name="Star" size={14} className="text-secondary fill-secondary" /> {p.rating}
-                    <span className="mx-1">·</span>{p.category}
+            {filtered.map((p, idx) => {
+              const inCart = cart.find(i => i.id === p.id);
+              return (
+                <div key={p.id} className="group bg-card rounded-3xl border border-border overflow-hidden flex flex-col hover-scale animate-fade-in" style={{ animationDelay: `${idx * 60}ms`, opacity: 0 }}>
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                    <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    {p.badge && <Badge className="absolute top-3 left-3 gradient-brand text-white border-0 rounded-full text-xs px-3">{p.badge}</Badge>}
+                    <button onClick={() => addToCart(p.id)} className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-md">
+                      <Icon name="Heart" size={16} className="text-muted-foreground" />
+                    </button>
+                    {inCart && (
+                      <div className="absolute bottom-3 left-3 bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                        В корзине: {inCart.qty} шт.
+                      </div>
+                    )}
                   </div>
-                  <h3 className="font-display font-bold text-lg mb-3">{p.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-display font-black text-xl">{fmt(p.price)}</span>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-xs text-muted-foreground">Опт от {(p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT)} шт:</span>
-                        <span className="text-sm font-bold text-emerald-600">{fmt(p.wholesale)}</span>
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">{p.category}</span>
+                      <div className="flex items-center gap-1">
+                        <Icon name="Star" size={13} className="text-amber-400 fill-amber-400" />
+                        <span className="text-sm font-bold">{p.rating}</span>
+                        <span className="text-xs text-muted-foreground">(отзывы)</span>
                       </div>
                     </div>
-                    <Button size="icon" onClick={() => addToCart(p.id)} className="gradient-brand text-white rounded-full w-11 h-11 hover:opacity-90">
-                      <Icon name="Plus" size={20} />
-                    </Button>
+                    <h3 className="font-display font-bold text-base leading-snug mb-1">{p.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                      {p.brand} · Оригинальное качество · Быстрая доставка
+                    </p>
+                    <div className="mt-auto">
+                      <div className="flex items-end justify-between mb-3">
+                        <div>
+                          <span className="font-display font-black text-2xl">{fmt(p.price)}</span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-xs text-muted-foreground">Опт от {(p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT)} шт:</span>
+                            <span className="text-xs font-bold text-emerald-600">{fmt(p.wholesale)}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded-full">
+                          −{Math.round((1 - p.wholesale / p.price) * 100)}% опт
+                        </span>
+                      </div>
+                      <Button onClick={() => addToCart(p.id)} className="w-full gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90 gap-2">
+                        <Icon name="ShoppingCart" size={16} />
+                        В корзину
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       <section id="delivery" className="bg-muted/40 py-20">
         <div className="container">
-          <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight text-center mb-12">Оплата и доставка</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center mb-12">
+            <Badge className="gradient-brand text-white border-0 mb-4 rounded-full px-4 py-1.5">Доставка и оплата</Badge>
+            <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Быстро, удобно, надёжно</h2>
+            <p className="text-muted-foreground mt-3 text-lg">Доставляем по всей России — от Калининграда до Владивостока</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
-              { icon: 'Truck', title: 'Доставка за 1 день', text: 'Курьером по городу и почтой по всей России' },
-              { icon: 'CreditCard', title: 'Удобная оплата', text: 'Картой онлайн, при получении или в рассрочку' },
-              { icon: 'ShieldCheck', title: 'Гарантия 2 года', text: 'Официальная гарантия на всю технику' },
+              { icon: 'Zap', title: 'Доставка за 1 день', text: 'Курьером по Долгопрудному и Москве. По России — 2–5 дней Яндекс Доставкой, СДЭК или Почтой России', badge: 'Быстро' },
+              { icon: 'CreditCard', title: 'Удобная оплата', text: 'СБП, банковской картой онлайн, наличными или картой курьеру при получении', badge: 'Без переплат' },
+              { icon: 'ShieldCheck', title: 'Гарантия 2 года', text: 'Официальная гарантия на всю технику. Возврат и обмен в течение 14 дней без вопросов', badge: 'Надёжно' },
             ].map((f) => (
-              <div key={f.title} className="bg-card rounded-3xl p-8 border border-border hover-scale">
-                <div className="w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center mb-5">
-                  <Icon name={f.icon} size={26} className="text-white" />
+              <div key={f.title} className="bg-card rounded-3xl p-8 border border-border hover-scale flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                  <div className="w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center">
+                    <Icon name={f.icon} size={26} className="text-white" />
+                  </div>
+                  <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{f.badge}</span>
                 </div>
-                <h3 className="font-display font-bold text-xl mb-2">{f.title}</h3>
-                <p className="text-muted-foreground">{f.text}</p>
+                <h3 className="font-display font-bold text-xl">{f.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{f.text}</p>
               </div>
             ))}
           </div>
+          {/* Способы доставки */}
+          <div className="bg-card rounded-3xl border border-border p-6 md:p-8">
+            <h3 className="font-display font-bold text-lg mb-5">Службы доставки</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { name: 'Яндекс Доставка', time: '1–2 дня', icon: 'Car' },
+                { name: 'СДЭК', time: '2–5 дней', icon: 'Package' },
+                { name: 'Почта России', time: '5–14 дней', icon: 'Mail' },
+                { name: 'Самовывоз', time: 'Бесплатно', icon: 'MapPin' },
+              ].map((d) => (
+                <div key={d.name} className="flex items-center gap-3 bg-muted rounded-2xl p-4">
+                  <Icon name={d.icon} size={20} className="text-primary flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">{d.name}</p>
+                    <p className="text-xs text-muted-foreground">{d.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Отзывы покупателей */}
+      <section className="container py-20">
+        <div className="text-center mb-12">
+          <Badge className="gradient-brand text-white border-0 mb-4 rounded-full px-4 py-1.5">Отзывы</Badge>
+          <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Нам доверяют покупатели</h2>
+          <p className="text-muted-foreground mt-3 text-lg">Более 50 000 довольных клиентов по всей России</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { name: 'Анна К.', city: 'Москва', rating: 5, text: 'Заказала набор для дома — всё пришло быстро, упаковано аккуратно. Качество выше ожиданий! Обязательно закажу ещё.', product: 'Набор для дома «Уют»', avatar: '👩' },
+            { name: 'Дмитрий Р.', city: 'Санкт-Петербург', rating: 5, text: 'Взял квадроцикл ATV 250cc — доставили за 2 дня, помогли с документами. Менеджер на связи 24/7. Рекомендую!', product: 'Квадроцикл ATV 250cc', avatar: '👨' },
+            { name: 'Мария С.', city: 'Екатеринбург', rating: 5, text: 'Сыворотка Glow Essence — просто чудо! Кожа сияет. Брала оптом для небольшого магазина — цены отличные.', product: 'Сыворотка Glow Essence', avatar: '👩‍🦱' },
+            { name: 'Алексей В.', city: 'Казань', rating: 5, text: 'Bubble Tea Matcha понравился всей семье. Очень вкусно и необычно. Курьер приехал вовремя, вежливый.', product: 'Bubble Tea Matcha', avatar: '👨‍🦲' },
+            { name: 'Ольга П.', city: 'Новосибирск', rating: 5, text: 'Плюшевый Куро — подарок сыну на день рождения. Он в восторге! Мягкий, большой. Спасибо за быструю доставку.', product: 'Плюшевый Куро', avatar: '🧑‍🦰' },
+            { name: 'Игорь М.', city: 'Ростов-на-Дону', rating: 5, text: 'Питбайк MX 125 — отличная техника за свои деньги. Всё по описанию, доставили в срок. Магазин честный.', product: 'Питбайк MX 125', avatar: '👴' },
+          ].map((r) => (
+            <div key={r.name} className="bg-card rounded-3xl border border-border p-6 flex flex-col gap-4 hover-scale">
+              <div className="flex items-center gap-1">
+                {Array.from({ length: r.rating }).map((_, i) => (
+                  <Icon key={i} name="Star" size={15} className="text-amber-400 fill-amber-400" />
+                ))}
+              </div>
+              <p className="text-sm text-foreground leading-relaxed flex-1">«{r.text}»</p>
+              <div className="pt-3 border-t border-border">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{r.avatar}</div>
+                  <div>
+                    <p className="font-bold text-sm">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">{r.city} · {r.product}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Рейтинги платформ */}
+        <div className="mt-10 flex flex-wrap justify-center gap-6">
+          {[
+            { label: 'Яндекс Маркет', rating: '4.9', reviews: '1 240 отзывов' },
+            { label: 'Wildberries', rating: '4.8', reviews: '3 120 отзывов' },
+            { label: 'Ozon', rating: '4.9', reviews: '870 отзывов' },
+          ].map((pl) => (
+            <div key={pl.label} className="flex items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
+              <div className="flex items-center gap-1">
+                <Icon name="Star" size={16} className="text-amber-400 fill-amber-400" />
+                <span className="font-display font-black text-lg">{pl.rating}</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium">{pl.label}</p>
+                <p className="text-xs text-muted-foreground">{pl.reviews}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       <section id="about" className="container py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-6">О нас</h2>
+          <Badge className="gradient-brand text-white border-0 mb-5 rounded-full px-4 py-1.5">О компании</Badge>
+          <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-6">Магазин, которому доверяют</h2>
           <p className="text-lg text-muted-foreground mb-4">
             Се-Се 谢谢 — это больше чем магазин. Мы рядом, когда нужно порадовать себя или близких: от уютных мелочей для дома до мощной техники для настоящих приключений.
           </p>
-          <p className="text-lg text-muted-foreground mb-8">
-            Каждый товар мы выбираем с душой. С нами уже более 50 000 довольных покупателей по всей стране — и мы только начинаем.
+          <p className="text-muted-foreground mb-6">
+            Каждый товар мы выбираем с душой. С нами уже более 50 000 довольных покупателей по всей стране.
           </p>
-          <div className="grid grid-cols-3 gap-6">
-            {[['50K+', 'Клиентов'], ['4.9', 'Рейтинг'], ['24/7', 'Поддержка']].map(([n, l]) => (
-              <div key={l}>
-                <div className="font-display font-black text-3xl gradient-text">{n}</div>
-                <div className="text-sm text-muted-foreground">{l}</div>
+          <div className="space-y-3 mb-8">
+            {[
+              'Только оригинальная сертифицированная продукция',
+              'Оптовые цены от 5 единиц товара',
+              'Персональный менеджер для оптовых клиентов',
+              'Доставка по всей России от 1 дня',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                  <Icon name="Check" size={12} className="text-white" />
+                </div>
+                <span className="text-sm font-medium">{item}</span>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            {[['50K+', 'Клиентов', 'Users'], ['4.9★', 'Рейтинг', 'Star'], ['24/7', 'Поддержка', 'Headphones']].map(([n, l, icon]) => (
+              <div key={l} className="bg-card border border-border rounded-2xl p-4 text-center">
+                <div className="font-display font-black text-2xl gradient-text">{n}</div>
+                <div className="text-xs text-muted-foreground mt-1">{l}</div>
               </div>
             ))}
           </div>
@@ -735,6 +880,17 @@ export default function Index() {
         <div className="relative">
           <div className="absolute inset-0 gradient-brand blur-3xl opacity-20 rounded-full" />
           <img src={allProducts[0]?.image} alt="О нас" className="relative rounded-3xl w-full shadow-xl" />
+          <div className="absolute -bottom-4 -right-4 bg-card border border-border rounded-2xl px-5 py-4 shadow-lg hidden md:block">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center">
+                <Icon name="Award" size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Лучший магазин 2025</p>
+                <p className="text-xs text-muted-foreground">По версии покупателей</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -773,6 +929,42 @@ export default function Index() {
               <textarea placeholder="Сообщение" rows={4} className="w-full rounded-xl border border-input bg-background p-3 text-sm resize-none" />
               <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90">Отправить</Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Блок гарантий и доверия */}
+      <section className="gradient-mesh py-20">
+        <div className="container">
+          <div className="text-center mb-10">
+            <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Покупайте с уверенностью</h2>
+            <p className="text-muted-foreground mt-3 text-lg">Ваши права защищены на каждом этапе</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { icon: 'RotateCcw', title: 'Возврат 14 дней', text: 'Если товар не подошёл — вернём деньги без лишних вопросов', color: 'text-blue-600 bg-blue-50' },
+              { icon: 'ShieldCheck', title: 'Официальная гарантия', text: '2 года гарантии на технику. Сервисный центр в Москве', color: 'text-emerald-600 bg-emerald-50' },
+              { icon: 'Lock', title: 'Защита платежей', text: 'Все транзакции защищены банковским шифрованием', color: 'text-purple-600 bg-purple-50' },
+              { icon: 'PackageCheck', title: 'Оригинальный товар', text: 'Только сертифицированная продукция от официальных поставщиков', color: 'text-amber-600 bg-amber-50' },
+            ].map((g) => (
+              <div key={g.title} className="bg-card rounded-3xl border border-border p-6 text-center hover-scale">
+                <div className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center ${g.color}`}>
+                  <Icon name={g.icon} size={26} />
+                </div>
+                <h3 className="font-display font-bold text-base mb-2">{g.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{g.text}</p>
+              </div>
+            ))}
+          </div>
+          {/* CTA баннер */}
+          <div className="mt-10 gradient-brand rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-white text-center md:text-left">
+              <h3 className="font-display font-black text-3xl md:text-4xl mb-2">Готовы сделать заказ?</h3>
+              <p className="text-white/80 text-lg">Более 50 000 клиентов уже выбрали нас. Присоединяйтесь!</p>
+            </div>
+            <Button onClick={() => scrollTo('catalog')} className="bg-white text-primary font-bold rounded-full px-10 h-14 text-base hover:bg-white/90 flex-shrink-0 shadow-lg">
+              Перейти в каталог <Icon name="ArrowRight" size={18} className="ml-2" />
+            </Button>
           </div>
         </div>
       </section>
