@@ -19,6 +19,8 @@ type Product = {
   badge?: string;
   wholesale_min_qty?: number;
   description?: string;
+  composition?: string;
+  usage_instructions?: string;
 };
 
 const IMG = {
@@ -1197,23 +1199,23 @@ export default function Index() {
                   </div>
                 )}
 
-                {/* Состав */}
-                {details?.composition && (
+                {/* Состав — из БД или статики */}
+                {(p.composition?.trim() || details?.composition) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="FlaskConical" size={16} className="text-primary" /> Состав
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{details.composition}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.composition?.trim() || details?.composition}</p>
                   </div>
                 )}
 
-                {/* Применение */}
-                {details?.usage && (
+                {/* Применение — из БД или статики */}
+                {(p.usage_instructions?.trim() || details?.usage) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="BookOpen" size={16} className="text-primary" /> Способ применения
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{details.usage}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.usage_instructions?.trim() || details?.usage}</p>
                   </div>
                 )}
 

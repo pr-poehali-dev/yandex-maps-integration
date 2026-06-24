@@ -34,6 +34,8 @@ type Product = {
   image: string;
   badge: string | null;
   description?: string;
+  composition?: string;
+  usage_instructions?: string;
   sort_order?: number;
   wholesale_min_qty?: number;
 };
@@ -269,6 +271,8 @@ export default function Admin() {
       wholesale: Number(editing.wholesale),
       badge: editing.badge || null,
       description: editing.description || '',
+      composition: editing.composition || '',
+      usage_instructions: editing.usage_instructions || '',
       wholesale_min_qty: Number(editing.wholesale_min_qty || 0),
     }, token);
     setSaving(false);
@@ -768,8 +772,28 @@ export default function Admin() {
                 <label className="text-xs font-medium text-muted-foreground block mb-1.5">Описание</label>
                 <textarea value={editing.description || ''}
                   onChange={e => setEditing({ ...editing, description: e.target.value })}
-                  placeholder="Опишите товар — состав, особенности, применение..."
-                  rows={4}
+                  placeholder="Общее описание товара — что это, для кого, чем выделяется..."
+                  rows={3}
+                  className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+
+              {/* Состав */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Состав / характеристики</label>
+                <textarea value={editing.composition || ''}
+                  onChange={e => setEditing({ ...editing, composition: e.target.value })}
+                  placeholder="Например: натуральный хлопок, бамбуковое волокно. Или: двигатель 250cc, КПП автомат..."
+                  rows={3}
+                  className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+
+              {/* Способ применения */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Способ применения / инструкция</label>
+                <textarea value={editing.usage_instructions || ''}
+                  onChange={e => setEditing({ ...editing, usage_instructions: e.target.value })}
+                  placeholder="Как использовать товар, советы по применению, условия хранения..."
+                  rows={3}
                   className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
 
