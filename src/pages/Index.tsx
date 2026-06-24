@@ -1101,7 +1101,19 @@ export default function Index() {
         <div className="text-center mb-12">
           <Badge className="gradient-brand text-white border-0 mb-4 rounded-full px-4 py-1.5">Отзывы</Badge>
           <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Нам доверяют покупатели</h2>
-          <p className="text-muted-foreground mt-3 text-lg">Реальные отзывы наших покупателей</p>
+          <p className="text-muted-foreground mt-3 text-lg">Реальные отзывы с Яндекс Карт и наших покупателей</p>
+        </div>
+
+        {/* Виджет Яндекс Карт */}
+        <div className="mb-10 rounded-3xl overflow-hidden border border-border">
+          <iframe
+            src="https://yandex.ru/maps-reviews-widget/150382670695?comments"
+            width="100%"
+            height="420"
+            frameBorder="0"
+            style={{ display: 'block' }}
+            title="Отзывы на Яндекс Картах"
+          />
         </div>
 
         {/* Форма отзыва */}
