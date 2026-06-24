@@ -1116,6 +1116,52 @@ export default function Index() {
           />
         </div>
 
+        {/* Отзывы с Яндекс Карт */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-1.5 bg-[#FC3F1D]/10 text-[#FC3F1D] px-3 py-1.5 rounded-full text-sm font-bold">
+              <Icon name="MapPin" size={14} />
+              Яндекс Карты
+            </div>
+            <div className="flex items-center gap-1">
+              {Array.from({length:5}).map((_,i)=><Icon key={i} name="Star" size={14} className="text-amber-400 fill-amber-400"/>)}
+            </div>
+            <span className="text-sm text-muted-foreground">6 отзывов</span>
+          </div>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {[
+              { name: 'Андрей Волков', level: 3, date: '1 апреля 2025', rating: 5, text: 'Отличный магазин, очень уютно, чисто! Отличный товар и доброжелательный персонал! Очень много интересного и нового для себя нашел 👍' },
+              { name: 'mortyx122', level: 5, date: '9 мая 2025', rating: 5, text: 'Супер магазин, первый раз зашел посмотреть вообще что продается, взял несколько азиатских сладостей и мороженное, очень понравилась атмосфера магазина. Мороженное вкусное!' },
+              { name: 'Марго', level: 3, date: '30 августа 2025', rating: 5, text: 'Недавно побывали с детьми в магазине Се-Се, теперь мы там частые гости. Как заходишь — сразу приятный аромат тебя встречает и хорошая музыка. Много разных необычных товаров!' },
+              { name: 'Надежда Петрова', level: 4, date: '21 сентября 2024', rating: 5, text: 'Гуляя с дочкой решила зайти в магазин недалеко от дома. Такой приятный глазу ремонт, вкусно пахнет, в общем уйти без улова не смогла 😍 Фотографировала подруге с рекомендациями!' },
+              { name: 'vurado ichi 🌀', level: 7, date: '29 ноября 2025', rating: 5, text: 'Очень классный магазин. Много интересных товаров, но больше всего меня захватили газированные напитки. Есть всё! Mountain Dew, Coca-Cola, Sprite, Fanta, Pepsi. Заходите, рекомендую! 🔥' },
+              { name: 'Анастасия Бойкова', level: 3, date: '16 сентября 2024', rating: 5, text: 'Очень давно ждали открытия! Пришли сразу посмотреть что новенького — были приятно удивлены не только ассортиментом, но и ценой товара! Взяли на пробу и ни о чём не пожалели, точно вернёмся ещё не раз!' },
+            ].map(r => (
+              <div key={r.name} className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-3 hover-scale">
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-0.5">
+                    {Array.from({length:5}).map((_,i)=><Icon key={i} name="Star" size={13} className={i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'}/>)}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{r.date}</span>
+                </div>
+                <p className="text-sm text-foreground leading-relaxed flex-1">«{r.text}»</p>
+                <div className="pt-3 border-t border-border flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#FC3F1D]/10 flex items-center justify-center text-[#FC3F1D] font-bold text-sm flex-shrink-0">
+                    {r.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm leading-tight">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">Знаток города · {r.level} уровень</p>
+                  </div>
+                  <a href="https://yandex.ru/maps/-/CTQfNKix" target="_blank" rel="noopener noreferrer" className="ml-auto text-xs text-[#FC3F1D] hover:underline flex items-center gap-1">
+                    <Icon name="ExternalLink" size={11}/> Я.Карты
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Форма отзыва */}
         <div className="bg-card border border-border rounded-3xl p-6 md:p-8 mb-10">
           <h3 className="font-display font-bold text-xl mb-5 flex items-center gap-2">
