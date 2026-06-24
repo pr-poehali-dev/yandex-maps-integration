@@ -250,6 +250,7 @@ def handler(event: dict, context) -> dict:
         amount = int(body.get('amount', 0))
         origin = event.get('headers', {}).get('origin', 'https://yandex-maps-integration.poehali.dev')
 
+
         if not order_id or amount <= 0:
             cur.close(); conn.close()
             return err('Укажите order_id и сумму')
@@ -262,7 +263,6 @@ def handler(event: dict, context) -> dict:
             'FailURL': f'{origin}/?payment=fail&order_id={order_id}',
         }
         result = tbank_request('Init', params)
-        print(f'[pay_init] order_id={order_id} amount={amount} result={result}')
 
         if result.get('Success'):
             payment_id = result.get('PaymentId')

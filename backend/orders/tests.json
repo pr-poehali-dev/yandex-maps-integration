@@ -12,11 +12,20 @@
         "street": "ул. Ленина, д. 1",
         "apartment": "кв. 10",
         "zip": "123456",
-        "total": 1490,
-        "items": [{"id": 1, "name": "Тестовый товар", "price": 1490, "qty": 1}]
+        "total": 100,
+        "items": [{"id": 1, "name": "Тестовый товар", "price": 100, "qty": 1}]
       },
       "expectedStatus": 200,
       "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Pay init test",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "pay_init", "order_id": 1, "amount": 100},
+      "expectedStatus": 200,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
