@@ -552,11 +552,11 @@ export default function Index() {
                   <div className="border-t border-border px-6 pt-4 pb-6 flex-shrink-0">
                     <Button
                       className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 disabled:opacity-50"
-                      disabled={!address.name || !address.phone || !address.city || !address.street}
+                      disabled={!address.name || !address.phone}
                       onClick={() => setCheckoutStep('payment')}>
                       Перейти к оплате <Icon name="ArrowRight" size={18} className="ml-2" />
                     </Button>
-                    {(!address.name || !address.phone || !address.city || !address.street) && (
+                    {(!address.name || !address.phone) && (
                       <p className="text-xs text-muted-foreground text-center mt-2">Заполните обязательные поля <span className="text-red-400">*</span></p>
                     )}
                   </div>
@@ -666,6 +666,7 @@ export default function Index() {
                               zip: address.zip,
                               comment: address.comment,
                               delivery_service: deliveryService,
+                              payment_method: paymentMethod,
                               total,
                               is_wholesale: cartItems.some(i => i.isWholesale),
                               items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.effectivePrice, qty: i.qty })),

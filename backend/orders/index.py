@@ -112,9 +112,14 @@ def handler(event: dict, context) -> dict:
         total = int(body.get('total', 0))
         is_wholesale = body.get('is_wholesale', False)
 
-        if not name or not phone or not city or not street or not items:
+        payment_method = body.get('payment_method', '')
+        is_pickup = payment_method == 'pickup'
+        if not name or not phone or not items:
             cur.close(); conn.close()
             return err('Заполните все поля')
+        if not is_pickup and (not city or not street):
+            cur.close(); conn.close()
+            return err('Заполните адрес доставки')
 
         # Скидка уже применена на фронте (оптовая или по карте лояльности)
         original_total = total
