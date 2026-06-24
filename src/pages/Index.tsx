@@ -227,6 +227,19 @@ export default function Index() {
   const [reviewSending, setReviewSending] = useState(false);
   const [reviewSent, setReviewSent] = useState(false);
   const [reviewError, setReviewError] = useState('');
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentFail, setPaymentFail] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      setPaymentSuccess(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (params.get('payment') === 'fail') {
+      setPaymentFail(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
@@ -797,6 +810,32 @@ export default function Index() {
           </div>
         </div>
       </header>
+
+      {paymentSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center flex flex-col items-center gap-4 shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+              <Icon name="CheckCircle2" size={48} className="text-emerald-500" />
+            </div>
+            <h2 className="font-display font-black text-2xl">Оплата прошла!</h2>
+            <p className="text-muted-foreground text-sm">Ваш заказ оплачен и принят в работу. Мы свяжемся с вами для подтверждения доставки.</p>
+            <Button className="w-full gradient-brand text-white rounded-full" onClick={() => setPaymentSuccess(false)}>Отлично!</Button>
+          </div>
+        </div>
+      )}
+
+      {paymentFail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center flex flex-col items-center gap-4 shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+              <Icon name="XCircle" size={48} className="text-red-500" />
+            </div>
+            <h2 className="font-display font-black text-2xl">Оплата не прошла</h2>
+            <p className="text-muted-foreground text-sm">Что-то пошло не так. Попробуйте ещё раз или выберите другой способ оплаты.</p>
+            <Button className="w-full gradient-brand text-white rounded-full" onClick={() => setPaymentFail(false)}>Понятно</Button>
+          </div>
+        </div>
+      )}
 
       <section id="home" className="relative overflow-hidden gradient-mesh">
         <div className="container py-24 md:py-32 grid md:grid-cols-2 gap-12 items-start">
