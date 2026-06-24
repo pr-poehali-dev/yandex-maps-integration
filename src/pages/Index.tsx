@@ -182,6 +182,7 @@ const NAV = [
 
 const PRODUCTS_URL = 'https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a';
 const ORDERS_URL = 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd';
+const REVIEWS_URL = 'https://functions.poehali.dev/75ddc432-88b5-419f-b6f5-ab2422e5f049';
 const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 
 export default function Index() {
@@ -217,6 +218,11 @@ export default function Index() {
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
   const [storeImages, setStoreImages] = useState<string[]>([]);
   const [storeSlideIdx, setStoreSlideIdx] = useState(0);
+  const [dbReviews, setDbReviews] = useState<{id:number;author_name:string;city:string;rating:number;text:string;product:string;created_at:string}[]>([]);
+  const [reviewForm, setReviewForm] = useState({ author_name: '', city: '', rating: 5, text: '', product: '' });
+  const [reviewSending, setReviewSending] = useState(false);
+  const [reviewSent, setReviewSent] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
@@ -233,7 +239,20 @@ export default function Index() {
         }
         if (data.categories?.length) setDbCategories(data.categories);
       });
+    fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) })
+      .then(r => r.json()).then(data => { if (data.reviews) setDbReviews(data.reviews); });
   }, []);
+
+  const handleSubmitReview = async () => {
+    setReviewError('');
+    setReviewSending(true);
+    const res = await fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create', ...reviewForm }) });
+    const data = await res.json();
+    setReviewSending(false);
+    if (data.error) { setReviewError(data.error); return; }
+    setReviewSent(true);
+    setReviewForm({ author_name: '', city: '', rating: 5, text: '', product: '' });
+  };
 
   const CATEGORIES = ['Все', ...(dbCategories.length > 0 ? dbCategories : STATIC_CATEGORIES.slice(1))];
 
@@ -1082,55 +1101,93 @@ export default function Index() {
         <div className="text-center mb-12">
           <Badge className="gradient-brand text-white border-0 mb-4 rounded-full px-4 py-1.5">Отзывы</Badge>
           <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Нам доверяют покупатели</h2>
-          <p className="text-muted-foreground mt-3 text-lg">Более 50 000 довольных клиентов по всей России</p>
+          <p className="text-muted-foreground mt-3 text-lg">Реальные отзывы наших покупателей</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { name: 'Анна К.', city: 'Москва', rating: 5, text: 'Заказала набор для дома — всё пришло быстро, упаковано аккуратно. Качество выше ожиданий! Обязательно закажу ещё.', product: 'Набор для дома «Уют»', avatar: '👩' },
-            { name: 'Дмитрий Р.', city: 'Санкт-Петербург', rating: 5, text: 'Взял квадроцикл ATV 250cc — доставили за 2 дня, помогли с документами. Менеджер на связи 24/7. Рекомендую!', product: 'Квадроцикл ATV 250cc', avatar: '👨' },
-            { name: 'Мария С.', city: 'Екатеринбург', rating: 5, text: 'Сыворотка Glow Essence — просто чудо! Кожа сияет. Брала оптом для небольшого магазина — цены отличные.', product: 'Сыворотка Glow Essence', avatar: '👩‍🦱' },
-            { name: 'Алексей В.', city: 'Казань', rating: 5, text: 'Bubble Tea Matcha понравился всей семье. Очень вкусно и необычно. Курьер приехал вовремя, вежливый.', product: 'Bubble Tea Matcha', avatar: '👨‍🦲' },
-            { name: 'Ольга П.', city: 'Новосибирск', rating: 5, text: 'Плюшевый Куро — подарок сыну на день рождения. Он в восторге! Мягкий, большой. Спасибо за быструю доставку.', product: 'Плюшевый Куро', avatar: '🧑‍🦰' },
-            { name: 'Игорь М.', city: 'Ростов-на-Дону', rating: 5, text: 'Питбайк MX 125 — отличная техника за свои деньги. Всё по описанию, доставили в срок. Магазин честный.', product: 'Питбайк MX 125', avatar: '👴' },
-          ].map((r) => (
-            <div key={r.name} className="bg-card rounded-3xl border border-border p-6 flex flex-col gap-4 hover-scale">
-              <div className="flex items-center gap-1">
-                {Array.from({ length: r.rating }).map((_, i) => (
-                  <Icon key={i} name="Star" size={15} className="text-amber-400 fill-amber-400" />
-                ))}
+
+        {/* Форма отзыва */}
+        <div className="bg-card border border-border rounded-3xl p-6 md:p-8 mb-10">
+          <h3 className="font-display font-bold text-xl mb-5 flex items-center gap-2">
+            <Icon name="PenLine" size={20} className="text-primary" />
+            Оставить отзыв
+          </h3>
+          {reviewSent ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <Icon name="CheckCircle2" size={32} className="text-emerald-600" />
               </div>
-              <p className="text-sm text-foreground leading-relaxed flex-1">«{r.text}»</p>
-              <div className="pt-3 border-t border-border">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg">{r.avatar}</div>
-                  <div>
-                    <p className="font-bold text-sm">{r.name}</p>
-                    <p className="text-xs text-muted-foreground">{r.city} · {r.product}</p>
+              <p className="font-bold text-lg mb-1">Спасибо за отзыв!</p>
+              <p className="text-muted-foreground text-sm">Он появится на сайте после проверки модератором.</p>
+              <button onClick={() => setReviewSent(false)} className="mt-4 text-sm text-primary hover:underline">Написать ещё один</button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <Input placeholder="Ваше имя *" value={reviewForm.author_name} onChange={e => setReviewForm(f => ({...f, author_name: e.target.value}))} className="h-12 rounded-xl" />
+                <Input placeholder="Город" value={reviewForm.city} onChange={e => setReviewForm(f => ({...f, city: e.target.value}))} className="h-12 rounded-xl" />
+                <Input placeholder="Товар (необязательно)" value={reviewForm.product} onChange={e => setReviewForm(f => ({...f, product: e.target.value}))} className="h-12 rounded-xl" />
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Оценка *</p>
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5].map(s => (
+                      <button key={s} onClick={() => setReviewForm(f => ({...f, rating: s}))} className="p-1">
+                        <Icon name="Star" size={28} className={s <= reviewForm.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'} />
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        {/* Рейтинги платформ */}
-        <div className="mt-10 flex flex-wrap justify-center gap-6">
-          {[
-            { label: 'Яндекс Маркет', rating: '4.9', reviews: '1 240 отзывов' },
-            { label: 'Wildberries', rating: '4.8', reviews: '3 120 отзывов' },
-            { label: 'Ozon', rating: '4.9', reviews: '870 отзывов' },
-          ].map((pl) => (
-            <div key={pl.label} className="flex items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
-              <div className="flex items-center gap-1">
-                <Icon name="Star" size={16} className="text-amber-400 fill-amber-400" />
-                <span className="font-display font-black text-lg">{pl.rating}</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium">{pl.label}</p>
-                <p className="text-xs text-muted-foreground">{pl.reviews}</p>
+              <div className="flex flex-col gap-3">
+                <textarea
+                  placeholder="Ваш отзыв * (минимум 10 символов)"
+                  value={reviewForm.text}
+                  onChange={e => setReviewForm(f => ({...f, text: e.target.value}))}
+                  rows={6}
+                  className="w-full flex-1 rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {reviewError && <p className="text-sm text-red-500">{reviewError}</p>}
+                <Button onClick={handleSubmitReview} disabled={reviewSending} className="gradient-brand text-white rounded-full h-12 font-medium hover:opacity-90 gap-2">
+                  <Icon name="Send" size={16} />
+                  {reviewSending ? 'Отправляем...' : 'Отправить отзыв'}
+                </Button>
+                <p className="text-xs text-muted-foreground">Отзыв появится после проверки модератором</p>
               </div>
             </div>
-          ))}
+          )}
         </div>
+
+        {/* Список отзывов из БД */}
+        {dbReviews.length > 0 ? (
+          <div className="grid md:grid-cols-3 gap-6">
+            {dbReviews.map(r => (
+              <div key={r.id} className="bg-card rounded-3xl border border-border p-6 flex flex-col gap-4 hover-scale">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Icon key={i} name="Star" size={14} className={i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'} />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{r.created_at}</span>
+                </div>
+                <p className="text-sm text-foreground leading-relaxed flex-1">«{r.text}»</p>
+                <div className="pt-3 border-t border-border flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {r.author_name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">{r.author_name}</p>
+                    <p className="text-xs text-muted-foreground">{[r.city, r.product].filter(Boolean).join(' · ')}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground bg-card border border-border rounded-3xl">
+            <Icon name="MessageSquare" size={40} className="mx-auto mb-3 opacity-40" />
+            <p className="font-medium">Пока нет отзывов</p>
+            <p className="text-sm mt-1">Будьте первым — оставьте отзыв выше!</p>
+          </div>
+        )}
       </section>
 
       <section id="about" className="container py-20 grid md:grid-cols-2 gap-12 items-center">

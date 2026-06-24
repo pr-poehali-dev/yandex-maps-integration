@@ -20,6 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
 const ORDERS_URL = 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd';
+const REVIEWS_URL = 'https://functions.poehali.dev/75ddc432-88b5-419f-b6f5-ab2422e5f049';
 const STATIC_CATEGORIES = ['Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
 const BADGES = ['', 'Хит', 'Новинка', 'Скидка'];
 
@@ -119,7 +120,9 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState('');
-  const [tab, setTab] = useState<'products' | 'socials' | 'users' | 'orders'>('orders');
+  const [tab, setTab] = useState<'products' | 'socials' | 'users' | 'orders' | 'reviews'>('orders');
+  const [adminReviews, setAdminReviews] = useState<{id:number;author_name:string;city:string;rating:number;text:string;product:string;is_approved:boolean;created_at:string}[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState('50');
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState('5');
@@ -207,6 +210,26 @@ export default function Admin() {
   const loadProducts = async () => {
     const data = await api('list', {}, token);
     if (data.products) setProducts(data.products);
+  };
+
+  const loadReviews = async () => {
+    setReviewsLoading(true);
+    const res = await fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ action: 'admin_list' }) });
+    const data = await res.json();
+    if (data.reviews) setAdminReviews(data.reviews);
+    setReviewsLoading(false);
+  };
+
+  const handleApproveReview = async (id: number, approved: boolean) => {
+    await fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ action: 'admin_approve', id, approved }) });
+    setAdminReviews(r => r.map(rv => rv.id === id ? { ...rv, is_approved: approved } : rv));
+    showMsg(approved ? 'Отзыв опубликован!' : 'Отзыв скрыт');
+  };
+
+  const handleDeleteReview = async (id: number) => {
+    await fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token || '' }, body: JSON.stringify({ action: 'admin_delete', id }) });
+    setAdminReviews(r => r.filter(rv => rv.id !== id));
+    showMsg('Отзыв удалён');
   };
 
   const loadSettings = async () => {
@@ -410,6 +433,16 @@ export default function Admin() {
           <button onClick={() => setTab('socials')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'socials' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
             <Icon name="Link" size={14} /><span className="hidden sm:inline">Соцсети</span>
+          </button>
+          <button onClick={() => { setTab('reviews'); if (adminReviews.length === 0) loadReviews(); }}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === 'reviews' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'}`}>
+            <Icon name="Star" size={14} />
+            <span className="hidden sm:inline">Отзывы</span>
+            {adminReviews.filter(r => !r.is_approved).length > 0 && (
+              <span className="bg-amber-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {adminReviews.filter(r => !r.is_approved).length}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -784,6 +817,79 @@ export default function Admin() {
               <Button className="gradient-brand text-white rounded-full mt-4 hover:opacity-90" onClick={handleCreate}>
                 Добавить первый товар
               </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Отзывы */}
+      {tab === 'reviews' && (
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-xl">
+              Отзывы <span className="text-muted-foreground font-normal text-base">({adminReviews.length})</span>
+            </h2>
+            <button onClick={loadReviews} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+              <Icon name="RefreshCw" size={14} className={reviewsLoading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+
+          {reviewsLoading && adminReviews.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Icon name="Loader2" size={32} className="mx-auto mb-3 opacity-40 animate-spin" />
+              <p className="text-sm">Загружаем отзывы...</p>
+            </div>
+          ) : adminReviews.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Icon name="MessageSquare" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Отзывов пока нет</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Неодобренные сверху */}
+              {[false, true].map(approved =>
+                adminReviews.filter(r => r.is_approved === approved).map(r => (
+                  <div key={r.id} className={`bg-card border rounded-2xl p-4 space-y-3 ${!r.is_approved ? 'border-amber-300 bg-amber-50/30' : 'border-border'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          {r.author_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{r.author_name}</p>
+                          <p className="text-xs text-muted-foreground">{[r.city, r.product].filter(Boolean).join(' · ')} · {r.created_at}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {Array.from({length: 5}).map((_, i) => (
+                          <Icon key={i} name="Star" size={12} className={i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'} />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed">«{r.text}»</p>
+                    <div className="flex items-center gap-2 pt-1">
+                      {r.is_approved ? (
+                        <button onClick={() => handleApproveReview(r.id, false)}
+                          className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-amber-100 hover:text-amber-700 transition-colors">
+                          <Icon name="EyeOff" size={13} /> Скрыть
+                        </button>
+                      ) : (
+                        <button onClick={() => handleApproveReview(r.id, true)}
+                          className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
+                          <Icon name="CheckCircle2" size={13} /> Опубликовать
+                        </button>
+                      )}
+                      <button onClick={() => handleDeleteReview(r.id)}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-red-100 hover:text-red-600 transition-colors">
+                        <Icon name="Trash2" size={13} /> Удалить
+                      </button>
+                      {!r.is_approved && (
+                        <span className="ml-auto text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-full">На модерации</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

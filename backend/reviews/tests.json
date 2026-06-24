@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "List approved reviews",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list"},
+      "expectedStatus": 200,
+      "expectedBody": {"reviews": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create review - missing name",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "create", "author_name": "", "rating": 5, "text": "Отличный товар!"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "Укажите ваше имя"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create review - success",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "create", "author_name": "Тест Тестов", "city": "Москва", "rating": 5, "text": "Отличный товар, очень доволен покупкой!", "product": "Тест"},
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
