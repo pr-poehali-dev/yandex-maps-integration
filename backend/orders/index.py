@@ -253,8 +253,7 @@ def handler(event: dict, context) -> dict:
     if action == 'pay_init':
         order_id = body.get('order_id')
         amount = int(body.get('amount', 0))
-        origin = event.get('headers', {}).get('origin', 'https://yandex-maps-integration.poehali.dev')
-
+        site_url = 'https://yandex-maps-integration.poehali.dev'
 
         if not order_id or amount <= 0:
             cur.close(); conn.close()
@@ -264,8 +263,8 @@ def handler(event: dict, context) -> dict:
             'Amount': amount * 100,
             'OrderId': str(order_id),
             'Description': f'Заказ №{order_id} в Се-Се',
-            'SuccessURL': f'{origin}/?payment=success&order_id={order_id}',
-            'FailURL': f'{origin}/?payment=fail&order_id={order_id}',
+            'SuccessURL': f'{site_url}/?payment=success&order_id={order_id}',
+            'FailURL': f'{site_url}/?payment=fail&order_id={order_id}',
             'NotificationURL': 'https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd',
         }
         result = tbank_request('Init', params)
