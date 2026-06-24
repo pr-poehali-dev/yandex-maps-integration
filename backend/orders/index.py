@@ -258,7 +258,7 @@ def handler(event: dict, context) -> dict:
     if action == 'pay_init':
         order_id = body.get('order_id')
         amount = int(body.get('amount', 0))
-        site_url = 'https://xn----itbb9bc.xn--p1ai'
+        site_url = 'https://yandex-maps-integration.poehali.dev'
 
         if not order_id or amount <= 0:
             cur.close(); conn.close()
