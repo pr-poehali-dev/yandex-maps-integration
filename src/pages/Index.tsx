@@ -229,6 +229,11 @@ export default function Index() {
   const [reviewError, setReviewError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentFail, setPaymentFail] = useState(false);
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -929,14 +934,34 @@ export default function Index() {
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
                   <div className="absolute top-5 left-5">
                     {(() => {
-                      const hour = new Date().getHours();
-                      const isOpen = hour >= 9 && hour < 22;
-                      return (
-                        <span className={`font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 ${isOpen ? 'bg-white text-foreground' : 'bg-gray-800/80 text-white'}`}>
-                          <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></span>
-                          {isOpen ? 'Открыто сейчас' : 'Закрыто · с 9:00 до 22:00'}
-                        </span>
-                      );
+                      const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+                      const isOpen = h >= 9 && h < 22;
+                      const pad = (n: number) => String(n).padStart(2, '0');
+                      if (isOpen) {
+                        const minsLeft = (22 - h - 1) * 60 + (60 - m);
+                        const showTimer = minsLeft < 60;
+                        const mm = pad(59 - m), ss = pad(60 - s === 60 ? 0 : 60 - s);
+                        const hh = pad(21 - h);
+                        return (
+                          <span className={`font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 ${showTimer ? 'bg-orange-500 text-white' : 'bg-white text-foreground'}`}>
+                            <span className={`w-2 h-2 rounded-full ${showTimer ? 'bg-white animate-pulse' : 'bg-emerald-500 animate-pulse'}`}></span>
+                            {showTimer ? `Закрываемся через ${mm}:${ss}` : 'Открыто сейчас'}
+                          </span>
+                        );
+                      } else {
+                        const minsToOpen = h < 9
+                          ? (9 - h - 1) * 60 + (60 - m)
+                          : (24 - h + 9 - 1) * 60 + (60 - m);
+                        const hLeft = Math.floor(minsToOpen / 60);
+                        const mLeft = minsToOpen % 60;
+                        const ss = pad(60 - s === 60 ? 0 : 60 - s);
+                        return (
+                          <span className="bg-gray-800/80 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            {`Закрыто · откроемся через ${pad(hLeft)}:${pad(mLeft)}:${ss}`}
+                          </span>
+                        );
+                      }
                     })()}
                   </div>
                   {imgs.length > 1 && (
