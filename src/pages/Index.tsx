@@ -1104,18 +1104,6 @@ export default function Index() {
           <p className="text-muted-foreground mt-3 text-lg">Реальные отзывы с Яндекс Карт и наших покупателей</p>
         </div>
 
-        {/* Виджет Яндекс Карт */}
-        <div className="mb-10 rounded-3xl overflow-hidden border border-border">
-          <iframe
-            src="https://yandex.ru/maps-reviews-widget/150382670695?comments"
-            width="100%"
-            height="420"
-            frameBorder="0"
-            style={{ display: 'block' }}
-            title="Отзывы на Яндекс Картах"
-          />
-        </div>
-
         {/* Отзывы с Яндекс Карт */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-5">
