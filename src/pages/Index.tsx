@@ -54,6 +54,118 @@ const PRODUCTS: Product[] = [
   { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, wholesale: 94990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
 ];
 
+type ProductDetails = {
+  description: string;
+  composition?: string;
+  usage?: string;
+  features: string[];
+};
+
+const PRODUCT_DETAILS: Record<number, ProductDetails> = {
+  7: {
+    description: 'Уютный набор для дома — всё необходимое для создания атмосферы тепла и комфорта. Включает аксессуары ручной работы из натуральных материалов.',
+    composition: 'Натуральный хлопок, бамбуковое волокно, натуральный воск',
+    usage: 'Расставьте элементы набора по комнате по вашему вкусу. Свечу зажигайте не более 3 часов подряд.',
+    features: ['Натуральные материалы', 'Ручная работа', 'Безопасно для детей', 'Подходит как подарок'],
+  },
+  8: {
+    description: 'Ароматическая свеча с нежным запахом лаванды и ванили. Создаёт уютную атмосферу, снимает стресс и помогает расслабиться после насыщенного дня.',
+    composition: 'Соевый воск, эфирные масла лаванды и ванили, хлопковый фитиль',
+    usage: 'Зажигайте первый раз на 2–3 часа, чтобы воск расплавился равномерно. Обрезайте фитиль до 5 мм перед каждым использованием.',
+    features: ['Время горения 40+ часов', 'Натуральный соевый воск', 'Без парафина', 'Экологичная упаковка'],
+  },
+  9: {
+    description: 'Микс хрустящих снеков в азиатском стиле: рисовые крекеры, водорослевые чипсы, сушёный горох в соусе терияки. Яркий вкус, который невозможно остановить!',
+    composition: 'Рисовая мука, водоросли нори, соус терияки, соль, специи. Без ГМО, без консервантов.',
+    usage: 'Готов к употреблению. Хранить в сухом прохладном месте.',
+    features: ['Без ГМО', 'Без консервантов', 'Вес 150 г', 'Срок хранения 12 месяцев'],
+  },
+  10: {
+    description: 'Классический японский рамен Tonkotsu — насыщенный свиной бульон, пшеничная лапша и ароматные приправы. Приготовление за 3 минуты.',
+    composition: 'Пшеничная лапша, сухой бульон тонкоцу, соевый соус, кунжутное масло, сушёные водоросли.',
+    usage: 'Залить кипятком 500 мл, накрыть на 3 минуты, добавить приправы, перемешать.',
+    features: ['Приготовление 3 мин', 'Японский рецепт', 'Вес 120 г', 'Острота: средняя'],
+  },
+  11: {
+    description: 'Bubble Tea Matcha — освежающий напиток с тайваньским чаем матча, молочной пеной и жемчужинами тапиоки. Модный хит азиатских кафе у вас дома.',
+    composition: 'Чай матча, молоко, тапиока, сахарный сироп, вода.',
+    usage: 'Взболтайте пакет, откройте широкую трубочку, наслаждайтесь холодным или тёплым.',
+    features: ['Готов за 2 мин', 'Содержит антиоксиданты', 'Объём 250 мл', 'Без искусственных красителей'],
+  },
+  12: {
+    description: 'Газировка Yuzu — игристый напиток с японским цитрусом юдзу. Кисло-сладкий вкус с цветочными нотками, натуральный сок 10%.',
+    composition: 'Газированная вода, сок юдзу 10%, тростниковый сахар, лимонная кислота.',
+    usage: 'Подавать охлаждённым. Встряхивать перед открытием не рекомендуется.',
+    features: ['Натуральный сок 10%', 'Тростниковый сахар', 'Объём 330 мл', 'Без искусственных ароматизаторов'],
+  },
+  13: {
+    description: 'Набор гелевых ручек в стиле Kawaii — яркие цвета, мягкое письмо, очаровательный дизайн. Идеально для учёбы, скетчинга и ведения дневника.',
+    composition: 'Корпус из ABS-пластика, гелевые чернила на водной основе, металлический наконечник 0.5 мм.',
+    usage: 'Писать на бумаге, не нажимая сильно. Хранить в горизонтальном положении.',
+    features: ['12 цветов в наборе', 'Толщина линии 0.5 мм', 'Гипоаллергенные чернила', 'Дизайн Kawaii'],
+  },
+  14: {
+    description: 'Скетчбук формата A5 с плотными листами для скетчинга, акварели и маркеров. Твёрдая обложка с тиснением, лежит ровно при раскрытии.',
+    composition: '60 листов, 200 г/м², бескислотная бумага, переплёт на кольцах.',
+    usage: 'Подходит для карандашей, маркеров, акварели и туши. Не для масляных красок.',
+    features: ['60 листов 200 г/м²', 'Лежит ровно при раскрытии', 'Бескислотная бумага', 'Твёрдая обложка'],
+  },
+  15: {
+    description: 'Плюшевый Куро — мягкая игрушка-котик в чёрном цвете с вышитой мордочкой. Суперприятный на ощупь, подходит для детей от 0+.',
+    composition: 'Внешний материал: плюш (100% полиэстер). Наполнитель: гипоаллергенный синтепон.',
+    usage: 'Стирать при 30°C в мешке для стирки. Не сушить в барабане.',
+    features: ['Высота 30 см', 'Гипоаллергенный', 'Для детей от 0+', 'Сертификат качества CE'],
+  },
+  16: {
+    description: 'Мягкая игрушка Уточка в жёлтом цвете с оранжевым клювиком. Невероятно милая и мягкая — любимица детей и взрослых.',
+    composition: 'Плюш (100% полиэстер), гипоаллергенный наполнитель, пластиковые глазки.',
+    usage: 'Стирать вручную в тёплой воде. Сушить естественным путём.',
+    features: ['Высота 25 см', 'Гипоаллергенный', 'Для детей от 3+', 'Мягкий плюш'],
+  },
+  17: {
+    description: 'Сыворотка Glow Essence с гиалуроновой кислотой и экстрактом центеллы — бестселлер корейской косметики. Увлажняет, выравнивает тон, придаёт сияние уже после первого применения.',
+    composition: 'Aqua, Hyaluronic Acid, Centella Asiatica Extract, Niacinamide, Panthenol, Glycerin.',
+    usage: 'Нанести 2–3 капли на очищенную кожу лица утром и вечером. Распределить лёгкими похлопываниями.',
+    features: ['Гиалуроновая кислота', 'Экстракт центеллы', 'Подходит для чувствительной кожи', 'Дерматологически протестировано'],
+  },
+  18: {
+    description: 'Тканевая маска для лица Jeju с вулканической водой с острова Чеджу — глубоко увлажняет, успокаивает раздражение и восстанавливает кожу.',
+    composition: 'Jeju Volcanic Water, Hyaluronic Acid, Aloe Vera Extract, Allantoin.',
+    usage: 'Нанести маску на чистое лицо на 15–20 минут. Снять маску, остатки эссенции вбить в кожу.',
+    features: ['Вулканическая вода Чеджу', '1 применение', 'Эссенция 23 мл', 'Для всех типов кожи'],
+  },
+  19: {
+    description: 'Маска-плёнка с бамбуковым углем — эффективно очищает поры, удаляет загрязнения и выравнивает текстуру кожи. Визуальный результат после первого применения.',
+    composition: 'Bamboo Charcoal Powder, Polyvinyl Alcohol, Glycerin, Allantoin, Centella Extract.',
+    usage: 'Нанести равномерным слоем на Т-зону, избегая глаз и губ. Подождать 15 мин до высыхания, снять плёнку движением снизу вверх.',
+    features: ['Бамбуковый уголь', 'Очищает поры', 'Объём 60 мл', 'Для жирной кожи'],
+  },
+  20: {
+    description: 'Квадроцикл ATV 250cc — мощный полноприводный квадроцикл для взрослых. Объём двигателя 250cc, независимая подвеска, гидравлические тормоза.',
+    composition: 'Двигатель: 4-такт. 250cc. КПП: автомат + ручной режим. Топливо: АИ-92.',
+    usage: 'Эксплуатировать согласно руководству. ТО каждые 1000 км. Только для лиц 16+.',
+    features: ['Двигатель 250cc', 'Полный привод 4WD', 'Гидравлические тормоза', 'Гарантия 1 год'],
+  },
+  21: {
+    description: 'Квадроцикл ATV 110cc — компактный и манёвренный квадроцикл для детей и подростков. Надёжная защита, электростартер, ограничитель скорости.',
+    composition: 'Двигатель: 4-такт. 110cc. КПП: автомат. Топливо: АИ-92.',
+    usage: 'Под наблюдением взрослых. Использовать защитную экипировку. Ограничитель скорости регулируется.',
+    features: ['Двигатель 110cc', 'Электростартер', 'Ограничитель скорости', 'Для детей 8–14 лет'],
+  },
+  22: {
+    description: 'Питбайк MX 125 — надёжный кроссовый мотоцикл с двигателем 125cc. Усиленная рама, регулируемая подвеска, масляный тормоз.',
+    composition: 'Двигатель: 4-такт. 125cc. КПП: 4 передачи. Топливо: АИ-92.',
+    usage: 'Обкатка 300 км при 50% мощности. ТО через 500 км. Использовать шлем и защиту.',
+    features: ['Двигатель 125cc', '4-ступенчатая КПП', 'Масляный тормоз', 'Гарантия 1 год'],
+  },
+  23: {
+    description: 'Питбайк MX 150 Pro — профессиональный кроссовый мотоцикл для трассы. Усиленная рама Pro-серии, перевёрнутая вилка, дисковые тормоза спереди и сзади.',
+    composition: 'Двигатель: 4-такт. 150cc. КПП: 5 передач. Топливо: АИ-92.',
+    usage: 'Только для опытных гонщиков. Обкатка 500 км. Обязательно использовать полную экипировку.',
+    features: ['Двигатель 150cc', '5-ступенчатая КПП', 'Перевёрнутая вилка', 'Дисковые тормоза'],
+  },
+};
+
 const STATIC_CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
 const STATIC_BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
 
@@ -99,6 +211,7 @@ export default function Index() {
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
   const [dbCategories, setDbCategories] = useState<string[]>([]);
+  const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
@@ -688,12 +801,12 @@ export default function Index() {
               const inCart = cart.find(i => i.id === p.id);
               return (
                 <div key={p.id} className="group bg-card rounded-3xl border border-border overflow-hidden flex flex-col hover-scale animate-fade-in" style={{ animationDelay: `${idx * 60}ms`, opacity: 0 }}>
-                  <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                  <div className="relative overflow-hidden cursor-pointer" style={{ aspectRatio: '4/3' }} onClick={() => setModalProduct(p)}>
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     {p.badge && <Badge className="absolute top-3 left-3 gradient-brand text-white border-0 rounded-full text-xs px-3">{p.badge}</Badge>}
-                    <button onClick={() => addToCart(p.id)} className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-md">
-                      <Icon name="Heart" size={16} className="text-muted-foreground" />
-                    </button>
+                    <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md">
+                      <Icon name="ZoomIn" size={16} className="text-muted-foreground" />
+                    </div>
                     {inCart && (
                       <div className="absolute bottom-3 left-3 bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full">
                         В корзине: {inCart.qty} шт.
@@ -709,9 +822,11 @@ export default function Index() {
                         <span className="text-xs text-muted-foreground">(отзывы)</span>
                       </div>
                     </div>
-                    <h3 className="font-display font-bold text-base leading-snug mb-1">{p.name}</h3>
+                    <button className="text-left" onClick={() => setModalProduct(p)}>
+                      <h3 className="font-display font-bold text-base leading-snug mb-1 hover:text-primary transition-colors">{p.name}</h3>
+                    </button>
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                      {p.brand} · Оригинальное качество · Быстрая доставка
+                      {PRODUCT_DETAILS[p.id]?.description ?? `${p.brand} · Оригинальное качество · Быстрая доставка`}
                     </p>
                     <div className="mt-auto">
                       <div className="flex items-end justify-between mb-3">
@@ -997,6 +1112,124 @@ export default function Index() {
           </div>
         </div>
       </footer>
+
+      {/* Модалка товара */}
+      {modalProduct && (() => {
+        const p = modalProduct;
+        const details = PRODUCT_DETAILS[p.id];
+        const inCart = cart.find(i => i.id === p.id);
+        const wholesaleQty = (p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT);
+        const discountPct = Math.round((1 - p.wholesale / p.price) * 100);
+        return (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4" onClick={() => setModalProduct(null)}>
+            <div className="bg-background rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              {/* Фото */}
+              <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+                <img src={p.image} alt={p.name} className="w-full h-full object-cover rounded-t-3xl sm:rounded-t-3xl" />
+                {p.badge && <Badge className="absolute top-4 left-4 gradient-brand text-white border-0 rounded-full">{p.badge}</Badge>}
+                <button onClick={() => setModalProduct(null)} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-colors">
+                  <Icon name="X" size={18} />
+                </button>
+              </div>
+              {/* Контент */}
+              <div className="p-6 space-y-5">
+                {/* Заголовок */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">{p.category}</span>
+                    <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">{p.brand}</span>
+                    {inCart && <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full">В корзине: {inCart.qty} шт.</span>}
+                  </div>
+                  <h2 className="font-display font-black text-2xl leading-tight">{p.name}</h2>
+                  <div className="flex items-center gap-1 mt-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Icon key={i} name="Star" size={15} className={i < Math.round(p.rating) ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground'} />
+                    ))}
+                    <span className="text-sm font-bold ml-1">{p.rating}</span>
+                    <span className="text-sm text-muted-foreground ml-1">· Проверенный товар</span>
+                  </div>
+                </div>
+
+                {/* Цена */}
+                <div className="bg-muted/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <span className="font-display font-black text-3xl">{fmt(p.price)}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-muted-foreground">Опт от {wholesaleQty} шт.:</span>
+                      <span className="text-base font-bold text-emerald-600">{fmt(p.wholesale)}</span>
+                      <span className="text-xs font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-full">−{discountPct}%</span>
+                    </div>
+                  </div>
+                  <Button onClick={() => { addToCart(p.id); }} className="gradient-brand text-white rounded-full px-8 h-12 text-base font-medium hover:opacity-90 gap-2 flex-shrink-0">
+                    <Icon name="ShoppingCart" size={18} />
+                    В корзину
+                  </Button>
+                </div>
+
+                {/* Описание */}
+                {details?.description && (
+                  <div>
+                    <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+                      <Icon name="Info" size={16} className="text-primary" /> Описание
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{details.description}</p>
+                  </div>
+                )}
+
+                {/* Преимущества */}
+                {details?.features && (
+                  <div>
+                    <h3 className="font-display font-bold text-base mb-3 flex items-center gap-2">
+                      <Icon name="CheckCircle2" size={16} className="text-primary" /> Преимущества
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {details.features.map(f => (
+                        <div key={f} className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+                          <div className="w-4 h-4 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                            <Icon name="Check" size={10} className="text-white" />
+                          </div>
+                          <span className="text-xs font-medium">{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Состав */}
+                {details?.composition && (
+                  <div>
+                    <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+                      <Icon name="FlaskConical" size={16} className="text-primary" /> Состав
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{details.composition}</p>
+                  </div>
+                )}
+
+                {/* Применение */}
+                {details?.usage && (
+                  <div>
+                    <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+                      <Icon name="BookOpen" size={16} className="text-primary" /> Способ применения
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{details.usage}</p>
+                  </div>
+                )}
+
+                {/* Гарантия */}
+                <div className="flex items-center gap-3 border border-border rounded-2xl p-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <Icon name="ShieldCheck" size={20} className="text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">Гарантия качества</p>
+                    <p className="text-xs text-muted-foreground">Возврат в течение 14 дней. Официальная гарантия на технику 2 года.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Модалка авторизации */}
       {authOpen && (
