@@ -81,6 +81,11 @@ def handler(event: dict, context) -> dict:
 
     body = json.loads(event.get('body') or '{}')
     action = body.get('action', '')
+
+    # Т-Банк шлёт вебхук без поля action, но с TerminalKey
+    if not action and body.get('TerminalKey'):
+        action = 'tbank_webhook'
+
     admin_token = event.get('headers', {}).get('X-Admin-Token', '')
     admin_password = os.environ.get('ADMIN_PASSWORD', '')
     auth_token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
@@ -306,11 +311,14 @@ def handler(event: dict, context) -> dict:
     if action == 'tbank_webhook':
         terminal_key = os.environ.get('TBANK_TERMINAL_KEY', '')
         password = os.environ.get('TBANK_PASSWORD', '')
+        print(f"[webhook] received Status={body.get('Status')} OrderId={body.get('OrderId')} TerminalKey={body.get('TerminalKey')}")
         if body.get('TerminalKey') != terminal_key:
+            print(f"[webhook] TerminalKey mismatch: got={body.get('TerminalKey')} expected={terminal_key}")
             cur.close(); conn.close()
             return {'statusCode': 200, 'body': 'FAIL'}
         expected = tbank_token(body, password)
         if body.get('Token') != expected:
+            print(f"[webhook] Token mismatch")
             cur.close(); conn.close()
             return {'statusCode': 200, 'body': 'FAIL'}
         status = body.get('Status')
