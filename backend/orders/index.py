@@ -304,7 +304,7 @@ def handler(event: dict, context) -> dict:
         status = body.get('Status')
         wb_order_id = body.get('OrderId')
         if status == 'CONFIRMED' and wb_order_id:
-            cur.execute("UPDATE orders SET payment_status = 'paid' WHERE id = %s", (wb_order_id,))
+            cur.execute("UPDATE orders SET payment_status = 'paid', status = 'confirmed' WHERE id = %s", (wb_order_id,))
             conn.commit()
         cur.close(); conn.close()
         return {'statusCode': 200, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': 'OK'}

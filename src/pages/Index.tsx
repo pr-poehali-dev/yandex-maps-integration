@@ -235,6 +235,17 @@ export default function Index() {
     if (params.get('payment') === 'success') {
       setPaymentSuccess(true);
       window.history.replaceState({}, '', window.location.pathname);
+      const savedToken = localStorage.getItem('auth_token');
+      if (savedToken) {
+        setMyOrdersLoading(true);
+        fetch(ORDERS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${savedToken}` },
+          body: JSON.stringify({ action: 'my_orders' }),
+        }).then(r => r.json()).then(data => {
+          if (data.orders) setMyOrders(data.orders);
+        }).finally(() => setMyOrdersLoading(false));
+      }
     } else if (params.get('payment') === 'fail') {
       setPaymentFail(true);
       window.history.replaceState({}, '', window.location.pathname);

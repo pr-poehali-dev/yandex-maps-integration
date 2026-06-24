@@ -1,5 +1,7 @@
 {
   "reviews": "https://functions.poehali.dev/75ddc432-88b5-419f-b6f5-ab2422e5f049",
   "orders": "https://functions.poehali.dev/b3cf2e84-45d2-47ff-96ce-48cfa7aa5fbd",
-  "products": "https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a"
+  "products": "https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a",
+  "admin": "https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c",
+  "auth": "https://functions.poehali.dev/9f335fe0-fb45-45a1-8a83-7e0c059ed17b"
 }
