@@ -995,7 +995,7 @@ export default function Index() {
                   <span className="font-bold text-base">Москва (до МКАД)</span>
                   <span className="text-blue-600 font-black text-lg">от 5 000 ₽ — бесплатно</span>
                 </div>
-                <p className="text-sm text-muted-foreground">При заказе до 5 000 ₽ — стоимость доставки рассчитывается индивидуально</p>
+                <p className="text-sm text-muted-foreground">При заказе до 5 000 ₽ — доставка от 300 ₽. От 5 000 ₽ — бесплатно</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <Icon name="Clock" size={14} className="text-blue-600" />
                   <span className="text-xs font-medium text-blue-700">1–2 дня</span>
