@@ -475,33 +475,30 @@ export default function Index() {
                       <button onClick={() => setCheckoutStep('cart')} className="text-muted-foreground hover:text-foreground">
                         <Icon name="ArrowLeft" size={18} />
                       </button>
-                      <SheetTitle className="font-display text-2xl">Адрес доставки</SheetTitle>
+                      <SheetTitle className="font-display text-2xl">
+                        {paymentMethod === 'pickup' ? 'Самовывоз' : 'Адрес доставки'}
+                      </SheetTitle>
                     </div>
                   </SheetHeader>
                   <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
-                    {/* Служба доставки */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-2">Служба доставки</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        {([
-                          { key: 'yandex', label: 'Яндекс', sub: '1–2 дня', icon: 'Zap' },
-                          { key: 'courier', label: 'Курьер', sub: '1–3 дня', icon: 'Truck' },
-                          { key: 'post', label: 'Почта РФ', sub: '3–7 дней', icon: 'Mail' },
-                        ] as { key: 'yandex'|'courier'|'post'; label: string; sub: string; icon: string }[]).map(s => (
-                          <button key={s.key} onClick={() => setDeliveryService(s.key)}
-                            className={`flex flex-col items-center gap-1 py-3 rounded-2xl border text-center transition-all ${deliveryService === s.key ? 'gradient-brand text-white border-transparent' : 'border-border bg-card hover:border-primary'}`}>
-                            <Icon name={s.icon} size={18} />
-                            <span className="text-xs font-semibold">{s.label}</span>
-                            <span className={`text-xs ${deliveryService === s.key ? 'text-white/70' : 'text-muted-foreground'}`}>{s.sub}</span>
-                          </button>
-                        ))}
-                      </div>
+                    {/* Способ получения */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={() => setPaymentMethod('sbp')}
+                        className={`flex flex-col items-center gap-1 py-3 rounded-2xl border text-center transition-all ${paymentMethod !== 'pickup' ? 'gradient-brand text-white border-transparent' : 'border-border bg-card hover:border-primary'}`}>
+                        <Icon name="Truck" size={18} />
+                        <span className="text-xs font-semibold">Доставка</span>
+                      </button>
+                      <button onClick={() => setPaymentMethod('pickup')}
+                        className={`flex flex-col items-center gap-1 py-3 rounded-2xl border text-center transition-all ${paymentMethod === 'pickup' ? 'gradient-brand text-white border-transparent' : 'border-border bg-card hover:border-primary'}`}>
+                        <Icon name="ShoppingBag" size={18} />
+                        <span className="text-xs font-semibold">Самовывоз</span>
+                      </button>
                     </div>
 
-                    {/* Получатель */}
+                    {/* Получатель — всегда */}
                     <div className="space-y-3">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Получатель</p>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Контактные данные</p>
                       <div>
                         <label className="text-xs font-medium text-muted-foreground block mb-1.5">Имя и фамилия <span className="text-red-400">*</span></label>
                         <Input value={address.name} onChange={e => setAddress({...address, name: e.target.value})} placeholder="Иван Иванов" className="h-12 rounded-xl" />
@@ -512,51 +509,84 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {/* Адрес */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Адрес</p>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Город <span className="text-red-400">*</span></label>
-                        <Input value={address.city} onChange={e => setAddress({...address, city: e.target.value})} placeholder="Москва" className="h-12 rounded-xl" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Улица и дом <span className="text-red-400">*</span></label>
-                        <Input value={address.street} onChange={e => setAddress({...address, street: e.target.value})} placeholder="ул. Ленина, д. 10" className="h-12 rounded-xl" />
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
+                    {/* Самовывоз — баннер */}
+                    {paymentMethod === 'pickup' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3">
+                        <Icon name="Phone" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Подъезд</label>
-                          <Input value={address.entrance} onChange={e => setAddress({...address, entrance: e.target.value})} placeholder="1" inputMode="numeric" className="h-12 rounded-xl text-center" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Этаж</label>
-                          <Input value={address.floor} onChange={e => setAddress({...address, floor: e.target.value})} placeholder="5" inputMode="numeric" className="h-12 rounded-xl text-center" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Квартира</label>
-                          <Input value={address.apartment} onChange={e => setAddress({...address, apartment: e.target.value})} placeholder="12" inputMode="numeric" className="h-12 rounded-xl text-center" />
+                          <p className="text-sm font-semibold text-blue-800">Оператор свяжется с вами</p>
+                          <p className="text-xs text-blue-700 mt-0.5">После оформления заказа мы позвоним, чтобы согласовать время и оплату картой на месте.</p>
                         </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Индекс</label>
-                        <Input value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} placeholder="123456" inputMode="numeric" className="h-12 rounded-xl" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground block mb-1.5">Комментарий курьеру</label>
-                        <textarea value={address.comment} onChange={e => setAddress({...address, comment: e.target.value})}
-                          placeholder="Код домофона, время доставки, особые пожелания..."
-                          rows={2} className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
-                      </div>
-                    </div>
+                    )}
+
+                    {/* Адрес — только для доставки */}
+                    {paymentMethod !== 'pickup' && (
+                      <>
+                        {/* Служба доставки */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-2">Служба доставки</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {([
+                              { key: 'yandex', label: 'Яндекс', sub: '1–2 дня', icon: 'Zap' },
+                              { key: 'courier', label: 'Курьер', sub: '1–3 дня', icon: 'Truck' },
+                              { key: 'post', label: 'Почта РФ', sub: '3–7 дней', icon: 'Mail' },
+                            ] as { key: 'yandex'|'courier'|'post'; label: string; sub: string; icon: string }[]).map(s => (
+                              <button key={s.key} onClick={() => setDeliveryService(s.key)}
+                                className={`flex flex-col items-center gap-1 py-3 rounded-2xl border text-center transition-all ${deliveryService === s.key ? 'gradient-brand text-white border-transparent' : 'border-border bg-card hover:border-primary'}`}>
+                                <Icon name={s.icon} size={18} />
+                                <span className="text-xs font-semibold">{s.label}</span>
+                                <span className={`text-xs ${deliveryService === s.key ? 'text-white/70' : 'text-muted-foreground'}`}>{s.sub}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Адрес</p>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Город <span className="text-red-400">*</span></label>
+                            <Input value={address.city} onChange={e => setAddress({...address, city: e.target.value})} placeholder="Москва" className="h-12 rounded-xl" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Улица и дом <span className="text-red-400">*</span></label>
+                            <Input value={address.street} onChange={e => setAddress({...address, street: e.target.value})} placeholder="ул. Ленина, д. 10" className="h-12 rounded-xl" />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Подъезд</label>
+                              <Input value={address.entrance} onChange={e => setAddress({...address, entrance: e.target.value})} placeholder="1" inputMode="numeric" className="h-12 rounded-xl text-center" />
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Этаж</label>
+                              <Input value={address.floor} onChange={e => setAddress({...address, floor: e.target.value})} placeholder="5" inputMode="numeric" className="h-12 rounded-xl text-center" />
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Квартира</label>
+                              <Input value={address.apartment} onChange={e => setAddress({...address, apartment: e.target.value})} placeholder="12" inputMode="numeric" className="h-12 rounded-xl text-center" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Индекс</label>
+                            <Input value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} placeholder="123456" inputMode="numeric" className="h-12 rounded-xl" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Комментарий курьеру</label>
+                            <textarea value={address.comment} onChange={e => setAddress({...address, comment: e.target.value})}
+                              placeholder="Код домофона, время доставки, особые пожелания..."
+                              rows={2} className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="border-t border-border px-6 pt-4 pb-6 flex-shrink-0">
                     <Button
                       className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90 disabled:opacity-50"
-                      disabled={!address.name || !address.phone}
+                      disabled={!address.name || !address.phone || (paymentMethod !== 'pickup' && (!address.city || !address.street))}
                       onClick={() => setCheckoutStep('payment')}>
-                      Перейти к оплате <Icon name="ArrowRight" size={18} className="ml-2" />
+                      {paymentMethod === 'pickup' ? 'Продолжить' : 'Перейти к оплате'} <Icon name="ArrowRight" size={18} className="ml-2" />
                     </Button>
-                    {(!address.name || !address.phone) && (
+                    {(!address.name || !address.phone || (paymentMethod !== 'pickup' && (!address.city || !address.street))) && (
                       <p className="text-xs text-muted-foreground text-center mt-2">Заполните обязательные поля <span className="text-red-400">*</span></p>
                     )}
                   </div>
@@ -575,22 +605,28 @@ export default function Index() {
                     </div>
                   </SheetHeader>
                   <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                    {/* Адрес — сводка */}
+                    {/* Сводка */}
                     <div className="bg-muted/50 rounded-2xl p-4 space-y-1.5">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Доставка</p>
-                        <span className="text-xs font-medium text-primary">
-                          {deliveryService === 'yandex' ? '⚡ Яндекс Доставка' : deliveryService === 'courier' ? '🚚 Курьер' : '📮 Почта РФ'}
-                        </span>
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                          {paymentMethod === 'pickup' ? 'Самовывоз' : 'Доставка'}
+                        </p>
+                        {paymentMethod !== 'pickup' && (
+                          <span className="text-xs font-medium text-primary">
+                            {deliveryService === 'yandex' ? '⚡ Яндекс Доставка' : deliveryService === 'courier' ? '🚚 Курьер' : '📮 Почта РФ'}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm font-semibold">{address.name} · {address.phone}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {address.city}, {address.street}
-                        {address.entrance ? `, подъезд ${address.entrance}` : ''}
-                        {address.floor ? `, этаж ${address.floor}` : ''}
-                        {address.apartment ? `, кв. ${address.apartment}` : ''}
-                        {address.zip ? ` ${address.zip}` : ''}
-                      </p>
+                      {paymentMethod !== 'pickup' && (
+                        <p className="text-sm text-muted-foreground">
+                          {address.city}, {address.street}
+                          {address.entrance ? `, подъезд ${address.entrance}` : ''}
+                          {address.floor ? `, этаж ${address.floor}` : ''}
+                          {address.apartment ? `, кв. ${address.apartment}` : ''}
+                          {address.zip ? ` ${address.zip}` : ''}
+                        </p>
+                      )}
                       {address.comment && <p className="text-xs text-muted-foreground italic">💬 {address.comment}</p>}
                     </div>
                     {/* Состав заказа */}
