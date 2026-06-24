@@ -262,6 +262,7 @@ def handler(event: dict, context) -> dict:
             'FailURL': f'{origin}/?payment=fail&order_id={order_id}',
         }
         result = tbank_request('Init', params)
+        print(f'[pay_init] order_id={order_id} amount={amount} result={result}')
 
         if result.get('Success'):
             payment_id = result.get('PaymentId')
@@ -271,7 +272,7 @@ def handler(event: dict, context) -> dict:
             return ok({'success': True, 'payment_url': result.get('PaymentURL'), 'payment_id': payment_id})
         else:
             cur.close(); conn.close()
-            return err(result.get('Message', 'Ошибка создания платежа'))
+            return ok({'success': False, 'error': result.get('Message', 'Ошибка'), 'raw': result})
 
     # Проверка статуса платежа
     if action == 'pay_check':

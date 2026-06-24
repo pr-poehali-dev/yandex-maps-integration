@@ -196,6 +196,7 @@ export default function Index() {
   const [deliveryService, setDeliveryService] = useState<'yandex' | 'courier' | 'post'>('yandex');
   const [orderDone, setOrderDone] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
+  const [paymentUrl, setPaymentUrl] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
   const SBP_URL = 'https://771385585715.tb.ru';
   const [orderLoading, setOrderLoading] = useState(false);
@@ -669,21 +670,29 @@ export default function Index() {
                             }),
                           });
                           const orderData = await res.json();
-                          setOrderTotal(total);
-                          setOrderDone(true);
+                          const savedTotal = total;
+                          setOrderTotal(savedTotal);
                           setCart([]);
-                          // Если СБП — сразу инициируем платёж Т-Банк
+                          // Если СБП — инициируем платёж Т-Банк
                           if (paymentMethod === 'sbp' && orderData.order_id) {
-                            const payRes = await fetch(ORDERS_URL, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ action: 'pay_init', order_id: orderData.order_id, amount: total }),
-                            });
-                            const payData = await payRes.json();
-                            if (payData.payment_url) {
-                              window.location.href = payData.payment_url;
+                            try {
+                              const payRes = await fetch(ORDERS_URL, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ action: 'pay_init', order_id: orderData.order_id, amount: savedTotal }),
+                              });
+                              const payData = await payRes.json();
+                              if (payData.payment_url) {
+                                setPaymentUrl(payData.payment_url);
+                                setOrderDone(true);
+                                window.open(payData.payment_url, '_blank');
+                                return;
+                              }
+                            } catch {
+                              // fallback — показываем ручную ссылку
                             }
                           }
+                          setOrderDone(true);
                         } finally {
                           setOrderLoading(false);
                         }
@@ -707,19 +716,21 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
                   {paymentMethod === 'sbp' && (
                     <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                      <div className="flex items-center gap-2">
-                        <Icon name="Loader2" size={16} className="text-emerald-600 animate-spin" />
-                        <p className="text-sm font-medium text-emerald-800">Переводим на страницу оплаты...</p>
-                      </div>
+                      <p className="text-sm font-bold text-emerald-800">Оплата через СБП</p>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
                         <span className="text-xs text-emerald-700">Сумма к оплате</span>
                         <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
                       </div>
-                      <p className="text-xs text-emerald-700">Если редирект не произошёл — нажмите кнопку ниже.</p>
-                      <a href={SBP_URL} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium">
+                      <a
+                        href={paymentUrl || SBP_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90"
+                      >
                         <Icon name="Smartphone" size={16} />
                         Оплатить через Т-Банк
                       </a>
+                      <p className="text-xs text-emerald-700 text-center">Откроется страница оплаты Т-Банка</p>
                     </div>
                   )}
                 </div>
