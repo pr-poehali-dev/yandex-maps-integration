@@ -190,7 +190,9 @@ export default function Index() {
   const [category, setCategory] = useState('Все');
   const [maxPrice, setMaxPrice] = useState(5000000);
   const [brands, setBrands] = useState<string[]>([]);
-  const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
+  const [cart, setCart] = useState<{ id: number; qty: number }[]>(() => {
+    try { return JSON.parse(localStorage.getItem('cart') || '[]'); } catch { return []; }
+  });
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'address' | 'payment'>('cart');
   const [address, setAddress] = useState({ city: '', street: '', apartment: '', entrance: '', floor: '', zip: '', name: '', phone: '', comment: '' });
   const [deliveryService, setDeliveryService] = useState<'yandex' | 'courier' | 'post'>('yandex');
@@ -231,6 +233,7 @@ export default function Index() {
   const [paymentFail, setPaymentFail] = useState(false);
   const [now, setNow] = useState(new Date());
   const [expandedMyOrder, setExpandedMyOrder] = useState<number | null>(null);
+  useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
