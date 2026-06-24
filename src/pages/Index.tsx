@@ -673,6 +673,7 @@ export default function Index() {
                           const savedTotal = total;
                           setOrderTotal(savedTotal);
                           setCart([]);
+                          setOrderDone(true);
                           // Если СБП — инициируем платёж Т-Банк
                           if (paymentMethod === 'sbp' && orderData.order_id) {
                             try {
@@ -684,15 +685,11 @@ export default function Index() {
                               const payData = await payRes.json();
                               if (payData.payment_url) {
                                 setPaymentUrl(payData.payment_url);
-                                setOrderDone(true);
-                                window.open(payData.payment_url, '_blank');
-                                return;
                               }
                             } catch {
-                              // fallback — показываем ручную ссылку
+                              // fallback — покажем ручную ссылку
                             }
                           }
-                          setOrderDone(true);
                         } finally {
                           setOrderLoading(false);
                         }
