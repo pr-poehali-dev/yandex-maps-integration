@@ -215,6 +215,8 @@ export default function Index() {
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
   const [dbCategories, setDbCategories] = useState<string[]>([]);
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
+  const [storeImages, setStoreImages] = useState<string[]>([]);
+  const [storeSlideIdx, setStoreSlideIdx] = useState(0);
 
   useEffect(() => {
     fetch(PRODUCTS_URL)
@@ -225,6 +227,9 @@ export default function Index() {
           setSocials(s => ({ ...s, ...data.settings }));
           if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
           if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
+          if (Array.isArray(data.settings.store_images) && data.settings.store_images.length > 0) {
+            setStoreImages(data.settings.store_images);
+          }
         }
         if (data.categories?.length) setDbCategories(data.categories);
       });
@@ -751,21 +756,55 @@ export default function Index() {
       <section className="container py-6 pb-20">
         <div className="relative overflow-hidden rounded-3xl bg-card border border-border">
           <div className="grid md:grid-cols-2 gap-0">
-            {/* Фото */}
-            <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden">
-              <img
-                src="https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6f802402-56c8-4228-bd60-a676b940611d.jpg"
-                alt="Наш магазин"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
-              <div className="absolute top-5 left-5">
-                <span className="bg-white text-foreground font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Открыто сейчас
-                </span>
-              </div>
-            </div>
+            {/* Фото / слайдер */}
+            {(() => {
+              const imgs = storeImages.length > 0 ? storeImages : ['https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6f802402-56c8-4228-bd60-a676b940611d.jpg'];
+              const idx = storeSlideIdx % imgs.length;
+              return (
+                <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden">
+                  {imgs.map((src, i) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={`Магазин ${i + 1}`}
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+                    />
+                  ))}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
+                  <div className="absolute top-5 left-5">
+                    <span className="bg-white text-foreground font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Открыто сейчас
+                    </span>
+                  </div>
+                  {imgs.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setStoreSlideIdx(i => (i - 1 + imgs.length) % imgs.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-colors"
+                      >
+                        <Icon name="ChevronLeft" size={18} />
+                      </button>
+                      <button
+                        onClick={() => setStoreSlideIdx(i => (i + 1) % imgs.length)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-colors"
+                      >
+                        <Icon name="ChevronRight" size={18} />
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {imgs.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setStoreSlideIdx(i)}
+                            className={`rounded-full transition-all duration-300 ${i === idx ? 'w-5 h-2 bg-white' : 'w-2 h-2 bg-white/50'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Контент */}
             <div className="p-8 md:p-10 flex flex-col justify-center">

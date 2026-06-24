@@ -150,6 +150,34 @@ def handler(event: dict, context) -> dict:
         cur.close(); conn.close()
         return ok({'settings': {r[0]: r[1] for r in rows}})
 
+    # Загрузить фото магазина
+    if action == 'upload_store_image':
+        image_b64 = body.get('image')
+        ext = body.get('ext', 'jpg')
+        image_data = base64.b64decode(image_b64)
+        key = f'store/{uuid.uuid4()}.{ext}'
+        s3 = s3_client()
+        s3.put_object(Bucket='files', Key=key, Body=image_data, ContentType=f'image/{ext}')
+        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+        cur.execute("SELECT value FROM site_settings WHERE key='store_images'")
+        row = cur.fetchone()
+        images = json.loads(row[0]) if row and row[0] else []
+        images.append(cdn_url)
+        cur.execute("INSERT INTO site_settings (key, value) VALUES ('store_images', %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", (json.dumps(images),))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True, 'url': cdn_url, 'images': images})
+
+    # Удалить фото магазина
+    if action == 'delete_store_image':
+        url = body.get('url')
+        cur.execute("SELECT value FROM site_settings WHERE key='store_images'")
+        row = cur.fetchone()
+        images = json.loads(row[0]) if row and row[0] else []
+        images = [i for i in images if i != url]
+        cur.execute("INSERT INTO site_settings (key, value) VALUES ('store_images', %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", (json.dumps(images),))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True, 'images': images})
+
     # Сохранить настройки
     if action == 'save_settings':
         settings = body.get('settings', {})

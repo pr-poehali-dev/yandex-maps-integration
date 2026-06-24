@@ -132,6 +132,9 @@ export default function Admin() {
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
   const [payFilter, setPayFilter] = useState<'all' | 'pending' | 'paid'>('all');
+  const [storeImages, setStoreImages] = useState<string[]>([]);
+  const [uploadingStore, setUploadingStore] = useState(false);
+  const storeFileRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -212,7 +215,30 @@ export default function Admin() {
       setSettings(data.settings);
       if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(data.settings.wholesale_qty_default);
       if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(data.settings.wholesale_qty_heavy);
+      if (data.settings.store_images) {
+        try { setStoreImages(JSON.parse(data.settings.store_images)); } catch { setStoreImages([]); }
+      }
     }
+  };
+
+  const handleUploadStoreImage = async (file: File) => {
+    setUploadingStore(true);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = (e.target?.result as string).split(',')[1];
+      const ext = file.name.split('.').pop() || 'jpg';
+      const data = await api('upload_store_image', { image: base64, ext }, token);
+      if (data.images) setStoreImages(data.images);
+      setUploadingStore(false);
+      showMsg('Фото добавлено!');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteStoreImage = async (url: string) => {
+    const data = await api('delete_store_image', { url }, token);
+    if (data.images) setStoreImages(data.images);
+    showMsg('Фото удалено');
   };
 
   const handleSaveSettings = async () => {
@@ -471,6 +497,62 @@ export default function Admin() {
           <Button className="w-full gradient-brand text-white rounded-full h-12 hover:opacity-90" onClick={handleSaveSettings} disabled={savingSettings}>
             {savingSettings ? 'Сохраняю...' : 'Сохранить всё'}
           </Button>
+
+          {/* Фото магазина */}
+          <div className="mt-6 bg-muted/40 rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-bold text-base">Фото магазина</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Показываются в слайдере на главной странице</p>
+              </div>
+              <button
+                onClick={() => storeFileRef.current?.click()}
+                disabled={uploadingStore}
+                className="flex items-center gap-2 bg-primary text-white text-sm font-medium px-4 py-2 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                <Icon name="Plus" size={15} />
+                {uploadingStore ? 'Загрузка...' : 'Добавить фото'}
+              </button>
+              <input ref={storeFileRef} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadStoreImage(f); e.target.value = ''; }} />
+            </div>
+
+            {storeImages.length === 0 ? (
+              <div
+                onClick={() => storeFileRef.current?.click()}
+                className="border-2 border-dashed border-border rounded-2xl p-10 text-center cursor-pointer hover:border-primary transition-colors"
+              >
+                <Icon name="ImagePlus" size={32} className="mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Нажмите, чтобы добавить первое фото</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {storeImages.map((url, i) => (
+                  <div key={url} className="relative group rounded-2xl overflow-hidden aspect-video bg-muted">
+                    <img src={url} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={() => handleDeleteStoreImage(url)}
+                        className="w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </button>
+                    </div>
+                    {i === 0 && (
+                      <span className="absolute top-2 left-2 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full">Главное</span>
+                    )}
+                  </div>
+                ))}
+                <div
+                  onClick={() => storeFileRef.current?.click()}
+                  className="aspect-video border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
+                >
+                  <Icon name="Plus" size={24} className="text-muted-foreground mb-1" />
+                  <span className="text-xs text-muted-foreground">Добавить</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

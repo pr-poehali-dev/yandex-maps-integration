@@ -30,7 +30,15 @@ def handler(event: dict, context) -> dict:
     ]
 
     cur.execute("SELECT key, value FROM site_settings")
-    settings = {r[0]: r[1] for r in cur.fetchall()}
+    settings = {}
+    for r in cur.fetchall():
+        if r[0] == 'store_images':
+            try:
+                settings[r[0]] = json.loads(r[1])
+            except Exception:
+                settings[r[0]] = []
+        else:
+            settings[r[0]] = r[1]
 
     cur.execute("SELECT name FROM categories ORDER BY sort_order, id")
     categories = [r[0] for r in cur.fetchall()]
