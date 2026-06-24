@@ -197,6 +197,7 @@ export default function Index() {
   const [orderDone, setOrderDone] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
   const [paymentUrl, setPaymentUrl] = useState('');
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
   const SBP_URL = 'https://771385585715.tb.ru';
   const [orderLoading, setOrderLoading] = useState(false);
@@ -676,6 +677,7 @@ export default function Index() {
                           setOrderDone(true);
                           // Если СБП — инициируем платёж Т-Банк
                           if (paymentMethod === 'sbp' && orderData.order_id) {
+                            setPaymentLoading(true);
                             try {
                               const payRes = await fetch(ORDERS_URL, {
                                 method: 'POST',
@@ -685,9 +687,12 @@ export default function Index() {
                               const payData = await payRes.json();
                               if (payData.payment_url) {
                                 setPaymentUrl(payData.payment_url);
+                                window.location.href = payData.payment_url;
                               }
-                            } catch (e) {
-                              console.error('[pay_init error]', e);
+                            } catch {
+                              // fallback
+                            } finally {
+                              setPaymentLoading(false);
                             }
                           }
                         } finally {
@@ -713,21 +718,26 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground">Доставка: {address.city}, {address.street}</p>
                   {paymentMethod === 'sbp' && (
                     <div className="w-full mt-2 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                      <p className="text-sm font-bold text-emerald-800">Оплата через СБП</p>
+                      <p className="text-sm font-bold text-emerald-800">Оплата через Т-Банк</p>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
                         <span className="text-xs text-emerald-700">Сумма к оплате</span>
                         <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
                       </div>
-                      <a
-                        href={paymentUrl || SBP_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90"
-                      >
-                        <Icon name="Smartphone" size={16} />
-                        Оплатить через Т-Банк
-                      </a>
-                      <p className="text-xs text-emerald-700 text-center">Откроется страница оплаты Т-Банка</p>
+                      {paymentLoading ? (
+                        <div className="flex items-center justify-center gap-2 py-2">
+                          <Icon name="Loader2" size={18} className="text-emerald-600 animate-spin" />
+                          <span className="text-sm text-emerald-700">Создаём ссылку на оплату...</span>
+                        </div>
+                      ) : (
+                        <a
+                          href={paymentUrl || SBP_URL}
+                          className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium hover:opacity-90 cursor-pointer"
+                          onClick={() => { if (paymentUrl) window.location.href = paymentUrl; }}
+                        >
+                          <Icon name="Smartphone" size={16} />
+                          Перейти к оплате
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
