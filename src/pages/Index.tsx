@@ -956,7 +956,7 @@ export default function Index() {
           </div>
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
-              { icon: 'Zap', title: 'Доставка за 1 день', text: 'Курьером по Долгопрудному и Москве. По России — 2–5 дней Яндекс Доставкой, СДЭК или Почтой России', badge: 'Быстро' },
+              { icon: 'Zap', title: 'Доставка за 1 день', text: 'Курьером по Долгопрудному и Москве (до МКАД). По России — 2–5 дней Яндекс Доставкой, СДЭК или Почтой России', badge: 'Быстро' },
               { icon: 'CreditCard', title: 'Удобная оплата', text: 'СБП, банковской картой онлайн, наличными или картой курьеру при получении', badge: 'Без переплат' },
               { icon: 'ShieldCheck', title: 'Гарантия 2 года', text: 'Официальная гарантия на всю технику. Возврат и обмен в течение 14 дней без вопросов', badge: 'Надёжно' },
             ].map((f) => (
@@ -972,6 +972,49 @@ export default function Index() {
               </div>
             ))}
           </div>
+          {/* Зоны и стоимость доставки */}
+          <div className="bg-card rounded-3xl border border-border p-6 md:p-8 mb-6">
+            <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
+              <Icon name="MapPin" size={18} className="text-primary" />
+              Стоимость доставки
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-5 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-base">Долгопрудный</span>
+                  <span className="text-emerald-600 font-black text-lg">Бесплатно</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Доставка курьером по всему городу без ограничений по сумме заказа</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Icon name="Clock" size={14} className="text-emerald-600" />
+                  <span className="text-xs font-medium text-emerald-700">Доставка в день заказа</span>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-blue-50 border border-blue-100 p-5 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-base">Москва (до МКАД)</span>
+                  <span className="text-blue-600 font-black text-lg">от 5 000 ₽ — бесплатно</span>
+                </div>
+                <p className="text-sm text-muted-foreground">При заказе до 5 000 ₽ — стоимость доставки рассчитывается индивидуально</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Icon name="Clock" size={14} className="text-blue-600" />
+                  <span className="text-xs font-medium text-blue-700">1–2 дня</span>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-muted border border-border p-5 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-base">Вся Россия</span>
+                  <span className="text-foreground font-black text-lg">По тарифу</span>
+                </div>
+                <p className="text-sm text-muted-foreground">СДЭК, Яндекс Доставка, Почта России — стоимость по тарифу службы доставки</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Icon name="Clock" size={14} className="text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">2–14 дней</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Способы доставки */}
           <div className="bg-card rounded-3xl border border-border p-6 md:p-8">
             <h3 className="font-display font-bold text-lg mb-5">Службы доставки</h3>
