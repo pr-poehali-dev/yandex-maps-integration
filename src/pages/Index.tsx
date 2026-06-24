@@ -18,6 +18,7 @@ type Product = {
   image: string;
   badge?: string;
   wholesale_min_qty?: number;
+  description?: string;
 };
 
 const IMG = {
@@ -826,7 +827,7 @@ export default function Index() {
                       <h3 className="font-display font-bold text-base leading-snug mb-1 hover:text-primary transition-colors">{p.name}</h3>
                     </button>
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                      {PRODUCT_DETAILS[p.id]?.description ?? `${p.brand} · Оригинальное качество · Быстрая доставка`}
+                      {(p.description && p.description.trim()) ? p.description : (PRODUCT_DETAILS[p.id]?.description ?? `${p.brand} · Оригинальное качество · Быстрая доставка`)}
                     </p>
                     <div className="mt-auto">
                       <div className="flex items-end justify-between mb-3">
@@ -1117,6 +1118,7 @@ export default function Index() {
       {modalProduct && (() => {
         const p = modalProduct;
         const details = PRODUCT_DETAILS[p.id];
+        const dbDescription = p.description && p.description.trim() ? p.description : null;
         const inCart = cart.find(i => i.id === p.id);
         const wholesaleQty = (p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT);
         const discountPct = Math.round((1 - p.wholesale / p.price) * 100);
@@ -1166,13 +1168,13 @@ export default function Index() {
                   </Button>
                 </div>
 
-                {/* Описание */}
-                {details?.description && (
+                {/* Описание — из БД (приоритет) или из статики */}
+                {(dbDescription || details?.description) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="Info" size={16} className="text-primary" /> Описание
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{details.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{dbDescription ?? details?.description}</p>
                   </div>
                 )}
 
