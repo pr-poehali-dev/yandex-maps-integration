@@ -198,7 +198,7 @@ export default function Index() {
   const [orderTotal, setOrderTotal] = useState(0);
   const [paymentUrl, setPaymentUrl] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash_store' | 'card_store' | 'pickup'>('sbp');
+  const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'card_store' | 'pickup'>('sbp');
   const SBP_URL = 'https://771385585715.tb.ru';
   const [orderLoading, setOrderLoading] = useState(false);
   const [myOrders, setMyOrders] = useState<{ id: number; total: number; status: string; payment_status: string; created_at: string; delivery_service: string; city: string; street: string; items: { name: string; price: number; qty: number }[] }[]>([]);
@@ -627,11 +627,10 @@ export default function Index() {
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { key: 'sbp', icon: 'Smartphone', label: 'СБП онлайн', sub: 'Оплата через Т-Банк по ссылке — быстро и удобно' },
-                          { key: 'pickup', icon: 'ShoppingBag', label: 'Самовывоз из магазина', sub: 'Заберите заказ сами — наличными или картой на месте' },
-                          { key: 'cash_store', icon: 'Banknote', label: 'Наличными в магазине', sub: 'Только при самовывозе или посещении магазина' },
                           { key: 'card_store', icon: 'CreditCard', label: 'Картой в магазине', sub: 'Оплата картой при самовывозе или в магазине' },
+                          { key: 'pickup', icon: 'ShoppingBag', label: 'Самовывоз из магазина', sub: 'Заберите заказ сами — оплата картой на месте' },
                         ].map(m => (
-                          <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'cash_store' | 'card_store' | 'pickup')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+                          <div key={m.key} onClick={() => setPaymentMethod(m.key as 'sbp' | 'card_store' | 'pickup')} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.key ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${paymentMethod === m.key ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
                               <Icon name={m.icon} size={16} />
                             </div>
@@ -749,20 +748,6 @@ export default function Index() {
                       <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-blue-100">
                         <span className="text-xs text-blue-700">К оплате при получении</span>
                         <span className="text-base font-black text-blue-800">{fmt(orderTotal)}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentMethod === 'cash_store' && (
-                    <div className="w-full p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Icon name="Banknote" size={18} className="text-amber-600" />
-                        <p className="text-sm font-bold text-amber-800">Оплата наличными в магазине</p>
-                      </div>
-                      <p className="text-sm text-amber-700">Мы свяжемся с вами для подтверждения. Оплатите наличными при визите в магазин.</p>
-                      <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-between border border-amber-100">
-                        <span className="text-xs text-amber-700">Сумма заказа</span>
-                        <span className="text-base font-black text-amber-800">{fmt(orderTotal)}</span>
                       </div>
                     </div>
                   )}
