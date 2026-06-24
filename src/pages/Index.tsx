@@ -219,6 +219,7 @@ export default function Index() {
   const [storeImages, setStoreImages] = useState<string[]>([]);
   const [storeSlideIdx, setStoreSlideIdx] = useState(0);
   const [dbReviews, setDbReviews] = useState<{id:number;author_name:string;city:string;rating:number;text:string;product:string;created_at:string}[]>([]);
+  const [reviewsExpanded, setReviewsExpanded] = useState(false);
   const [reviewForm, setReviewForm] = useState({ author_name: '', city: '', rating: 5, text: '', product: '' });
   const [reviewSending, setReviewSending] = useState(false);
   const [reviewSent, setReviewSent] = useState(false);
@@ -1126,7 +1127,7 @@ export default function Index() {
               { name: 'Валерия Н.', city: 'Долгопрудный', date: '15 окт 2025', rating: 5, text: 'Впервые попробовала азиатскую косметику — маска Bamboo просто чудо, кожа после неё бархатная! Заказала ещё, привезли быстро и в хорошей упаковке. Подруги завидуют 😊' },
               { name: 'Игорь С.', city: 'Долгопрудный', date: '30 окт 2025', rating: 5, text: 'Купил квадроцикл для сына — менеджер помог с выбором, ответил на все вопросы. Доставка по городу была бесплатной. Ребёнок счастлив, мы тоже! Доверяем магазину 💪' },
               { name: 'Екатерина Д.', city: 'Долгопрудный', date: '5 ноя 2025', rating: 5, text: 'Подарила подруге набор корейской косметики из этого магазина — она была в восторге! Оформление красивое, всё упаковано с любовью. Буду брать подарки только здесь 🎀' },
-            ].map(r => (
+            ].filter((_, i) => reviewsExpanded || i < 6).map(r => (
               <div key={r.name + r.date} className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-3 hover-scale">
                 <div className="flex items-center justify-between">
                   <div className="flex gap-0.5">
@@ -1150,6 +1151,14 @@ export default function Index() {
               </div>
             ))}
           </div>
+          {!reviewsExpanded && (
+            <div className="text-center mt-8">
+              <Button onClick={() => setReviewsExpanded(true)} variant="outline" className="rounded-full px-8 h-12 gap-2 border-border hover:border-primary hover:text-primary transition-colors">
+                <Icon name="ChevronDown" size={16} />
+                Показать все отзывы (18)
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Форма отзыва */}
