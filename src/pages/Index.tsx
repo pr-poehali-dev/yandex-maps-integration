@@ -670,11 +670,13 @@ export default function Index() {
                             }),
                           });
                           const orderData = await res.json();
+                          console.log('[order created]', orderData);
                           const savedTotal = total;
                           setOrderTotal(savedTotal);
                           setCart([]);
                           setOrderDone(true);
                           // Если СБП — инициируем платёж Т-Банк
+                          console.log('[pay_init] paymentMethod=', paymentMethod, 'order_id=', orderData.order_id, 'amount=', savedTotal);
                           if (paymentMethod === 'sbp' && orderData.order_id) {
                             try {
                               const payRes = await fetch(ORDERS_URL, {
@@ -683,11 +685,12 @@ export default function Index() {
                                 body: JSON.stringify({ action: 'pay_init', order_id: orderData.order_id, amount: savedTotal }),
                               });
                               const payData = await payRes.json();
+                              console.log('[pay_init result]', payData);
                               if (payData.payment_url) {
                                 setPaymentUrl(payData.payment_url);
                               }
-                            } catch {
-                              // fallback — покажем ручную ссылку
+                            } catch (e) {
+                              console.error('[pay_init error]', e);
                             }
                           }
                         } finally {
