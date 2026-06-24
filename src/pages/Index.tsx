@@ -195,6 +195,7 @@ export default function Index() {
   const [address, setAddress] = useState({ city: '', street: '', apartment: '', entrance: '', floor: '', zip: '', name: '', phone: '', comment: '' });
   const [deliveryService, setDeliveryService] = useState<'yandex' | 'courier' | 'post'>('yandex');
   const [orderDone, setOrderDone] = useState(false);
+  const [orderTotal, setOrderTotal] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'cash'>('sbp');
   const SBP_URL = 'https://b2b.cbrpay.ru/BS1C0060E74II4FJ8I9OS3LCKOFL877K';
   const [orderLoading, setOrderLoading] = useState(false);
@@ -669,6 +670,7 @@ export default function Index() {
                           });
                         } finally {
                           setOrderLoading(false);
+                          setOrderTotal(total);
                           setOrderDone(true);
                           setCart([]);
                         }
@@ -695,7 +697,7 @@ export default function Index() {
                       <p className="text-sm font-medium text-emerald-800">Оплатите заказ через СБП</p>
                       <div className="bg-white rounded-xl px-4 py-3 flex items-center justify-between border border-emerald-100">
                         <span className="text-xs text-emerald-700">Сумма к оплате</span>
-                        <span className="text-lg font-black text-emerald-800">{fmt(total)}</span>
+                        <span className="text-lg font-black text-emerald-800">{fmt(orderTotal)}</span>
                       </div>
                       <p className="text-xs text-emerald-700">Введите эту сумму при переводе. После оплаты вернитесь сюда.</p>
                       <a href={SBP_URL} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 gradient-brand text-white rounded-full h-11 text-sm font-medium">
