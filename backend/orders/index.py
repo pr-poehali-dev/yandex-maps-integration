@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Authorization',
+            'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Authorization, Authorization',
             'Access-Control-Max-Age': '86400'
         }, 'body': ''}
 
