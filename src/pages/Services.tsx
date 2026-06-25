@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 const PORTFOLIO_URL = 'https://functions.poehali.dev/acfbb8b1-ffd6-45db-935f-f7591b6d5c04';
-const MAX_URL = 'https://web.max.ru/415102834';
+const MAX_URL = 'https://web.max.ru/89161433232';
 
 type Photo = { id: number; service_type: string; title: string; description: string; image_url: string };
 type ServiceTab = 'balloons' | 'cars' | 'korea';
