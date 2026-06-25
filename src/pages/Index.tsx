@@ -177,8 +177,8 @@ const NAV = [
   { id: 'home', label: 'Главная' },
   { id: 'catalog', label: 'Каталог' },
   { id: 'delivery', label: 'Оплата и доставка' },
-  { id: 'about', label: 'О нас' },
   { id: 'contacts', label: 'Контакты' },
+  { id: 'about', label: 'О нас' },
 ];
 
 const PRODUCTS_URL = 'https://functions.poehali.dev/7eb75e0a-030c-4601-9b1f-145e1e775c6a';
@@ -1075,8 +1075,15 @@ export default function Index() {
       <section id="catalog" className="container py-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
-            <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Каталог</h2>
-            <p className="text-muted-foreground mt-2">Найдено товаров: {filtered.length}</p>
+            <div className="flex items-center gap-4 flex-wrap mb-1">
+              <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Каталог</h2>
+              <button onClick={() => navigate('/services')} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border border-primary/30 bg-primary/5 rounded-full px-4 py-1.5 hover:bg-primary/10 transition-colors">
+                <Icon name="Sparkles" size={14} />
+                Услуги
+              </button>
+            </div>
+            <p className="text-muted-foreground mt-1 max-w-lg">Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.</p>
+            <p className="text-muted-foreground text-sm mt-1">Найдено товаров: {filtered.length}</p>
           </div>
           <div className="relative w-full md:w-80">
             <Icon name="Search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />

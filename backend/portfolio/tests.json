@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "List all photos",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list"},
+      "expectedStatus": 200
+    },
+    {
+      "name": "List balloons photos",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list", "service_type": "balloons"},
+      "expectedStatus": 200
+    },
+    {
+      "name": "Delete without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "delete_photo", "id": 999},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "Не авторизован"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
