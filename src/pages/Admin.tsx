@@ -67,6 +67,16 @@ export default function Admin() {
     showMsg(`«${name}» удалена`);
   };
 
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  };
+
+  useEffect(() => {
+    if (isAuth) requestNotificationPermission();
+  }, [isAuth]);
+
   const playNotification = () => {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     [880, 1100, 1320].forEach((freq, i) => {
@@ -101,6 +111,13 @@ export default function Admin() {
           newOnes.forEach((o: Order) => knownOrderIds.current.add(o.id));
           playNotification();
           showMsg(`Новый заказ №${newOnes[0].id}!`);
+          if ('Notification' in window && Notification.permission === 'granted') {
+            const o = newOnes[0];
+            new Notification('🛍️ Новый заказ!', {
+              body: `№${o.id} — ${o.customer_name}, ${o.total} ₽`,
+              icon: '/favicon.ico',
+            });
+          }
         }
       }
     }
