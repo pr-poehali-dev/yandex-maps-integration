@@ -291,18 +291,21 @@ def handler(event: dict, context) -> dict:
             cur.close(); conn.close()
             return err('Не авторизован', 401)
         order_id = body.get('id')
-        # Получаем user_id перед удалением
-        cur.execute("SELECT user_id FROM orders WHERE id = %s", (order_id,))
+        # Получаем user_id и сумму заказа перед удалением
+        cur.execute("SELECT user_id, total FROM orders WHERE id = %s", (order_id,))
         order_row = cur.fetchone()
         cur.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
         cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
-        # Пересчитываем сумму покупок у клиента
+        # Пересчитываем сумму покупок у клиента в discount_cards
         if order_row and order_row[0]:
             uid = order_row[0]
-            cur.execute("SELECT COALESCE(SUM(total),0) FROM orders WHERE user_id = %s AND payment_status = 'paid'", (uid,))
+            cur.execute("SELECT COALESCE(SUM(total), 0) FROM orders WHERE user_id = %s", (uid,))
             new_total = cur.fetchone()[0]
             card_level = get_card_level(new_total)
-            cur.execute("UPDATE users SET total_purchases = %s, card_type = %s WHERE id = %s", (new_total, card_level['type'], uid))
+            cur.execute(
+                "UPDATE discount_cards SET total_purchases = %s, discount_percent = %s, card_type = %s WHERE user_id = %s",
+                (new_total, card_level['discount'], card_level['type'], uid)
+            )
         conn.commit()
         cur.close(); conn.close()
         return ok({'success': True})
