@@ -20,7 +20,7 @@ export default function Admin() {
   const [tab, setTab] = useState<'products' | 'socials' | 'users' | 'orders' | 'reviews' | 'portfolio'>('orders');
   const [adminReviews, setAdminReviews] = useState<AdminReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '' });
+  const [settings, setSettings] = useState<Settings>({ social_instagram: '', social_youtube: '', social_telegram: '', social_max: '', contact_max: '', contact_whatsapp: '' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState('50');
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState('5');
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);

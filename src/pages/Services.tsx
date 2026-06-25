@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 const PORTFOLIO_URL = 'https://functions.poehali.dev/acfbb8b1-ffd6-45db-935f-f7591b6d5c04';
-const MAX_URL = 'https://web.max.ru/89161433232';
+const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
 
 type Photo = { id: number; service_type: string; title: string; description: string; image_url: string };
 type ServiceTab = 'balloons' | 'cars' | 'korea';
@@ -56,6 +56,21 @@ export default function Services() {
   const [tab, setTab] = useState<ServiceTab>('balloons');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [maxUrl, setMaxUrl] = useState('https://web.max.ru/89161433232');
+  const [waUrl, setWaUrl] = useState('');
+
+  useEffect(() => {
+    fetch(ADMIN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_settings' }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.settings?.contact_max) setMaxUrl(`https://web.max.ru/${d.settings.contact_max}`);
+        if (d.settings?.contact_whatsapp) setWaUrl(`https://wa.me/${d.settings.contact_whatsapp}`);
+      });
+  }, []);
 
   useEffect(() => {
     setPhotos([]);
@@ -83,7 +98,7 @@ export default function Services() {
               <Icon name="ShoppingBag" size={15} />
               Каталог
             </button>
-            <a href={MAX_URL} target="_blank" rel="noopener noreferrer">
+            <a href={maxUrl} target="_blank" rel="noopener noreferrer">
               <Button className="gradient-brand text-white rounded-full px-5 hover:opacity-90">
                 Написать Максу
               </Button>
@@ -161,13 +176,23 @@ export default function Services() {
         {/* CTA */}
         <div className="gradient-brand rounded-3xl p-8 text-center text-white">
           <h2 className="font-display font-black text-2xl mb-2">Готовы помочь!</h2>
-          <p className="text-white/80 mb-6">Напишите Максу — обсудим детали и рассчитаем стоимость</p>
-          <a href={MAX_URL} target="_blank" rel="noopener noreferrer">
-            <Button className="bg-white text-primary rounded-full px-10 h-12 text-base font-semibold hover:bg-white/90">
-              <Icon name="MessageCircle" size={18} />
-              Написать Максу
-            </Button>
-          </a>
+          <p className="text-white/80 mb-6">Напишите нам — обсудим детали и рассчитаем стоимость</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href={maxUrl} target="_blank" rel="noopener noreferrer">
+              <Button className="bg-white text-primary rounded-full px-8 h-12 text-base font-semibold hover:bg-white/90 w-full sm:w-auto">
+                <Icon name="MessageCircle" size={18} />
+                Написать в MAX
+              </Button>
+            </a>
+            {waUrl && (
+              <a href={waUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-white/20 text-white border border-white/40 rounded-full px-8 h-12 text-base font-semibold hover:bg-white/30 w-full sm:w-auto">
+                  <Icon name="Phone" size={18} />
+                  WhatsApp
+                </Button>
+              </a>
+            )}
+          </div>
         </div>
       </section>
 
@@ -186,11 +211,20 @@ export default function Services() {
                   <Icon name="X" size={14} />
                 </button>
               </div>
-              <a href={MAX_URL} target="_blank" rel="noopener noreferrer">
-                <Button className="gradient-brand text-white rounded-full w-full mt-4 hover:opacity-90">
-                  Заказать такое же у Макса
-                </Button>
-              </a>
+              <div className="flex gap-2 mt-4">
+                <a href={maxUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+                  <Button className="gradient-brand text-white rounded-full w-full hover:opacity-90">
+                    Заказать в MAX
+                  </Button>
+                </a>
+                {waUrl && (
+                  <a href={waUrl} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" className="rounded-full px-4 h-10">
+                      <Icon name="Phone" size={16} />
+                    </Button>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>

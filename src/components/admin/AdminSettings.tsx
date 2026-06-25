@@ -122,6 +122,29 @@ export default function AdminSettings({
         </div>
       </div>
 
+      {/* Контакты для заказов */}
+      <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
+        <h3 className="font-semibold text-base flex items-center gap-2">
+          <Icon name="Phone" size={16} className="text-primary" />Номера для связи (страница Услуги)
+        </h3>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
+            <Icon name="MessageCircle" size={12} /> Номер MAX (только цифры)
+          </label>
+          <Input value={settings.contact_max} onChange={e => onSetSettings({ ...settings, contact_max: e.target.value })}
+            placeholder="89161433232" className="h-11 rounded-xl text-sm" />
+          <p className="text-xs text-muted-foreground mt-1">Ссылка будет: web.max.ru/[номер]</p>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
+            <Icon name="Phone" size={12} /> Номер WhatsApp (только цифры, с кодом страны)
+          </label>
+          <Input value={settings.contact_whatsapp} onChange={e => onSetSettings({ ...settings, contact_whatsapp: e.target.value })}
+            placeholder="79161433232" className="h-11 rounded-xl text-sm" />
+          <p className="text-xs text-muted-foreground mt-1">Ссылка будет: wa.me/[номер]</p>
+        </div>
+      </div>
+
       {/* Соцсети */}
       <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
         <h3 className="font-semibold text-base flex items-center gap-2">
@@ -131,7 +154,7 @@ export default function AdminSettings({
           { key: 'social_instagram', label: 'Instagram', icon: 'Instagram', placeholder: 'https://instagram.com/...' },
           { key: 'social_youtube', label: 'YouTube', icon: 'Youtube', placeholder: 'https://youtube.com/...' },
           { key: 'social_telegram', label: 'Telegram', icon: 'Send', placeholder: 'https://t.me/...' },
-          { key: 'social_max', label: 'Max', icon: 'Tv', placeholder: 'https://web.max.ru/...' },
+          { key: 'social_max', label: 'Max (ссылка соцсети)', icon: 'Tv', placeholder: 'https://web.max.ru/...' },
         ] as { key: keyof Settings; label: string; icon: string; placeholder: string }[]).map(s => (
           <div key={s.key}>
             <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
