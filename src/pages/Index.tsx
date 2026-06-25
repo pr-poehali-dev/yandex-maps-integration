@@ -378,7 +378,7 @@ export default function Index() {
             Се-Се 谢谢
           </button>
           <nav className="hidden lg:flex items-center gap-7">
-            {NAV.map((n) => (
+            {NAV.slice(0, 2).map((n) => (
               <button key={n.id} onClick={() => scrollTo(n.id)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 {n.label}
               </button>
@@ -386,6 +386,11 @@ export default function Index() {
             <button onClick={() => navigate('/services')} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Услуги
             </button>
+            {NAV.slice(2).map((n) => (
+              <button key={n.id} onClick={() => scrollTo(n.id)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                {n.label}
+              </button>
+            ))}
           </nav>
           <div className="flex items-center gap-2">
             {user ? (
