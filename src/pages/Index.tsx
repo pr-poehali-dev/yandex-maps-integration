@@ -218,7 +218,7 @@ export default function Index() {
   const [authError, setAuthError] = useState('');
   const { user, token, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
-  const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/', contact_max: '89161433232', contact_whatsapp: '' });
+  const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/', contact_max: '89161433232', contact_whatsapp: '', contact_phone: '+7 (916) 143-32-32', contact_email: 'mag789-944@yandex.ru', contact_address: 'г. Долгопрудный, ул. Парковая, 44 к1', contact_hours: 'Ежедневно с 9:00 до 21:00' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
   const [dbCategories, setDbCategories] = useState<string[]>([]);
@@ -1579,13 +1579,13 @@ export default function Index() {
             <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-8">Контакты</h2>
             <div className="space-y-5">
               {[
-                { icon: 'Phone', label: '+7 (916) 143-32-32' },
-                { icon: 'Mail', label: 'mag789-944@yandex.ru' },
-                { icon: 'MapPin', label: 'г. Долгопрудный, ул. Парковая, 44 к1' },
-                { icon: 'Clock', label: 'Ежедневно с 9:00 до 21:00' },
-              ].map((c) => (
+                { icon: 'Phone', label: socials.contact_phone },
+                { icon: 'Mail', label: socials.contact_email },
+                { icon: 'MapPin', label: socials.contact_address },
+                { icon: 'Clock', label: socials.contact_hours },
+              ].filter(c => c.label).map((c) => (
                 <div key={c.label} className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center flex-shrink-0">
                     <Icon name={c.icon} size={20} className="text-primary" />
                   </div>
                   <span className="font-medium">{c.label}</span>
@@ -1598,6 +1598,15 @@ export default function Index() {
                 </div>
                 <span className="font-medium group-hover:text-primary transition-colors">Написать в MAX</span>
               </a>
+              {socials.contact_whatsapp && (
+                <a href={`https://wa.me/${socials.contact_whatsapp}`} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 group">
+                  <div className="w-12 h-12 rounded-2xl bg-green-50 border border-green-200 flex items-center justify-center group-hover:opacity-80 transition-opacity flex-shrink-0">
+                    <Icon name="Phone" size={20} className="text-green-600" />
+                  </div>
+                  <span className="font-medium group-hover:text-primary transition-colors">WhatsApp</span>
+                </a>
+              )}
             </div>
           </div>
           <div className="bg-card rounded-3xl p-8 border border-border">

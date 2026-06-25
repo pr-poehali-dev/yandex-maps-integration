@@ -21,7 +21,7 @@ export type Product = {
   wholesale_min_qty?: number;
 };
 
-export type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string; contact_max: string; contact_whatsapp: string };
+export type Settings = { social_instagram: string; social_youtube: string; social_telegram: string; social_max: string; contact_max: string; contact_whatsapp: string; contact_phone: string; contact_email: string; contact_address: string; contact_hours: string };
 
 export type Order = {
   id: number;

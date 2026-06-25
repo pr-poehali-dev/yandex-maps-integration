@@ -122,10 +122,29 @@ export default function AdminSettings({
         </div>
       </div>
 
+      {/* Контакты на сайте */}
+      <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
+        <h3 className="font-semibold text-base flex items-center gap-2">
+          <Icon name="MapPin" size={16} className="text-primary" />Контакты (раздел на сайте)
+        </h3>
+        {([
+          { key: 'contact_phone', label: 'Телефон', placeholder: '+7 (916) 143-32-32' },
+          { key: 'contact_email', label: 'Email', placeholder: 'mag789-944@yandex.ru' },
+          { key: 'contact_address', label: 'Адрес', placeholder: 'г. Долгопрудный, ул. Парковая, 44 к1' },
+          { key: 'contact_hours', label: 'Время работы', placeholder: 'Ежедневно с 9:00 до 21:00' },
+        ] as { key: keyof Settings; label: string; placeholder: string }[]).map(f => (
+          <div key={f.key}>
+            <label className="text-xs font-medium text-muted-foreground block mb-1.5">{f.label}</label>
+            <Input value={settings[f.key]} onChange={e => onSetSettings({ ...settings, [f.key]: e.target.value })}
+              placeholder={f.placeholder} className="h-11 rounded-xl text-sm" />
+          </div>
+        ))}
+      </div>
+
       {/* Контакты для заказов */}
       <div className="bg-card border border-border rounded-3xl p-5 space-y-4">
         <h3 className="font-semibold text-base flex items-center gap-2">
-          <Icon name="Phone" size={16} className="text-primary" />Номера для связи (страница Услуги)
+          <Icon name="Phone" size={16} className="text-primary" />Мессенджеры для заказов
         </h3>
         <div>
           <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-1.5">
