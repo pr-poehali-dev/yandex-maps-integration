@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -30,6 +30,8 @@ export default function Admin() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [storeImages, setStoreImages] = useState<string[]>([]);
   const [uploadingStore, setUploadingStore] = useState(false);
+  const knownOrderIds = useRef<Set<number>>(new Set());
+  const isFirstLoad = useRef(true);
 
   const isAuth = !!token;
 
@@ -65,15 +67,50 @@ export default function Admin() {
     showMsg(`«${name}» удалена`);
   };
 
-  const loadOrders = async () => {
+  const playNotification = () => {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    [880, 1100, 1320].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.2);
+    });
+  };
+
+  const loadOrders = async (silent = false) => {
     const res = await fetch(ORDERS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
       body: JSON.stringify({ action: 'list' }),
     });
     const data = await res.json();
-    if (data.orders) setOrders(data.orders);
+    if (data.orders) {
+      setOrders(data.orders);
+      if (isFirstLoad.current) {
+        data.orders.forEach((o: Order) => knownOrderIds.current.add(o.id));
+        isFirstLoad.current = false;
+      } else if (!silent) {
+        const newOnes = data.orders.filter((o: Order) => !knownOrderIds.current.has(o.id));
+        if (newOnes.length > 0) {
+          newOnes.forEach((o: Order) => knownOrderIds.current.add(o.id));
+          playNotification();
+          showMsg(`Новый заказ №${newOnes[0].id}!`);
+        }
+      }
+    }
   };
+
+  useEffect(() => {
+    if (!isAuth) return;
+    const interval = setInterval(() => loadOrders(), 30000);
+    return () => clearInterval(interval);
+  }, [isAuth, token]);
 
   const loadProducts = async () => {
     const data = await api('list', {}, token);
