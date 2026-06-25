@@ -218,7 +218,7 @@ export default function Index() {
   const [authError, setAuthError] = useState('');
   const { user, token, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
-  const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/' });
+  const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/', contact_max: '89161433232', contact_whatsapp: '' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
   const [dbCategories, setDbCategories] = useState<string[]>([]);
@@ -1591,7 +1591,7 @@ export default function Index() {
                   <span className="font-medium">{c.label}</span>
                 </div>
               ))}
-              <a href={socials.social_telegram || 'https://t.me/Chineshop1688'} target="_blank" rel="noopener noreferrer"
+              <a href={socials.contact_max ? `https://web.max.ru/${socials.contact_max}` : 'https://web.max.ru/89161433232'} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-4 group">
                 <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white border border-border flex items-center justify-center group-hover:opacity-80 transition-opacity flex-shrink-0">
                   <img src="https://www.google.com/s2/favicons?domain=max.ru&sz=64" alt="MAX" className="w-8 h-8 object-contain" />
