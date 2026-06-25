@@ -2,6 +2,25 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Order, ORDERS_URL, DELIVERY_LABELS, STATUS_LABELS } from './adminTypes';
 
+const COUNTER_ID = 110151073;
+
+function MetrikaWidget() {
+  const url = `https://metrika.yandex.ru/dashboard?id=${COUNTER_ID}`;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer"
+      className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3 mb-4 hover:border-primary transition-colors group">
+      <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+        <Icon name="BarChart2" size={18} className="text-red-500" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs text-muted-foreground mb-0.5">Яндекс Метрика</div>
+        <div className="text-sm font-semibold">Статистика посетителей →</div>
+      </div>
+      <Icon name="ExternalLink" size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
+    </a>
+  );
+}
+
 interface Props {
   orders: Order[];
   token: string;
@@ -64,6 +83,7 @@ export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) 
 
   return (
     <div className="px-4 py-4">
+      <MetrikaWidget />
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display font-bold text-xl">
           Заказы <span className="text-muted-foreground font-normal text-base">({orders.length})</span>
