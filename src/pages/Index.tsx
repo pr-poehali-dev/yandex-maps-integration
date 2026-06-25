@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -186,6 +187,7 @@ const REVIEWS_URL = 'https://functions.poehali.dev/75ddc432-88b5-419f-b6f5-ab242
 const fmt = (n: number) => n.toLocaleString('ru-RU') + ' ₽';
 
 export default function Index() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Все');
   const [maxPrice, setMaxPrice] = useState(5000000);
@@ -381,6 +383,9 @@ export default function Index() {
                 {n.label}
               </button>
             ))}
+            <button onClick={() => navigate('/services')} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Услуги
+            </button>
           </nav>
           <div className="flex items-center gap-2">
             {user ? (
