@@ -950,13 +950,17 @@ export default function Index() {
                   <div className="absolute top-5 left-5">
                     {(() => {
                       const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
-                      const isOpen = h >= 9 && h < 22;
                       const pad = (n: number) => String(n).padStart(2, '0');
+                      // Парсим часы из contact_hours ("Ежедневно с 9:00 до 21:00")
+                      const hoursStr = socials.contact_hours || '';
+                      const hoursMatch = hoursStr.match(/(\d{1,2})[:.](\d{2}).*?(\d{1,2})[:.](\d{2})/);
+                      const openH = hoursMatch ? parseInt(hoursMatch[1]) : 9;
+                      const closeH = hoursMatch ? parseInt(hoursMatch[3]) : 21;
+                      const isOpen = h >= openH && h < closeH;
                       if (isOpen) {
-                        const minsLeft = (22 - h - 1) * 60 + (60 - m);
+                        const minsLeft = (closeH - h - 1) * 60 + (60 - m);
                         const showTimer = minsLeft < 60;
                         const mm = pad(59 - m), ss = pad(60 - s === 60 ? 0 : 60 - s);
-                        const hh = pad(21 - h);
                         return (
                           <span className={`font-bold text-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 ${showTimer ? 'bg-orange-500 text-white' : 'bg-white text-foreground'}`}>
                             <span className={`w-2 h-2 rounded-full ${showTimer ? 'bg-white animate-pulse' : 'bg-emerald-500 animate-pulse'}`}></span>
@@ -964,9 +968,9 @@ export default function Index() {
                           </span>
                         );
                       } else {
-                        const minsToOpen = h < 9
-                          ? (9 - h - 1) * 60 + (60 - m)
-                          : (24 - h + 9 - 1) * 60 + (60 - m);
+                        const minsToOpen = h < openH
+                          ? (openH - h - 1) * 60 + (60 - m)
+                          : (24 - h + openH - 1) * 60 + (60 - m);
                         const hLeft = Math.floor(minsToOpen / 60);
                         const mLeft = minsToOpen % 60;
                         const ss = pad(60 - s === 60 ? 0 : 60 - s);
@@ -1027,7 +1031,7 @@ export default function Index() {
                   { icon: 'Eye', text: 'Товары вживую' },
                   { icon: 'MessageCircle', text: 'Консультация' },
                   { icon: 'PackageCheck', text: 'Самовывоз' },
-                  { icon: 'Clock', text: 'Ежедневно 9–21' },
+                  { icon: 'Clock', text: socials.contact_hours || 'Ежедневно 9–21' },
                 ].map(item => (
                   <div key={item.text} className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5">
                     <Icon name={item.icon} size={16} className="text-primary flex-shrink-0" />
