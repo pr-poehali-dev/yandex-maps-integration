@@ -69,10 +69,10 @@ def handler(event: dict, context) -> dict:
     if action == 'list_items':
         tab_key = body.get('tab_key')
         if tab_key:
-            cur.execute("SELECT id, tab_key, title, description, price, icon, color, sort_order FROM service_items WHERE tab_key = %s ORDER BY sort_order, id", (tab_key,))
+            cur.execute("SELECT id, tab_key, title, description, price, icon, color, sort_order, image_url, discount, duration FROM service_items WHERE tab_key = %s ORDER BY sort_order, id", (tab_key,))
         else:
-            cur.execute("SELECT id, tab_key, title, description, price, icon, color, sort_order FROM service_items ORDER BY tab_key, sort_order, id")
-        items = [{'id': r[0], 'tab_key': r[1], 'title': r[2], 'description': r[3], 'price': r[4], 'icon': r[5], 'color': r[6], 'sort_order': r[7]} for r in cur.fetchall()]
+            cur.execute("SELECT id, tab_key, title, description, price, icon, color, sort_order, image_url, discount, duration FROM service_items ORDER BY tab_key, sort_order, id")
+        items = [{'id': r[0], 'tab_key': r[1], 'title': r[2], 'description': r[3], 'price': r[4], 'icon': r[5], 'color': r[6], 'sort_order': r[7], 'image_url': r[8], 'discount': r[9], 'duration': r[10]} for r in cur.fetchall()]
         cur.close(); conn.close()
         return ok({'items': items})
 
@@ -135,15 +135,18 @@ def handler(event: dict, context) -> dict:
         title = body.get('title', '').strip()
         description = body.get('description', '').strip()
         price = body.get('price', '').strip()
+        discount = body.get('discount', '').strip()
+        duration = body.get('duration', '').strip()
         icon = body.get('icon', 'Star').strip()
         color = body.get('color', 'bg-primary/10 text-primary').strip()
+        image_url = body.get('image_url', '').strip()
         if not tab_key or not title:
             cur.close(); conn.close()
             return err('Укажите tab_key и title')
         cur.execute("SELECT COALESCE(MAX(sort_order),0)+1 FROM service_items WHERE tab_key = %s", (tab_key,))
         sort = cur.fetchone()[0]
-        cur.execute("INSERT INTO service_items (tab_key, title, description, price, icon, color, sort_order) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
-            (tab_key, title, description, price, icon, color, sort))
+        cur.execute("INSERT INTO service_items (tab_key, title, description, price, discount, duration, icon, color, image_url, sort_order) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id",
+            (tab_key, title, description, price, discount, duration, icon, color, image_url, sort))
         new_id = cur.fetchone()[0]
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True, 'id': new_id})
@@ -154,12 +157,33 @@ def handler(event: dict, context) -> dict:
         title = body.get('title', '').strip()
         description = body.get('description', '').strip()
         price = body.get('price', '').strip()
+        discount = body.get('discount', '').strip()
+        duration = body.get('duration', '').strip()
         icon = body.get('icon', 'Star').strip()
         color = body.get('color', 'bg-primary/10 text-primary').strip()
-        cur.execute("UPDATE service_items SET title=%s, description=%s, price=%s, icon=%s, color=%s WHERE id=%s",
-            (title, description, price, icon, color, item_id))
+        image_url = body.get('image_url', '').strip()
+        cur.execute("UPDATE service_items SET title=%s, description=%s, price=%s, discount=%s, duration=%s, icon=%s, color=%s, image_url=%s WHERE id=%s",
+            (title, description, price, discount, duration, icon, color, image_url, item_id))
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})
+
+    # Загрузить фото для карточки услуги
+    if action == 'upload_item_image':
+        item_id = body.get('id')
+        image_b64 = body.get('image', '')
+        if not image_b64 or not item_id:
+            cur.close(); conn.close()
+            return err('Нет изображения или id')
+        if ',' in image_b64:
+            image_b64 = image_b64.split(',', 1)[1]
+        image_data = base64.b64decode(image_b64)
+        key = f'services/{uuid.uuid4()}.jpg'
+        s3 = s3_client()
+        s3.put_object(Bucket='files', Key=key, Body=image_data, ContentType='image/jpeg')
+        image_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+        cur.execute("UPDATE service_items SET image_url=%s WHERE id=%s", (image_url, item_id))
+        conn.commit(); cur.close(); conn.close()
+        return ok({'success': True, 'image_url': image_url})
 
     # Удалить карточку
     if action == 'delete_item':

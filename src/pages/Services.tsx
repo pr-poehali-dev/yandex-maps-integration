@@ -8,7 +8,7 @@ const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aa
 
 type Photo = { id: number; service_type: string; title: string; description: string; image_url: string };
 type Tab = { id: number; key: string; label: string; emoji: string; description: string };
-type ServiceItem = { id: number; tab_key: string; title: string; description: string; price: string; icon: string; color: string };
+type ServiceItem = { id: number; tab_key: string; title: string; description: string; price: string; discount: string; duration: string; icon: string; color: string; image_url: string };
 
 export default function Services() {
   const navigate = useNavigate();
@@ -114,16 +114,37 @@ export default function Services() {
         {items.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
             {items.map(s => (
-              <div key={s.id} className="bg-card border border-border rounded-2xl p-5 flex gap-4 hover:border-primary/40 transition-colors">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
-                  <Icon name={s.icon} fallback="Star" size={22} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <span className="font-semibold text-sm">{s.title}</span>
-                    {s.price && <span className="text-xs font-bold text-primary whitespace-nowrap">{s.price}</span>}
+              <div key={s.id} className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-colors">
+                {s.image_url && (
+                  <div className="w-full h-40 overflow-hidden">
+                    <img src={s.image_url} alt={s.title} className="w-full h-full object-cover" />
                   </div>
-                  {s.description && <p className="text-xs text-muted-foreground leading-relaxed">{s.description}</p>}
+                )}
+                <div className="p-4 flex gap-3">
+                  {!s.image_url && (
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
+                      <Icon name={s.icon} fallback="Star" size={22} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="font-semibold text-sm">{s.title}</span>
+                      {s.price && <span className="text-xs font-bold text-primary whitespace-nowrap">{s.price}</span>}
+                    </div>
+                    {s.description && <p className="text-xs text-muted-foreground leading-relaxed mb-2">{s.description}</p>}
+                    <div className="flex flex-wrap gap-2">
+                      {s.discount && (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5">
+                          <Icon name="Tag" size={10} />{s.discount}
+                        </span>
+                      )}
+                      {s.duration && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted rounded-full px-2.5 py-0.5">
+                          <Icon name="Clock" size={10} />{s.duration}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
