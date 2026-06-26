@@ -8,10 +8,17 @@
       "expectedStatus": 200
     },
     {
-      "name": "List balloons photos",
+      "name": "List service tabs",
       "method": "POST",
       "path": "/",
-      "body": {"action": "list", "service_type": "balloons"},
+      "body": {"action": "list_tabs"},
+      "expectedStatus": 200
+    },
+    {
+      "name": "List service items for balloons",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list_items", "tab_key": "balloons"},
       "expectedStatus": 200
     },
     {

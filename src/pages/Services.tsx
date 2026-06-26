@@ -7,64 +7,22 @@ const PORTFOLIO_URL = 'https://functions.poehali.dev/acfbb8b1-ffd6-45db-935f-f75
 const ADMIN_URL = 'https://functions.poehali.dev/d0783820-5c61-485a-8950-26c45aaa030c';
 
 type Photo = { id: number; service_type: string; title: string; description: string; image_url: string };
-type ServiceTab = 'balloons' | 'cars' | 'korea';
-
-const TABS: { key: ServiceTab; label: string; emoji: string }[] = [
-  { key: 'balloons', label: 'Шары на заказ', emoji: '🎈' },
-  { key: 'cars', label: 'Прокат электромобилей', emoji: '🚗' },
-  { key: 'korea', label: 'Заказ из Кореи', emoji: '🇰🇷' },
-];
-
-const TAB_INFO: Record<ServiceTab, {
-  title: string;
-  desc: string;
-  services: { title: string; desc: string; price: string; color: string; icon: string }[];
-}> = {
-  balloons: {
-    title: 'Шары на заказ',
-    desc: 'Делаем букеты, арки, гирлянды и оформление залов. Доставка и монтаж по городу.',
-    services: [
-      { icon: 'Smile', title: 'Букеты из шаров', desc: 'Под любой повод — день рождения, свадьба, выписка, юбилей', price: 'от 500 ₽', color: 'bg-pink-500/10 text-pink-500' },
-      { icon: 'Sparkles', title: 'Арки и гирлянды', desc: 'Украсим зал аркой или органической гирляндой в любой гамме', price: 'от 2 500 ₽', color: 'bg-purple-500/10 text-purple-500' },
-      { icon: 'Star', title: 'Цифры и буквы', desc: 'Фольгированные цифры и буквы, доставка и сборка', price: 'от 300 ₽/шт', color: 'bg-yellow-500/10 text-yellow-500' },
-      { icon: 'Gift', title: 'Оформление зала', desc: 'Полное оформление — корпоративы, свадьбы, детские праздники', price: 'от 5 000 ₽', color: 'bg-blue-500/10 text-blue-500' },
-    ],
-  },
-  cars: {
-    title: 'Прокат детских электромобилей',
-    desc: 'Аренда электромобилей на праздники, мероприятия и прогулки. Дети в восторге!',
-    services: [
-      { icon: 'Car', title: 'Прокат на праздник', desc: 'Электромобиль на день рождения или детское мероприятие', price: 'от 1 500 ₽/час', color: 'bg-blue-500/10 text-blue-500' },
-      { icon: 'Clock', title: 'Почасовая аренда', desc: 'Берём в аренду на нужное количество часов', price: 'договорная', color: 'bg-green-500/10 text-green-500' },
-      { icon: 'MapPin', title: 'Выезд к вам', desc: 'Привозим электромобиль на место проведения праздника', price: 'включено', color: 'bg-orange-500/10 text-orange-500' },
-    ],
-  },
-  korea: {
-    title: 'Заказ из Кореи',
-    desc: 'Привозим всё из Кореи под заказ — косметику, одежду, снеки, аксессуары и многое другое.',
-    services: [
-      { icon: 'Sparkles', title: 'K-Beauty косметика', desc: 'Корейская косметика — уходовая, декоративная, для волос', price: 'от 500 ₽', color: 'bg-pink-500/10 text-pink-500' },
-      { icon: 'ShoppingBag', title: 'Одежда и мода', desc: 'Трендовая корейская одежда и аксессуары', price: 'от 1 000 ₽', color: 'bg-purple-500/10 text-purple-500' },
-      { icon: 'Cookie', title: 'Снеки и продукты', desc: 'Корейские снеки, напитки, сладости, рамен', price: 'от 300 ₽', color: 'bg-yellow-500/10 text-yellow-500' },
-      { icon: 'Package', title: 'Любой товар под заказ', desc: 'Найдём и привезём всё, что найдёте на корейских сайтах', price: 'по запросу', color: 'bg-blue-500/10 text-blue-500' },
-    ],
-  },
-};
+type Tab = { id: number; key: string; label: string; emoji: string; description: string };
+type ServiceItem = { id: number; tab_key: string; title: string; description: string; price: string; icon: string; color: string };
 
 export default function Services() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<ServiceTab>('balloons');
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [activeTab, setActiveTab] = useState('');
+  const [items, setItems] = useState<ServiceItem[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [maxUrl, setMaxUrl] = useState('https://web.max.ru/89161433232');
   const [waUrl, setWaUrl] = useState('');
 
+  // Загрузка настроек
   useEffect(() => {
-    fetch(ADMIN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'get_settings' }),
-    })
+    fetch(ADMIN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'get_settings' }) })
       .then(r => r.json())
       .then(d => {
         if (d.settings?.contact_max) setMaxUrl(`https://web.max.ru/${d.settings.contact_max}`);
@@ -72,18 +30,29 @@ export default function Services() {
       });
   }, []);
 
+  // Загрузка табов
   useEffect(() => {
-    setPhotos([]);
-    fetch(PORTFOLIO_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'list', service_type: tab }),
-    })
+    fetch(PORTFOLIO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list_tabs' }) })
       .then(r => r.json())
-      .then(d => { if (d.photos) setPhotos(d.photos); });
-  }, [tab]);
+      .then(d => {
+        if (d.tabs?.length) {
+          setTabs(d.tabs);
+          setActiveTab(d.tabs[0].key);
+        }
+      });
+  }, []);
 
-  const info = TAB_INFO[tab];
+  // Загрузка карточек и фото при смене таба
+  useEffect(() => {
+    if (!activeTab) return;
+    fetch(PORTFOLIO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list_items', tab_key: activeTab }) })
+      .then(r => r.json()).then(d => { if (d.items) setItems(d.items); });
+    setPhotos([]);
+    fetch(PORTFOLIO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list', service_type: activeTab }) })
+      .then(r => r.json()).then(d => { if (d.photos) setPhotos(d.photos); });
+  }, [activeTab]);
+
+  const currentTab = tabs.find(t => t.key === activeTab);
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,47 +82,53 @@ export default function Services() {
           Наши <span className="gradient-text">услуги</span>
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Шары, прокат электромобилей и заказ из Кореи — всё в одном месте
+          {tabs.length > 0 ? tabs.map(t => t.label).join(', ') : 'Загружаю...'}
         </p>
       </section>
 
       {/* Табы */}
-      <section className="container pb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`flex-1 flex items-center gap-3 px-5 py-4 rounded-2xl border font-medium transition-all text-left ${tab === t.key ? 'gradient-brand text-white border-transparent shadow-lg' : 'bg-card border-border hover:border-primary/40 text-foreground'}`}>
-              <span className="text-2xl">{t.emoji}</span>
-              <span className="text-sm font-semibold leading-tight">{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+      {tabs.length > 0 && (
+        <section className="container pb-8">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {tabs.map(t => (
+              <button key={t.key} onClick={() => setActiveTab(t.key)}
+                className={`flex-1 flex items-center gap-3 px-5 py-4 rounded-2xl border font-medium transition-all text-left ${activeTab === t.key ? 'gradient-brand text-white border-transparent shadow-lg' : 'bg-card border-border hover:border-primary/40 text-foreground'}`}>
+                <span className="text-2xl">{t.emoji}</span>
+                <span className="text-sm font-semibold leading-tight">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Контент раздела */}
+      {/* Контент */}
       <section className="container pb-16">
-        <div className="mb-6">
-          <h2 className="font-display font-black text-2xl mb-1">{info.title}</h2>
-          <p className="text-muted-foreground">{info.desc}</p>
-        </div>
+        {currentTab && (
+          <div className="mb-6">
+            <h2 className="font-display font-black text-2xl mb-1">{currentTab.label}</h2>
+            {currentTab.description && <p className="text-muted-foreground">{currentTab.description}</p>}
+          </div>
+        )}
 
         {/* Карточки услуг */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-          {info.services.map(s => (
-            <div key={s.title} className="bg-card border border-border rounded-2xl p-5 flex gap-4 hover:border-primary/40 transition-colors">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
-                <Icon name={s.icon} fallback="Star" size={22} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <span className="font-semibold text-sm">{s.title}</span>
-                  <span className="text-xs font-bold text-primary whitespace-nowrap">{s.price}</span>
+        {items.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+            {items.map(s => (
+              <div key={s.id} className="bg-card border border-border rounded-2xl p-5 flex gap-4 hover:border-primary/40 transition-colors">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
+                  <Icon name={s.icon} fallback="Star" size={22} />
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className="font-semibold text-sm">{s.title}</span>
+                    {s.price && <span className="text-xs font-bold text-primary whitespace-nowrap">{s.price}</span>}
+                  </div>
+                  {s.description && <p className="text-xs text-muted-foreground leading-relaxed">{s.description}</p>}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Портфолио */}
         {photos.length > 0 && (
