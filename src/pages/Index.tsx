@@ -877,10 +877,11 @@ export default function Index() {
             <p className="text-lg text-muted-foreground max-w-md mb-8">
               Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
                 В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
               </Button>
+              <Button onClick={() => navigate('/services')} variant="outline" className="rounded-full h-13 px-8 text-base">Услуги</Button>
               <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
             </div>
           </div>
