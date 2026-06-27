@@ -1031,13 +1031,16 @@ export default function Index() {
                   { icon: 'Eye', text: 'Товары вживую' },
                   { icon: 'MessageCircle', text: 'Консультация' },
                   { icon: 'PackageCheck', text: 'Самовывоз' },
-                  { icon: 'Clock', text: socials.contact_hours || 'Ежедневно 9–21' },
                 ].map(item => (
                   <div key={item.text} className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5">
                     <Icon name={item.icon} size={16} className="text-primary flex-shrink-0" />
                     <span className="text-sm font-medium">{item.text}</span>
                   </div>
                 ))}
+                <div className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5 col-span-1">
+                  <Icon name="Clock" size={16} className="text-primary flex-shrink-0" />
+                  <span className="text-xs font-medium leading-tight">{socials.contact_hours || 'Ежедневно 9–21'}</span>
+                </div>
               </div>
 
               {/* Кнопки */}
@@ -1076,7 +1079,7 @@ export default function Index() {
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
                 <Icon name={item.icon} size={18} />
               </div>
-              <span className="text-sm font-medium leading-tight">{item.label}</span>
+              <span className="text-xs sm:text-sm font-medium leading-tight">{item.label}</span>
             </div>
           ))}
         </div>
@@ -1207,8 +1210,8 @@ export default function Index() {
         <div className="container">
           <div className="text-center mb-12">
             <Badge className="gradient-brand text-white border-0 mb-4 rounded-full px-4 py-1.5">Доставка и оплата</Badge>
-            <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight">Быстро, удобно, надёжно</h2>
-            <p className="text-muted-foreground mt-3 text-lg">Доставляем по всей России — от Калининграда до Владивостока</p>
+            <h2 className="font-display font-black text-2xl sm:text-4xl md:text-5xl tracking-tight">Быстро, удобно, надёжно</h2>
+            <p className="text-muted-foreground mt-3 text-sm sm:text-lg">Доставляем по всей России — от Калининграда до Владивостока</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
@@ -1534,7 +1537,7 @@ export default function Index() {
       <section id="about" className="container py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
           <Badge className="gradient-brand text-white border-0 mb-5 rounded-full px-4 py-1.5">О компании</Badge>
-          <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight mb-6">Магазин, которому доверяют</h2>
+          <h2 className="font-display font-black text-2xl sm:text-4xl md:text-5xl tracking-tight mb-6">Магазин, которому доверяют</h2>
           <p className="text-lg text-muted-foreground mb-4">
             Се-Се 谢谢 — это больше чем магазин. Мы рядом, когда нужно порадовать себя или близких: от уютных мелочей для дома до мощной техники для настоящих приключений.
           </p>
@@ -1656,8 +1659,8 @@ export default function Index() {
           {/* CTA баннер */}
           <div className="mt-10 gradient-brand rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-white text-center md:text-left">
-              <h3 className="font-display font-black text-3xl md:text-4xl mb-2">Готовы сделать заказ?</h3>
-              <p className="text-white/80 text-lg">Более 50 000 клиентов уже выбрали нас. Присоединяйтесь!</p>
+              <h3 className="font-display font-black text-xl sm:text-3xl md:text-4xl mb-2">Готовы сделать заказ?</h3>
+              <p className="text-white/80 text-sm sm:text-lg">Более 50 000 клиентов уже выбрали нас. Присоединяйтесь!</p>
             </div>
             <Button onClick={() => scrollTo('catalog')} className="bg-white text-primary font-bold rounded-full px-10 h-14 text-base hover:bg-white/90 flex-shrink-0 shadow-lg">
               Перейти в каталог <Icon name="ArrowRight" size={18} className="ml-2" />
