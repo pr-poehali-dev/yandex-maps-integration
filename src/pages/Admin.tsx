@@ -229,8 +229,8 @@ export default function Admin() {
   if (!isAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-sm shadow-2xl">
-          <div className="text-center mb-8">
+        <div className="bg-card border border-border rounded-3xl p-5 sm:p-8 w-full max-w-sm shadow-2xl">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="w-16 h-16 gradient-brand rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Icon name="ShieldCheck" size={32} className="text-white" />
             </div>

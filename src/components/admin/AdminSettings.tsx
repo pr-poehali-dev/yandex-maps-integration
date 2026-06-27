@@ -191,22 +191,23 @@ export default function AdminSettings({
 
       {/* Фото магазина */}
       <div className="mt-6 bg-muted/40 rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div>
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="min-w-0">
             <h3 className="font-bold text-base">Фото магазина</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Показываются в слайдере на главной странице</p>
           </div>
           <button onClick={() => storeFileRef.current?.click()} disabled={uploadingStore}
-            className="flex items-center gap-2 bg-primary text-white text-sm font-medium px-4 py-2 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50">
-            <Icon name="Plus" size={15} />
-            {uploadingStore ? 'Загрузка...' : 'Добавить фото'}
+            className="flex items-center gap-1.5 bg-primary text-white text-xs sm:text-sm font-medium px-3 py-2 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 flex-shrink-0">
+            <Icon name="Plus" size={14} />
+            <span className="hidden sm:inline">{uploadingStore ? 'Загрузка...' : 'Добавить фото'}</span>
+            <span className="sm:hidden">{uploadingStore ? '...' : 'Фото'}</span>
           </button>
           <input ref={storeFileRef} type="file" accept="image/*" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadStoreImage(f); e.target.value = ''; }} />
         </div>
         {storeImages.length === 0 ? (
           <div onClick={() => storeFileRef.current?.click()}
-            className="border-2 border-dashed border-border rounded-2xl p-10 text-center cursor-pointer hover:border-primary transition-colors">
+            className="border-2 border-dashed border-border rounded-2xl p-6 sm:p-10 text-center cursor-pointer hover:border-primary transition-colors">
             <Icon name="ImagePlus" size={32} className="mx-auto mb-2 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Нажмите, чтобы добавить первое фото</p>
           </div>
