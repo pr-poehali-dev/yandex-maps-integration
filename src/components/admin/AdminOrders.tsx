@@ -131,7 +131,7 @@ export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) 
                       </span>
                     </div>
                     <p className="font-medium text-sm truncate">{o.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{o.customer_phone} · {o.city}</p>
+                    <p className="text-xs text-muted-foreground truncate">{o.customer_phone} · {o.city}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="font-bold text-sm">{o.total.toLocaleString('ru-RU')} ₽</p>
@@ -178,12 +178,12 @@ export default function AdminOrders({ orders, token, onRefresh, onMsg }: Props) 
 
                     <div>
                       <p className="text-xs text-muted-foreground font-medium mb-2">Статус заказа</p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {Object.entries(STATUS_LABELS).map(([key, val]) => (
                           <button key={key}
                             disabled={o.status === key || updatingStatus === o.id}
                             onClick={() => updateOrderStatus(o.id, key)}
-                            className={`py-2 px-3 rounded-xl text-xs font-medium border transition-all ${o.status === key ? `${val.color} border-transparent` : 'border-border bg-card hover:border-primary disabled:opacity-40'}`}>
+                            className={`py-2 px-2 rounded-xl text-xs font-medium border transition-all text-center leading-tight ${o.status === key ? `${val.color} border-transparent` : 'border-border bg-card hover:border-primary disabled:opacity-40'}`}>
                             {updatingStatus === o.id && o.status !== key ? '...' : val.label}
                           </button>
                         ))}
