@@ -223,10 +223,11 @@ export default function Index() {
     return { price: product.price, isWholesale: false };
   };
 
-  const cartItems = cart.map((i) => {
-    const product = allProducts.find((p) => p.id === i.id)!;
+  const cartItems = cart.flatMap((i) => {
+    const product = allProducts.find((p) => p.id === i.id);
+    if (!product) return [];
     const { price, isWholesale } = getEffectivePrice(product, i.qty);
-    return { ...product, qty: i.qty, effectivePrice: price, isWholesale };
+    return [{ ...product, qty: i.qty, effectivePrice: price, isWholesale }];
   });
 
   const total = cartItems.reduce((s, i) => s + i.effectivePrice * i.qty, 0);
