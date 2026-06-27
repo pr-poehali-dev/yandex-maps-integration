@@ -1032,9 +1032,9 @@ export default function Index() {
                   { icon: 'MessageCircle', text: 'Консультация' },
                   { icon: 'PackageCheck', text: 'Самовывоз' },
                 ].map(item => (
-                  <div key={item.text} className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5">
-                    <Icon name={item.icon} size={16} className="text-primary flex-shrink-0" />
-                    <span className="text-sm font-medium">{item.text}</span>
+                  <div key={item.text} className="flex items-center gap-2 bg-muted rounded-xl px-2.5 py-2.5">
+                    <Icon name={item.icon} size={14} className="text-primary flex-shrink-0" />
+                    <span className="text-xs font-medium leading-tight">{item.text}</span>
                   </div>
                 ))}
                 <div className="flex items-center gap-2.5 bg-muted rounded-xl px-3 py-2.5 col-span-1">
