@@ -17,6 +17,7 @@ export type Product = {
   description?: string;
   composition?: string;
   usage_instructions?: string;
+  features?: string;
   sort_order?: number;
   wholesale_min_qty?: number;
 };

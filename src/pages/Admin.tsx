@@ -202,6 +202,7 @@ export default function Admin() {
       description: editing.description || '',
       composition: editing.composition || '',
       usage_instructions: editing.usage_instructions || '',
+      features: editing.features || '',
       wholesale_min_qty: Number(editing.wholesale_min_qty || 0),
     }, token);
     setSaving(false);

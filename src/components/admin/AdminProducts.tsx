@@ -211,6 +211,59 @@ export default function AdminProducts({
                   className="w-full rounded-xl border border-input bg-background px-3 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
 
+              {/* Преимущества */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1.5">Преимущества</label>
+                <p className="text-xs text-muted-foreground mb-2">Каждое преимущество с новой строки</p>
+                {(editing.features || '').split('\n').filter(f => f.trim()).map((feat, idx) => (
+                  <div key={idx} className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+                      <div className="w-4 h-4 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                        <Icon name="Check" size={10} className="text-white" />
+                      </div>
+                      <span className="text-sm font-medium flex-1">{feat}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const lines = (editing.features || '').split('\n');
+                        lines.splice(idx, 1);
+                        onSetEditing({ ...editing, features: lines.join('\n') });
+                      }}
+                      className="w-7 h-7 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors flex-shrink-0">
+                      <Icon name="X" size={14} />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Добавить преимущество..."
+                    className="h-10 rounded-xl text-sm flex-1"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                        const val = e.currentTarget.value.trim();
+                        const cur = (editing.features || '').split('\n').filter(f => f.trim());
+                        onSetEditing({ ...editing, features: [...cur, val].join('\n') });
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    className="h-10 px-3 rounded-xl flex-shrink-0"
+                    onClick={(e) => {
+                      const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                      if (input?.value.trim()) {
+                        const val = input.value.trim();
+                        const cur = (editing.features || '').split('\n').filter(f => f.trim());
+                        onSetEditing({ ...editing, features: [...cur, val].join('\n') });
+                        input.value = '';
+                      }
+                    }}>
+                    <Icon name="Plus" size={16} />
+                  </Button>
+                </div>
+              </div>
+
               {/* Бренд */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground block mb-1.5">Бренд / производитель</label>

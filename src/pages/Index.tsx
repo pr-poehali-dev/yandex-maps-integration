@@ -22,6 +22,7 @@ type Product = {
   description?: string;
   composition?: string;
   usage_instructions?: string;
+  features?: string;
 };
 
 const IMG = {
@@ -1764,24 +1765,30 @@ export default function Index() {
                   </div>
                 )}
 
-                {/* Преимущества — только из статики если товар не редактировался в БД */}
-                {(!hasDbDescription && details?.features) && (
-                  <div>
-                    <h3 className="font-display font-bold text-base mb-3 flex items-center gap-2">
-                      <Icon name="CheckCircle2" size={16} className="text-primary" /> Преимущества
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {details.features.map(f => (
-                        <div key={f} className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
-                          <div className="w-4 h-4 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
-                            <Icon name="Check" size={10} className="text-white" />
+                {/* Преимущества — из БД (приоритет), статика только для нетронутых товаров */}
+                {(() => {
+                  const dbFeatures = (p.features || '').split('\n').filter(f => f.trim());
+                  const staticFeatures = (!hasDbDescription && details?.features) ? details.features : [];
+                  const featureList = dbFeatures.length > 0 ? dbFeatures : staticFeatures;
+                  if (featureList.length === 0) return null;
+                  return (
+                    <div>
+                      <h3 className="font-display font-bold text-base mb-3 flex items-center gap-2">
+                        <Icon name="CheckCircle2" size={16} className="text-primary" /> Преимущества
+                      </h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {featureList.map(f => (
+                          <div key={f} className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+                            <div className="w-4 h-4 rounded-full gradient-brand flex items-center justify-center flex-shrink-0">
+                              <Icon name="Check" size={10} className="text-white" />
+                            </div>
+                            <span className="text-xs font-medium">{f}</span>
                           </div>
-                          <span className="text-xs font-medium">{f}</span>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Состав — из БД (приоритет), статика только если товар не редактировался */}
                 {(p.composition?.trim() || (!hasDbDescription && details?.composition)) && (

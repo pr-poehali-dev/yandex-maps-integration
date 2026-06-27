@@ -93,11 +93,12 @@ def handler(event: dict, context) -> dict:
         description = body.get('description', '')
         composition = body.get('composition', '')
         usage_instructions = body.get('usage_instructions', '')
+        features = body.get('features', '')
         wholesale_min_qty = int(body.get('wholesale_min_qty', 0))
 
         cur.execute(
-            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, description=%s, composition=%s, usage_instructions=%s, wholesale_min_qty=%s, updated_at=NOW() WHERE id=%s",
-            (name, category, brand, price, wholesale, badge, description, composition, usage_instructions, wholesale_min_qty, pid)
+            "UPDATE products SET name=%s, category=%s, brand=%s, price=%s, wholesale=%s, badge=%s, description=%s, composition=%s, usage_instructions=%s, features=%s, wholesale_min_qty=%s, updated_at=NOW() WHERE id=%s",
+            (name, category, brand, price, wholesale, badge, description, composition, usage_instructions, features, wholesale_min_qty, pid)
         )
         conn.commit(); cur.close(); conn.close()
         return ok({'success': True})

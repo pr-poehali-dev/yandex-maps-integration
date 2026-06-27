@@ -18,14 +18,14 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
 
-    cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, description, wholesale_min_qty, composition, usage_instructions FROM products ORDER BY sort_order, id")
+    cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, description, wholesale_min_qty, composition, usage_instructions, features FROM products ORDER BY sort_order, id")
     rows = cur.fetchall()
     products = [
         {'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3],
          'price': r[4], 'wholesale': r[5], 'rating': float(r[6]),
-         'image': r[7], 'badge': r[8], 'description': r[9] or '',
+         'image': r[7], 'badge': r[8], 'description': r[9] if r[9] is not None else None,
          'wholesale_min_qty': r[10] or 0, 'composition': r[11] or '',
-         'usage_instructions': r[12] or ''}
+         'usage_instructions': r[12] or '', 'features': r[13] or ''}
         for r in rows
     ]
 
