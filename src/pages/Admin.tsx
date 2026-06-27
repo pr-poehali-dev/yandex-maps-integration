@@ -50,13 +50,13 @@ export default function Admin() {
     if (data.categories) setCategories(data.categories);
   };
 
-  const handleAddCategory = async () => {
-    const name = newCategory.trim();
-    if (!name) return;
-    const data = await api('add_category', { name }, token);
+  const handleAddCategory = async (name?: string) => {
+    const catName = (name || newCategory).trim();
+    if (!catName) return;
+    const data = await api('add_category', { name: catName }, token);
     if (data.error) { showMsg(data.error); return; }
     setNewCategory('');
-    loadCategories();
+    await loadCategories();
     loadProducts();
     showMsg('Категория добавлена!');
   };
@@ -336,6 +336,7 @@ export default function Admin() {
           onCreate={handleCreate}
           onMsg={showMsg}
           onSetUploading={setUploading}
+          onAddCategory={handleAddCategory}
         />
       )}
 

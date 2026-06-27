@@ -56,11 +56,12 @@ interface Props {
   onCreate: () => void;
   onMsg: (msg: string) => void;
   onSetUploading: (v: boolean) => void;
+  onAddCategory: (name: string) => Promise<void>;
 }
 
 export default function AdminProducts({
   products, editing, saving, uploading, drawerOpen, categories, token,
-  onSetProducts, onOpenEditor, onCloseEditor, onSetEditing, onDelete, onSave, onCreate, onMsg, onSetUploading,
+  onSetProducts, onOpenEditor, onCloseEditor, onSetEditing, onDelete, onSave, onCreate, onMsg, onSetUploading, onAddCategory,
 }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -275,9 +276,36 @@ export default function AdminProducts({
               <div>
                 <label className="text-xs font-medium text-muted-foreground block mb-1.5">Категория</label>
                 <select value={editing.category} onChange={e => onSetEditing({ ...editing, category: e.target.value })}
-                  className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm">
+                  className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm mb-2">
                   {(categories.length > 0 ? categories.map(c => c.name) : STATIC_CATEGORIES).map(c => <option key={c}>{c}</option>)}
                 </select>
+                <div className="flex gap-2">
+                  <Input
+                    id="new-cat-input"
+                    placeholder="Новая категория..."
+                    className="h-9 rounded-xl text-sm flex-1"
+                    onKeyDown={async e => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                        const name = e.currentTarget.value.trim();
+                        await onAddCategory(name);
+                        onSetEditing({ ...editing, category: name });
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                  />
+                  <Button variant="outline" className="h-9 px-3 rounded-xl flex-shrink-0"
+                    onClick={async () => {
+                      const input = document.getElementById('new-cat-input') as HTMLInputElement;
+                      if (input?.value.trim()) {
+                        const name = input.value.trim();
+                        await onAddCategory(name);
+                        onSetEditing({ ...editing, category: name });
+                        input.value = '';
+                      }
+                    }}>
+                    <Icon name="Plus" size={15} />
+                  </Button>
+                </div>
               </div>
 
               {/* Цены */}
