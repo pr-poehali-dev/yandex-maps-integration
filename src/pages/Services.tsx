@@ -78,10 +78,10 @@ export default function Services() {
 
       {/* Hero */}
       <section className="container pt-10 pb-6 text-center">
-        <h1 className="font-display font-black text-4xl md:text-5xl mb-3 leading-tight">
+        <h1 className="font-display font-black text-2xl sm:text-4xl md:text-5xl mb-3 leading-tight">
           Наши <span className="gradient-text">услуги</span>
         </h1>
-        <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+        <p className="text-muted-foreground text-sm sm:text-lg max-w-xl mx-auto">
           {tabs.length > 0 ? tabs.map(t => t.label).join(', ') : 'Загружаю...'}
         </p>
       </section>
@@ -155,7 +155,7 @@ export default function Services() {
         {photos.length > 0 && (
           <div className="mb-10">
             <h3 className="font-display font-bold text-xl mb-4">Портфолио</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {photos.map(p => (
                 <button key={p.id} onClick={() => setSelectedPhoto(p)}
                   className="group relative rounded-2xl overflow-hidden aspect-square bg-muted hover:ring-2 hover:ring-primary transition-all">
@@ -170,19 +170,19 @@ export default function Services() {
         )}
 
         {/* CTA */}
-        <div className="gradient-brand rounded-3xl p-8 text-center text-white">
+        <div className="gradient-brand rounded-3xl p-5 sm:p-8 text-center text-white">
           <h2 className="font-display font-black text-2xl mb-2">Готовы помочь!</h2>
           <p className="text-white/80 mb-6">Напишите нам — обсудим детали и рассчитаем стоимость</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href={maxUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="bg-white text-primary rounded-full px-8 h-12 text-base font-semibold hover:bg-white/90 w-full sm:w-auto">
+              <Button className="bg-white text-primary rounded-full px-6 sm:px-8 h-11 sm:h-12 text-sm sm:text-base font-semibold hover:bg-white/90 w-full sm:w-auto">
                 <Icon name="MessageCircle" size={18} />
                 Написать в MAX
               </Button>
             </a>
             {waUrl && (
               <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                <Button className="bg-white/20 text-white border border-white/40 rounded-full px-8 h-12 text-base font-semibold hover:bg-white/30 w-full sm:w-auto">
+                <Button className="bg-white/20 text-white border border-white/40 rounded-full px-6 sm:px-8 h-11 sm:h-12 text-sm sm:text-base font-semibold hover:bg-white/30 w-full sm:w-auto">
                   <Icon name="Phone" size={18} />
                   WhatsApp
                 </Button>
@@ -195,9 +195,9 @@ export default function Services() {
       {/* Лайтбокс */}
       {selectedPhoto && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelectedPhoto(null)}>
-          <div className="relative max-w-lg w-full bg-card rounded-3xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="relative max-w-sm sm:max-w-lg w-full bg-card rounded-3xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <img src={selectedPhoto.image_url} alt={selectedPhoto.title} className="w-full aspect-square object-cover" />
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-display font-bold text-lg">{selectedPhoto.title}</h3>
