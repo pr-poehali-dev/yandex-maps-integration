@@ -265,6 +265,22 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
+    const CACHE_KEY = 'shop_cache_v1';
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const c = JSON.parse(cached);
+        if (c.products?.length) setDbProducts(c.products);
+        if (c.settings) {
+          setSocials(s => ({ ...s, ...c.settings }));
+          if (c.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(c.settings.wholesale_qty_default));
+          if (c.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(c.settings.wholesale_qty_heavy));
+          if (Array.isArray(c.settings.store_images) && c.settings.store_images.length > 0) setStoreImages(c.settings.store_images);
+        }
+        if (c.categories?.length) setDbCategories(c.categories);
+        if (c.reviews?.length) setDbReviews(c.reviews);
+      } catch (e) { /* ignore */ }
+    }
     fetch(PRODUCTS_URL)
       .then(r => r.json())
       .then(data => {
@@ -273,14 +289,17 @@ export default function Index() {
           setSocials(s => ({ ...s, ...data.settings }));
           if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
           if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
-          if (Array.isArray(data.settings.store_images) && data.settings.store_images.length > 0) {
-            setStoreImages(data.settings.store_images);
-          }
+          if (Array.isArray(data.settings.store_images) && data.settings.store_images.length > 0) setStoreImages(data.settings.store_images);
         }
         if (data.categories?.length) setDbCategories(data.categories);
+        fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) })
+          .then(r => r.json())
+          .then(rd => {
+            const reviews = rd.reviews || [];
+            if (reviews.length) setDbReviews(reviews);
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ products: data.products, settings: data.settings, categories: data.categories, reviews }));
+          });
       });
-    fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) })
-      .then(r => r.json()).then(data => { if (data.reviews) setDbReviews(data.reviews); });
   }, []);
 
   const handleSubmitReview = async () => {
