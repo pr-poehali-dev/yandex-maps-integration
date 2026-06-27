@@ -455,14 +455,14 @@ export default function Index() {
                     </div>
                   ) : (
                     <>
-                      <div className="flex-1 overflow-y-auto space-y-4 px-6 py-3">
+                      <div className="flex-1 overflow-y-auto space-y-4 px-4 py-3">
                         {cartItems.map((i) => (
-                          <div key={i.id} className="flex gap-3 items-center">
-                            <img src={i.image} alt={i.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                          <div key={i.id} className="flex gap-2 items-center">
+                            <img src={i.image} alt={i.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm truncate">{i.name}</p>
-                              <div className="flex items-center gap-2">
-                                <p className="text-primary font-bold">{fmt(i.effectivePrice)}</p>
+                              <p className="font-semibold text-sm leading-tight mb-0.5" style={{display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{i.name}</p>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <p className="text-primary font-bold text-sm">{fmt(i.effectivePrice)}</p>
                                 {i.isWholesale && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium">Опт</span>}
                                 {!i.isWholesale && i.effectivePrice < i.price && <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">−{discountPercent}%</span>}
                               </div>
@@ -478,14 +478,14 @@ export default function Index() {
                                   if (!isNaN(v) && v >= 1) setCart(c => c.map(x => x.id === i.id ? { ...x, qty: v } : x));
                                   else if (e.target.value === '') setCart(c => c.map(x => x.id === i.id ? { ...x, qty: 1 } : x));
                                 }}
-                                className="w-12 text-center text-sm font-medium border border-input rounded-lg h-7 bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                                className="w-9 text-center text-sm font-medium border border-input rounded-lg h-7 bg-background focus:outline-none focus:ring-1 focus:ring-ring"
                               />
                               <Button size="icon" variant="outline" className="w-7 h-7 rounded-full flex-shrink-0" onClick={() => changeQty(i.id, 1)}><Icon name="Plus" size={14} /></Button>
                             </div>
                           </div>
                         ))}
                       </div>
-                      <div className="border-t border-border px-6 pt-4 pb-6 space-y-3 flex-shrink-0">
+                      <div className="border-t border-border px-4 pt-4 pb-6 space-y-3 flex-shrink-0">
                         {wholesaleDiscountAmount > 0 && (
                           <div className="bg-emerald-50 rounded-xl px-4 py-2.5 flex items-center justify-between">
                             <span className="text-sm text-emerald-700 font-medium">Оптовая цена</span>
