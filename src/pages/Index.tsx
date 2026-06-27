@@ -25,154 +25,11 @@ type Product = {
   features?: string;
 };
 
-const IMG = {
-  headphones: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/c196a767-77cc-4bcf-964a-d920c38734c4.jpg',
-  watch: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f41c5f8f-a9e7-41bb-99d2-01813b511c25.jpg',
-  sneakers: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/653aa19f-5c27-4b40-8789-ca4f51a326c9.jpg',
-  home: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6797d70d-3499-4e5f-83d8-ec18a1d90669.jpg',
-  snacks: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/3477e609-5df9-465a-bd9a-f809917117cf.jpg',
-  drinks: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6600e17a-0053-4943-8a5e-5ad0885d4457.jpg',
-  stationery: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/8b6e7544-54d7-450d-8d5e-bac7533ffe7b.jpg',
-  toys: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/0cccad38-cfed-4df1-a6d1-b3a257fe1031.jpg',
-  cosmetics: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/f196c31f-7def-43c7-a4bc-a4b4eb012afc.jpg',
-  atv: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/d74e3cbd-9798-44c8-adb0-2ef46a94d6b7.jpg',
-  pitbike: 'https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/4d30d897-0c9b-49b4-bc2a-04a13bdcfd29.jpg',
-};
 
-const PRODUCTS: Product[] = [
-  { id: 7, name: 'Набор для дома «Уют»', category: 'Товары для дома', price: 2490, wholesale: 1890, brand: 'HomeLife', rating: 4.8, image: IMG.home, badge: 'Новинка' },
-  { id: 8, name: 'Ароматическая свеча', category: 'Товары для дома', price: 890, wholesale: 670, brand: 'HomeLife', rating: 4.7, image: IMG.home },
-  { id: 9, name: 'Снеки Chimi Mix', category: 'Снеки', price: 390, wholesale: 290, brand: 'Chimi', rating: 4.9, image: IMG.snacks, badge: 'Хит' },
-  { id: 10, name: 'Рамен Tonkotsu', category: 'Снеки', price: 290, wholesale: 210, brand: 'Chimi', rating: 4.8, image: IMG.snacks },
-  { id: 11, name: 'Bubble Tea Matcha', category: 'Напитки', price: 350, wholesale: 260, brand: 'Boba', rating: 4.9, image: IMG.drinks, badge: 'Хит' },
-  { id: 12, name: 'Газировка Yuzu', category: 'Напитки', price: 220, wholesale: 160, brand: 'Boba', rating: 4.7, image: IMG.drinks },
-  { id: 13, name: 'Набор ручек Kawaii', category: 'Канцелярия', price: 590, wholesale: 440, brand: 'Kansai', rating: 4.8, image: IMG.stationery, badge: 'Новинка' },
-  { id: 14, name: 'Скетчбук A5', category: 'Канцелярия', price: 490, wholesale: 360, brand: 'Kansai', rating: 4.6, image: IMG.stationery },
-  { id: 15, name: 'Плюшевый Куро', category: 'Игрушки', price: 1290, wholesale: 970, brand: 'ToyBox', rating: 4.9, image: IMG.toys, badge: 'Хит' },
-  { id: 16, name: 'Мягкая игрушка Уточка', category: 'Игрушки', price: 890, wholesale: 670, brand: 'ToyBox', rating: 4.8, image: IMG.toys },
-  { id: 17, name: 'Сыворотка Glow Essence', category: 'Косметика', price: 1990, wholesale: 1490, brand: 'K-Beauty', rating: 4.9, image: IMG.cosmetics, badge: 'Хит' },
-  { id: 18, name: 'Маска для лица Jeju', category: 'Косметика', price: 390, wholesale: 290, brand: 'K-Beauty', rating: 4.8, image: IMG.cosmetics },
-  { id: 19, name: 'Маска-плёнка Bamboo', category: 'Косметика', price: 490, wholesale: 360, brand: 'K-Beauty', rating: 4.7, image: IMG.cosmetics },
-  { id: 20, name: 'Квадроцикл ATV 250cc', category: 'Тяжёлая техника', price: 189990, wholesale: 149990, brand: 'MotoForce', rating: 4.9, image: IMG.atv, badge: 'Новинка' },
-  { id: 21, name: 'Квадроцикл ATV 110cc', category: 'Тяжёлая техника', price: 99990, wholesale: 79990, brand: 'MotoForce', rating: 4.7, image: IMG.atv },
-  { id: 22, name: 'Питбайк MX 125', category: 'Тяжёлая техника', price: 79990, wholesale: 62990, brand: 'MotoForce', rating: 4.8, image: IMG.pitbike, badge: 'Хит' },
-  { id: 23, name: 'Питбайк MX 150 Pro', category: 'Тяжёлая техника', price: 119990, wholesale: 94990, brand: 'MotoForce', rating: 4.9, image: IMG.pitbike },
-];
 
-type ProductDetails = {
-  description: string;
-  composition?: string;
-  usage?: string;
-  features: string[];
-};
 
-const PRODUCT_DETAILS: Record<number, ProductDetails> = {
-  7: {
-    description: 'Уютный набор для дома — всё необходимое для создания атмосферы тепла и комфорта. Включает аксессуары ручной работы из натуральных материалов.',
-    composition: 'Натуральный хлопок, бамбуковое волокно, натуральный воск',
-    usage: 'Расставьте элементы набора по комнате по вашему вкусу. Свечу зажигайте не более 3 часов подряд.',
-    features: ['Натуральные материалы', 'Ручная работа', 'Безопасно для детей', 'Подходит как подарок'],
-  },
-  8: {
-    description: 'Ароматическая свеча с нежным запахом лаванды и ванили. Создаёт уютную атмосферу, снимает стресс и помогает расслабиться после насыщенного дня.',
-    composition: 'Соевый воск, эфирные масла лаванды и ванили, хлопковый фитиль',
-    usage: 'Зажигайте первый раз на 2–3 часа, чтобы воск расплавился равномерно. Обрезайте фитиль до 5 мм перед каждым использованием.',
-    features: ['Время горения 40+ часов', 'Натуральный соевый воск', 'Без парафина', 'Экологичная упаковка'],
-  },
-  9: {
-    description: 'Микс хрустящих снеков в азиатском стиле: рисовые крекеры, водорослевые чипсы, сушёный горох в соусе терияки. Яркий вкус, который невозможно остановить!',
-    composition: 'Рисовая мука, водоросли нори, соус терияки, соль, специи. Без ГМО, без консервантов.',
-    usage: 'Готов к употреблению. Хранить в сухом прохладном месте.',
-    features: ['Без ГМО', 'Без консервантов', 'Вес 150 г', 'Срок хранения 12 месяцев'],
-  },
-  10: {
-    description: 'Классический японский рамен Tonkotsu — насыщенный свиной бульон, пшеничная лапша и ароматные приправы. Приготовление за 3 минуты.',
-    composition: 'Пшеничная лапша, сухой бульон тонкоцу, соевый соус, кунжутное масло, сушёные водоросли.',
-    usage: 'Залить кипятком 500 мл, накрыть на 3 минуты, добавить приправы, перемешать.',
-    features: ['Приготовление 3 мин', 'Японский рецепт', 'Вес 120 г', 'Острота: средняя'],
-  },
-  11: {
-    description: 'Bubble Tea Matcha — освежающий напиток с тайваньским чаем матча, молочной пеной и жемчужинами тапиоки. Модный хит азиатских кафе у вас дома.',
-    composition: 'Чай матча, молоко, тапиока, сахарный сироп, вода.',
-    usage: 'Взболтайте пакет, откройте широкую трубочку, наслаждайтесь холодным или тёплым.',
-    features: ['Готов за 2 мин', 'Содержит антиоксиданты', 'Объём 250 мл', 'Без искусственных красителей'],
-  },
-  12: {
-    description: 'Газировка Yuzu — игристый напиток с японским цитрусом юдзу. Кисло-сладкий вкус с цветочными нотками, натуральный сок 10%.',
-    composition: 'Газированная вода, сок юдзу 10%, тростниковый сахар, лимонная кислота.',
-    usage: 'Подавать охлаждённым. Встряхивать перед открытием не рекомендуется.',
-    features: ['Натуральный сок 10%', 'Тростниковый сахар', 'Объём 330 мл', 'Без искусственных ароматизаторов'],
-  },
-  13: {
-    description: 'Набор гелевых ручек в стиле Kawaii — яркие цвета, мягкое письмо, очаровательный дизайн. Идеально для учёбы, скетчинга и ведения дневника.',
-    composition: 'Корпус из ABS-пластика, гелевые чернила на водной основе, металлический наконечник 0.5 мм.',
-    usage: 'Писать на бумаге, не нажимая сильно. Хранить в горизонтальном положении.',
-    features: ['12 цветов в наборе', 'Толщина линии 0.5 мм', 'Гипоаллергенные чернила', 'Дизайн Kawaii'],
-  },
-  14: {
-    description: 'Скетчбук формата A5 с плотными листами для скетчинга, акварели и маркеров. Твёрдая обложка с тиснением, лежит ровно при раскрытии.',
-    composition: '60 листов, 200 г/м², бескислотная бумага, переплёт на кольцах.',
-    usage: 'Подходит для карандашей, маркеров, акварели и туши. Не для масляных красок.',
-    features: ['60 листов 200 г/м²', 'Лежит ровно при раскрытии', 'Бескислотная бумага', 'Твёрдая обложка'],
-  },
-  15: {
-    description: 'Плюшевый Куро — мягкая игрушка-котик в чёрном цвете с вышитой мордочкой. Суперприятный на ощупь, подходит для детей от 0+.',
-    composition: 'Внешний материал: плюш (100% полиэстер). Наполнитель: гипоаллергенный синтепон.',
-    usage: 'Стирать при 30°C в мешке для стирки. Не сушить в барабане.',
-    features: ['Высота 30 см', 'Гипоаллергенный', 'Для детей от 0+', 'Сертификат качества CE'],
-  },
-  16: {
-    description: 'Мягкая игрушка Уточка в жёлтом цвете с оранжевым клювиком. Невероятно милая и мягкая — любимица детей и взрослых.',
-    composition: 'Плюш (100% полиэстер), гипоаллергенный наполнитель, пластиковые глазки.',
-    usage: 'Стирать вручную в тёплой воде. Сушить естественным путём.',
-    features: ['Высота 25 см', 'Гипоаллергенный', 'Для детей от 3+', 'Мягкий плюш'],
-  },
-  17: {
-    description: 'Сыворотка Glow Essence с гиалуроновой кислотой и экстрактом центеллы — бестселлер корейской косметики. Увлажняет, выравнивает тон, придаёт сияние уже после первого применения.',
-    composition: 'Aqua, Hyaluronic Acid, Centella Asiatica Extract, Niacinamide, Panthenol, Glycerin.',
-    usage: 'Нанести 2–3 капли на очищенную кожу лица утром и вечером. Распределить лёгкими похлопываниями.',
-    features: ['Гиалуроновая кислота', 'Экстракт центеллы', 'Подходит для чувствительной кожи', 'Дерматологически протестировано'],
-  },
-  18: {
-    description: 'Тканевая маска для лица Jeju с вулканической водой с острова Чеджу — глубоко увлажняет, успокаивает раздражение и восстанавливает кожу.',
-    composition: 'Jeju Volcanic Water, Hyaluronic Acid, Aloe Vera Extract, Allantoin.',
-    usage: 'Нанести маску на чистое лицо на 15–20 минут. Снять маску, остатки эссенции вбить в кожу.',
-    features: ['Вулканическая вода Чеджу', '1 применение', 'Эссенция 23 мл', 'Для всех типов кожи'],
-  },
-  19: {
-    description: 'Маска-плёнка с бамбуковым углем — эффективно очищает поры, удаляет загрязнения и выравнивает текстуру кожи. Визуальный результат после первого применения.',
-    composition: 'Bamboo Charcoal Powder, Polyvinyl Alcohol, Glycerin, Allantoin, Centella Extract.',
-    usage: 'Нанести равномерным слоем на Т-зону, избегая глаз и губ. Подождать 15 мин до высыхания, снять плёнку движением снизу вверх.',
-    features: ['Бамбуковый уголь', 'Очищает поры', 'Объём 60 мл', 'Для жирной кожи'],
-  },
-  20: {
-    description: 'Квадроцикл ATV 250cc — мощный полноприводный квадроцикл для взрослых. Объём двигателя 250cc, независимая подвеска, гидравлические тормоза.',
-    composition: 'Двигатель: 4-такт. 250cc. КПП: автомат + ручной режим. Топливо: АИ-92.',
-    usage: 'Эксплуатировать согласно руководству. ТО каждые 1000 км. Только для лиц 16+.',
-    features: ['Двигатель 250cc', 'Полный привод 4WD', 'Гидравлические тормоза', 'Гарантия 1 год'],
-  },
-  21: {
-    description: 'Квадроцикл ATV 110cc — компактный и манёвренный квадроцикл для детей и подростков. Надёжная защита, электростартер, ограничитель скорости.',
-    composition: 'Двигатель: 4-такт. 110cc. КПП: автомат. Топливо: АИ-92.',
-    usage: 'Под наблюдением взрослых. Использовать защитную экипировку. Ограничитель скорости регулируется.',
-    features: ['Двигатель 110cc', 'Электростартер', 'Ограничитель скорости', 'Для детей 8–14 лет'],
-  },
-  22: {
-    description: 'Питбайк MX 125 — надёжный кроссовый мотоцикл с двигателем 125cc. Усиленная рама, регулируемая подвеска, масляный тормоз.',
-    composition: 'Двигатель: 4-такт. 125cc. КПП: 4 передачи. Топливо: АИ-92.',
-    usage: 'Обкатка 300 км при 50% мощности. ТО через 500 км. Использовать шлем и защиту.',
-    features: ['Двигатель 125cc', '4-ступенчатая КПП', 'Масляный тормоз', 'Гарантия 1 год'],
-  },
-  23: {
-    description: 'Питбайк MX 150 Pro — профессиональный кроссовый мотоцикл для трассы. Усиленная рама Pro-серии, перевёрнутая вилка, дисковые тормоза спереди и сзади.',
-    composition: 'Двигатель: 4-такт. 150cc. КПП: 5 передач. Топливо: АИ-92.',
-    usage: 'Только для опытных гонщиков. Обкатка 500 км. Обязательно использовать полную экипировку.',
-    features: ['Двигатель 150cc', '5-ступенчатая КПП', 'Перевёрнутая вилка', 'Дисковые тормоза'],
-  },
-};
 
-const STATIC_CATEGORIES = ['Все', 'Товары для дома', 'Снеки', 'Напитки', 'Канцелярия', 'Игрушки', 'Косметика', 'Тяжёлая техника'];
-const STATIC_BRANDS = ['HomeLife', 'Chimi', 'Boba', 'Kansai', 'ToyBox', 'K-Beauty', 'MotoForce'];
+
 
 const NAV = [
   { id: 'home', label: 'Главная' },
@@ -265,7 +122,7 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    const CACHE_KEY = 'shop_cache_v1';
+    const CACHE_KEY = 'shop_cache_v2';
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
@@ -313,12 +170,11 @@ export default function Index() {
     setReviewForm({ author_name: '', city: '', rating: 5, text: '', product: '' });
   };
 
-  const CATEGORIES = ['Все', ...(dbCategories.length > 0 ? dbCategories : STATIC_CATEGORIES.slice(1))];
+  const CATEGORIES = ['Все', ...dbCategories];
 
-  const allProducts = dbProducts.length > 0 ? dbProducts : PRODUCTS;
+  const allProducts = dbProducts;
   const allBrands = useMemo(() => {
-    const fromProducts = [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
-    return fromProducts.length > 0 ? fromProducts : STATIC_BRANDS;
+    return [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
   }, [allProducts]);
 
   useEffect(() => {
@@ -1194,11 +1050,7 @@ export default function Index() {
                       <h3 className="font-display font-bold text-base leading-snug mb-1 hover:text-primary transition-colors">{p.name}</h3>
                     </button>
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                      {p.description && p.description.trim()
-                        ? p.description
-                        : p.description === null || p.description === undefined
-                          ? (PRODUCT_DETAILS[p.id]?.description ?? `${p.brand} · Оригинальное качество · Быстрая доставка`)
-                          : `${p.brand} · Оригинальное качество · Быстрая доставка`}
+                      {p.description?.trim() || `${p.brand} · Оригинальное качество · Быстрая доставка`}
                     </p>
                     <div className="mt-auto">
                       <div className="flex items-end justify-between mb-3">
@@ -1721,10 +1573,7 @@ export default function Index() {
       {/* Модалка товара */}
       {modalProduct && (() => {
         const p = modalProduct;
-        const details = PRODUCT_DETAILS[p.id];
-        // null/undefined = товар без описания (показываем статику), '' = описание намеренно стёрто (не показываем статику)
-        const hasDbDescription = p.description != null;
-        const dbDescription = p.description && p.description.trim() ? p.description : null;
+        const dbDescription = p.description?.trim() || null;
         const inCart = cart.find(i => i.id === p.id);
         const wholesaleQty = (p.wholesale_min_qty && p.wholesale_min_qty > 0) ? p.wholesale_min_qty : (p.category === 'Тяжёлая техника' ? WHOLESALE_QTY_HEAVY : WHOLESALE_QTY_DEFAULT);
         const discountPct = Math.round((1 - p.wholesale / p.price) * 100);
@@ -1774,21 +1623,19 @@ export default function Index() {
                   </Button>
                 </div>
 
-                {/* Описание — из БД (приоритет), статика только если в БД не трогали */}
-                {(dbDescription || (!hasDbDescription && details?.description)) && (
+                {/* Описание */}
+                {dbDescription && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="Info" size={16} className="text-primary" /> Описание
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{dbDescription ?? details?.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{dbDescription}</p>
                   </div>
                 )}
 
-                {/* Преимущества — из БД (приоритет), статика только для нетронутых товаров */}
+                {/* Преимущества */}
                 {(() => {
-                  const dbFeatures = (p.features || '').split('\n').filter(f => f.trim());
-                  const staticFeatures = (!hasDbDescription && details?.features) ? details.features : [];
-                  const featureList = dbFeatures.length > 0 ? dbFeatures : staticFeatures;
+                  const featureList = (p.features || '').split('\n').filter(f => f.trim());
                   if (featureList.length === 0) return null;
                   return (
                     <div>
@@ -1809,23 +1656,23 @@ export default function Index() {
                   );
                 })()}
 
-                {/* Состав — из БД (приоритет), статика только если товар не редактировался */}
-                {(p.composition?.trim() || (!hasDbDescription && details?.composition)) && (
+                {/* Состав */}
+                {p.composition?.trim() && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="FlaskConical" size={16} className="text-primary" /> Состав
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.composition?.trim() || details?.composition}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.composition.trim()}</p>
                   </div>
                 )}
 
-                {/* Применение — из БД (приоритет), статика только если товар не редактировался */}
-                {(p.usage_instructions?.trim() || (!hasDbDescription && details?.usage)) && (
+                {/* Применение */}
+                {p.usage_instructions?.trim() && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="BookOpen" size={16} className="text-primary" /> Способ применения
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.usage_instructions?.trim() || details?.usage}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed bg-muted rounded-xl p-3">{p.usage_instructions.trim()}</p>
                   </div>
                 )}
 
