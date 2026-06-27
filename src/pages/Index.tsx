@@ -76,6 +76,7 @@ export default function Index() {
   const [authError, setAuthError] = useState('');
   const { user, token, loading, login, register, logout } = useAuth();
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [productsLoaded, setProductsLoaded] = useState(false);
   const [socials, setSocials] = useState({ social_instagram: '', social_youtube: '', social_telegram: 'https://t.me/Chineshop1688', social_max: 'https://web.max.ru/', contact_max: '89161433232', contact_whatsapp: '', contact_phone: '+7 (916) 143-32-32', contact_email: 'mag789-944@yandex.ru', contact_address: 'г. Долгопрудный, ул. Парковая, 44 к1', contact_hours: 'Ежедневно с 9:00 до 21:00' });
   const [wholesaleQtyDefault, setWholesaleQtyDefault] = useState(50);
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
@@ -127,7 +128,7 @@ export default function Index() {
     if (cached) {
       try {
         const c = JSON.parse(cached);
-        if (c.products?.length) setDbProducts(c.products);
+        if (c.products?.length) { setDbProducts(c.products); setProductsLoaded(true); }
         if (c.settings) {
           setSocials(s => ({ ...s, ...c.settings }));
           if (c.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(c.settings.wholesale_qty_default));
@@ -141,7 +142,7 @@ export default function Index() {
     fetch(PRODUCTS_URL)
       .then(r => r.json())
       .then(data => {
-        if (data.products?.length) setDbProducts(data.products);
+        if (data.products?.length) { setDbProducts(data.products); setProductsLoaded(true); }
         if (data.settings) {
           setSocials(s => ({ ...s, ...data.settings }));
           if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
@@ -1015,7 +1016,18 @@ export default function Index() {
           </aside>
 
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.length === 0 && (
+            {!productsLoaded && Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-card rounded-3xl border border-border overflow-hidden flex flex-col animate-pulse">
+                <div className="bg-muted" style={{ aspectRatio: '4/3' }} />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-muted rounded-full w-3/4" />
+                  <div className="h-3 bg-muted rounded-full w-1/2" />
+                  <div className="h-3 bg-muted rounded-full w-full" />
+                  <div className="h-10 bg-muted rounded-2xl w-full mt-2" />
+                </div>
+              </div>
+            ))}
+            {productsLoaded && filtered.length === 0 && (
               <div className="col-span-full text-center py-20 text-muted-foreground">
                 <Icon name="SearchX" size={48} className="mx-auto mb-3" />
                 Ничего не найдено
