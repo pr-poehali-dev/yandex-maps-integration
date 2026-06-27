@@ -67,10 +67,10 @@ def handler(event: dict, context) -> dict:
 
     # Получить все товары
     if action == 'list':
-        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, sort_order, description, wholesale_min_qty, composition, usage_instructions FROM products ORDER BY sort_order, id")
+        cur.execute("SELECT id, name, category, brand, price, wholesale, rating, image, badge, sort_order, description, wholesale_min_qty, composition, usage_instructions, features FROM products ORDER BY sort_order, id")
         rows = cur.fetchall()
         cur.close(); conn.close()
-        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8], 'sort_order': r[9], 'description': r[10] or '', 'wholesale_min_qty': r[11] or 0, 'composition': r[12] or '', 'usage_instructions': r[13] or ''} for r in rows]
+        products = [{'id': r[0], 'name': r[1], 'category': r[2], 'brand': r[3], 'price': r[4], 'wholesale': r[5], 'rating': float(r[6]), 'image': r[7], 'badge': r[8], 'sort_order': r[9], 'description': r[10] if r[10] is not None else None, 'wholesale_min_qty': r[11] or 0, 'composition': r[12] or '', 'usage_instructions': r[13] or '', 'features': r[14] or ''} for r in rows]
         return ok({'products': products})
 
     # Сохранить порядок товаров
