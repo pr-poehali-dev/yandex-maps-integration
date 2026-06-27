@@ -1764,8 +1764,8 @@ export default function Index() {
                   </div>
                 )}
 
-                {/* Преимущества */}
-                {details?.features && (
+                {/* Преимущества — только из статики если товар не редактировался в БД */}
+                {(!hasDbDescription && details?.features) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-3 flex items-center gap-2">
                       <Icon name="CheckCircle2" size={16} className="text-primary" /> Преимущества
@@ -1783,8 +1783,8 @@ export default function Index() {
                   </div>
                 )}
 
-                {/* Состав — из БД или статики */}
-                {(p.composition?.trim() || details?.composition) && (
+                {/* Состав — из БД (приоритет), статика только если товар не редактировался */}
+                {(p.composition?.trim() || (!hasDbDescription && details?.composition)) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="FlaskConical" size={16} className="text-primary" /> Состав
@@ -1793,8 +1793,8 @@ export default function Index() {
                   </div>
                 )}
 
-                {/* Применение — из БД или статики */}
-                {(p.usage_instructions?.trim() || details?.usage) && (
+                {/* Применение — из БД (приоритет), статика только если товар не редактировался */}
+                {(p.usage_instructions?.trim() || (!hasDbDescription && details?.usage)) && (
                   <div>
                     <h3 className="font-display font-bold text-base mb-2 flex items-center gap-2">
                       <Icon name="BookOpen" size={16} className="text-primary" /> Способ применения
