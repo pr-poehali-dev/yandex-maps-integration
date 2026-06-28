@@ -819,8 +819,7 @@ export default function Index() {
                 <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden">
                   {imgs.map((src, i) => (
                     <div key={src} className={`absolute inset-0 transition-opacity duration-500 ${i === idx ? 'opacity-100' : 'opacity-0'}`}>
-                      <img src={src} alt={`Магазин ${i + 1}`} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
-                      <img src={src} alt={`Магазин ${i + 1}`} className="absolute inset-0 w-full h-full object-contain" />
+                      <img src={src} alt={`Магазин ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
                     </div>
                   ))}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
