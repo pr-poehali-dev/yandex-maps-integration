@@ -766,11 +766,12 @@ export default function Index() {
           <div className="flex justify-center">
             <div className="relative w-full md:w-[480px] animate-scale-in">
               <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
-              <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square bg-muted">
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
                 {allProducts.map((p, i) => (
-                  <img key={p.id} src={p.image} alt={p.name}
-                    className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700"
-                    style={{ opacity: i === heroIdx ? 1 : 0 }} />
+                  <div key={p.id} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
+                  </div>
                 ))}
               </div>
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
@@ -815,14 +816,12 @@ export default function Index() {
               const imgs = storeImages.length > 0 ? storeImages : ['https://cdn.poehali.dev/projects/4a0f32a7-7749-40f9-9b07-447674c75bf3/files/6f802402-56c8-4228-bd60-a676b940611d.jpg'];
               const idx = storeSlideIdx % imgs.length;
               return (
-                <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden bg-muted">
+                <div className="relative min-h-[300px] md:min-h-[420px] overflow-hidden">
                   {imgs.map((src, i) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt={`Магазин ${i + 1}`}
-                      className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${i === idx ? 'opacity-100' : 'opacity-0'}`}
-                    />
+                    <div key={src} className={`absolute inset-0 transition-opacity duration-500 ${i === idx ? 'opacity-100' : 'opacity-0'}`}>
+                      <img src={src} alt={`Магазин ${i + 1}`} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
+                      <img src={src} alt={`Магазин ${i + 1}`} className="absolute inset-0 w-full h-full object-contain" />
+                    </div>
                   ))}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:bg-gradient-to-t md:from-black/30 md:to-transparent" />
                   <div className="absolute top-5 left-5">
