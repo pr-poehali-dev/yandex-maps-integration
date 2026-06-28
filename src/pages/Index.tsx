@@ -1038,7 +1038,8 @@ export default function Index() {
               return (
                 <div key={p.id} className="group bg-card rounded-3xl border border-border overflow-hidden flex flex-col hover-scale animate-fade-in" style={{ animationDelay: `${idx * 60}ms`, opacity: 0 }}>
                   <div className="relative overflow-hidden cursor-pointer" style={{ aspectRatio: '4/3' }} onClick={() => setModalProduct(p)}>
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
                     {p.badge && <Badge className="absolute top-3 left-3 gradient-brand text-white border-0 rounded-full text-xs px-3">{p.badge}</Badge>}
                     <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md">
                       <Icon name="ZoomIn" size={16} className="text-muted-foreground" />
