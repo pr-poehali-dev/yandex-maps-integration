@@ -200,6 +200,9 @@ export default function Index() {
     p.name.toLowerCase().includes(search.toLowerCase())
   ), [allProducts, category, maxPrice, brands, search]);
 
+  const [catalogLimit, setCatalogLimit] = useState(15);
+  useEffect(() => { setCatalogLimit(15); }, [category, search, brands, maxPrice]);
+
   const addToCart = (id: number) => setCart((c) => {
     const ex = c.find((i) => i.id === id);
     return ex ? c.map((i) => i.id === id ? { ...i, qty: i.qty + 1 } : i) : [...c, { id, qty: 1 }];
@@ -1032,7 +1035,7 @@ export default function Index() {
                 Ничего не найдено
               </div>
             )}
-            {filtered.map((p, idx) => {
+            {filtered.slice(0, catalogLimit).map((p, idx) => {
               const inCart = cart.find(i => i.id === p.id);
               return (
                 <div key={p.id} className="group bg-card rounded-3xl border border-border overflow-hidden flex flex-col hover-scale animate-fade-in" style={{ animationDelay: `${idx * 60}ms`, opacity: 0 }}>
@@ -1086,6 +1089,16 @@ export default function Index() {
                 </div>
               );
             })}
+            {filtered.length > catalogLimit && (
+              <div className="col-span-full flex justify-center pt-4">
+                <button
+                  onClick={() => setCatalogLimit(c => c + 15)}
+                  className="px-8 py-3 rounded-full border border-border bg-card hover:bg-muted transition-colors text-sm font-medium"
+                >
+                  Ещё {Math.min(15, filtered.length - catalogLimit)} товаров
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
