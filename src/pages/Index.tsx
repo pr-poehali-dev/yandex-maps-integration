@@ -297,6 +297,11 @@ export default function Index() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            {!user && (
+              <button className="sm:hidden text-xs font-medium text-primary whitespace-nowrap" onClick={() => { setAuthMode('register'); setAuthOpen(true); }}>
+                Регистрация
+              </button>
+            )}
             {user ? (
               <Button variant="ghost" className="rounded-full px-3 gap-2" onClick={() => setCabinetOpen(true)}>
                 <Icon name="UserCircle" size={20} />
@@ -307,9 +312,6 @@ export default function Index() {
                 <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
                   Войти
                 </Button>
-                <button className="sm:hidden text-xs font-medium text-primary whitespace-nowrap" onClick={() => { setAuthMode('register'); setAuthOpen(true); }}>
-                  Регистрация
-                </button>
                 <Button variant="ghost" size="icon" className="rounded-full sm:hidden" onClick={() => setAuthOpen(true)}>
                   <Icon name="UserCircle" size={22} />
                 </Button>
