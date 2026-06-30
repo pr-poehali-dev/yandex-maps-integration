@@ -278,7 +278,7 @@ export default function Index() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
         <div className="container flex items-center justify-between h-18 py-3">
-          <button onClick={() => scrollTo('home')} className="font-display font-black text-2xl gradient-text tracking-tight">
+          <button onClick={() => scrollTo('home')} className="font-display font-black text-lg gradient-text tracking-tight">
             Се-Се 谢谢
           </button>
           <nav className="hidden lg:flex items-center gap-7">
@@ -310,6 +310,9 @@ export default function Index() {
                 <Button variant="ghost" size="icon" className="rounded-full sm:hidden" onClick={() => setAuthOpen(true)}>
                   <Icon name="UserCircle" size={22} />
                 </Button>
+                <button className="sm:hidden text-xs font-medium text-primary" onClick={() => { setAuthMode('register'); setAuthOpen(true); }}>
+                  Регистрация
+                </button>
               </>
             )}
           <Sheet>
