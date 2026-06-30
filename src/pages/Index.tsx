@@ -801,17 +801,13 @@ export default function Index() {
       )}
 
       {/* HERO — мобайл: fullscreen карточка, десктоп: двухколоночный */}
-      <section id="home" className="relative overflow-hidden">
+      <section id="home" className="relative overflow-hidden gradient-mesh">
+        <div className="container py-10 md:py-32 md:grid md:grid-cols-2 md:gap-12 md:items-start">
 
-        {/* ===== МОБИЛЬНЫЙ HERO ===== */}
-        <div className="md:hidden gradient-mesh">
-          <div className="px-5 pt-10 pb-6">
-
-            {/* Анимированный логотип — собирается по частям */}
-            <div className="relative flex items-center justify-center mb-2 h-24">
-              {/* Свечение за логотипом */}
+          {/* Логотип — только мобайл */}
+          <div className="md:hidden">
+            <div className="relative flex items-center justify-center mb-2 h-20">
               <div className="logo-glow-anim absolute inset-0 gradient-brand rounded-full blur-2xl opacity-0" />
-              {/* Логотип */}
               <div className="relative flex items-baseline gap-0 select-none">
                 <span className="logo-ce1 font-display font-black text-5xl" style={{ color: 'hsl(142 72% 35%)' }}>Ce</span>
                 <span className="logo-dash font-display font-black text-5xl" style={{ color: 'hsl(30 15% 45%)' }}>-</span>
@@ -819,23 +815,40 @@ export default function Index() {
                 <span className="logo-cn font-display font-black text-3xl ml-2" style={{ color: 'hsl(16 90% 55%)' }}>谢谢</span>
               </div>
             </div>
-
-            {/* Подзаголовок — появляется после сборки */}
-            <div className="hero-content-anim text-center mb-6">
+            <div className="hero-content-anim text-center mb-5">
               <p className="text-muted-foreground text-sm">Всё для жизни, дома и отдыха · Доставка по всей России</p>
             </div>
+          </div>
 
-            {/* Слайдер товаров */}
-            <div className="hero-content-anim relative">
+          {/* Левая колонка — текст (только десктоп) */}
+          <div className="hidden md:block animate-fade-in">
+            <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
+            <h1 className="font-display font-black text-7xl leading-[0.95] tracking-tight mb-6">
+              Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-md mb-8">
+              Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
+                В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
+              </Button>
+              <Button onClick={() => navigate('/services')} variant="outline" className="rounded-full h-13 px-8 text-base">Услуги</Button>
+              <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
+            </div>
+          </div>
+
+          {/* Слайдер — общий */}
+          <div className="hero-content-anim md:animate-scale-in flex flex-col items-center">
+            <div className="relative w-full md:w-[480px]">
+              <div className="absolute inset-0 gradient-brand blur-3xl opacity-20 rounded-full" />
               <div className="relative overflow-hidden rounded-3xl shadow-2xl" style={{ aspectRatio: '4/3' }}>
-                <div className="absolute inset-0 gradient-brand blur-3xl opacity-20 rounded-3xl" />
                 {heroSlides.map((p, i) => (
                   <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
                     <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-50" />
                     <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
                   </div>
                 ))}
-                {/* Подпись категории */}
                 {heroSlides[heroIdx] && (
                   <div className="absolute bottom-3 left-3 right-3">
                     <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
@@ -845,7 +858,6 @@ export default function Index() {
                   </div>
                 )}
               </div>
-              {/* Точки */}
               <div className="flex gap-1.5 justify-center mt-3">
                 {heroSlides.map((_, i) => (
                   <button key={i} onClick={() => setHeroIdx(i)}
@@ -854,8 +866,8 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Кнопки */}
-            <div className="hero-content-anim flex gap-3 mt-5">
+            {/* Кнопки — только мобайл */}
+            <div className="md:hidden flex gap-3 mt-5 w-full">
               <Button onClick={() => scrollTo('catalog')} className="flex-1 gradient-brand text-white rounded-2xl h-12 text-base font-bold hover:opacity-90">
                 В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
               </Button>
@@ -863,57 +875,8 @@ export default function Index() {
                 Услуги
               </Button>
             </div>
-
           </div>
-        </div>
 
-        {/* ===== ДЕСКТОПНЫЙ HERO ===== */}
-        <div className="hidden md:block gradient-mesh">
-          <div className="container py-32 grid md:grid-cols-2 gap-12 items-start">
-            <div className="animate-fade-in">
-              <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
-              <h1 className="font-display font-black text-7xl leading-[0.95] tracking-tight mb-6">
-                Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-md mb-8">
-                Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
-                  В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
-                </Button>
-                <Button onClick={() => navigate('/services')} variant="outline" className="rounded-full h-13 px-8 text-base">Услуги</Button>
-                <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <div className="relative w-full md:w-[480px] animate-scale-in">
-                <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
-                <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
-                  {heroSlides.map((p, i) => (
-                    <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
-                      <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
-                      <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
-                    </div>
-                  ))}
-                  {heroSlides[heroIdx] && (
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
-                        <div className="text-white/60 text-[10px] uppercase tracking-wider">{heroSlides[heroIdx].category}</div>
-                        <div className="text-white text-sm font-medium leading-tight line-clamp-1">{heroSlides[heroIdx].name}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 flex-wrap justify-center max-w-[200px]">
-                  {heroSlides.map((_, i) => (
-                    <button key={i} onClick={() => setHeroIdx(i)}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
