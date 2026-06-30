@@ -776,79 +776,66 @@ export default function Index() {
       <section id="home" className="relative overflow-hidden">
 
         {/* ===== МОБИЛЬНЫЙ HERO ===== */}
-        <div className="md:hidden relative h-[100svh] min-h-[600px] flex flex-col">
-          {/* Фоновый слайдер — на весь экран */}
-          <div className="absolute inset-0">
-            {heroSlides.map((p, i) => (
-              <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: i === heroIdx ? 1 : 0 }}>
-                <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
+        <div className="md:hidden gradient-mesh">
+          <div className="px-5 pt-10 pb-6">
+
+            {/* Анимированный логотип — собирается по частям */}
+            <div className="relative flex items-center justify-center mb-2 h-24">
+              {/* Свечение за логотипом */}
+              <div className="logo-glow-anim absolute inset-0 gradient-brand rounded-full blur-2xl opacity-0" />
+              {/* Логотип */}
+              <div className="relative flex items-baseline gap-0 select-none">
+                <span className="logo-ce1 font-display font-black text-5xl" style={{ color: 'hsl(142 72% 35%)' }}>Ce</span>
+                <span className="logo-dash font-display font-black text-5xl" style={{ color: 'hsl(30 15% 45%)' }}>-</span>
+                <span className="logo-ce2 font-display font-black text-5xl" style={{ color: 'hsl(0 85% 50%)' }}>Ce</span>
+                <span className="logo-cn font-display font-black text-3xl ml-2" style={{ color: 'hsl(16 90% 55%)' }}>谢谢</span>
               </div>
-            ))}
-          </div>
-
-          {/* Верхний бейдж */}
-          <div className="relative z-10 pt-4 px-5">
-            <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-semibold rounded-full px-3 py-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Новая коллекция 2026
-            </span>
-          </div>
-
-          {/* Нижний контент */}
-          <div className="relative z-10 mt-auto px-5 pb-8">
-            {/* Категория текущего слайда */}
-            {heroSlides[heroIdx] && (
-              <div className="text-white/60 text-xs uppercase tracking-widest mb-2 font-medium">
-                {heroSlides[heroIdx].category}
-              </div>
-            )}
-
-            <h1 className="font-display font-black text-4xl leading-[1] tracking-tight text-white mb-3">
-              Магазин<br />товаров<br /><span style={{ WebkitTextStroke: '1.5px white', color: 'transparent' }}>из Китая</span>
-            </h1>
-
-            <p className="text-white/70 text-sm mb-5 max-w-xs leading-relaxed">
-              Тысячи товаров для жизни, дома и отдыха — с доставкой по всей России
-            </p>
-
-            {/* Плашки-преимущества */}
-            <div className="flex gap-2 mb-5 flex-wrap">
-              {[
-                { icon: 'Truck', label: 'Доставка РФ' },
-                { icon: 'BadgePercent', label: 'Опт от 20%' },
-                { icon: 'ShieldCheck', label: 'Гарантия' },
-              ].map(({ icon, label }) => (
-                <div key={label} className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5">
-                  <Icon name={icon} size={12} className="text-white" />
-                  <span className="text-white text-xs font-medium">{label}</span>
-                </div>
-              ))}
             </div>
 
-            {/* CTA кнопки */}
-            <div className="flex gap-3 mb-6">
-              <button
-                onClick={() => scrollTo('catalog')}
-                className="flex-1 gradient-brand text-white rounded-2xl h-13 text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-black/30"
-              >
-                В каталог <Icon name="ArrowRight" size={18} />
-              </button>
-              <button
-                onClick={() => navigate('/services')}
-                className="bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-2xl h-13 px-5 text-base font-semibold"
-              >
+            {/* Подзаголовок — появляется после сборки */}
+            <div className="hero-content-anim text-center mb-6">
+              <p className="text-muted-foreground text-sm">Магазин товаров из Китая · Доставка по всей России</p>
+            </div>
+
+            {/* Слайдер товаров */}
+            <div className="hero-content-anim relative">
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl" style={{ aspectRatio: '4/3' }}>
+                <div className="absolute inset-0 gradient-brand blur-3xl opacity-20 rounded-3xl" />
+                {heroSlides.map((p, i) => (
+                  <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-50" />
+                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
+                  </div>
+                ))}
+                {/* Подпись категории */}
+                {heroSlides[heroIdx] && (
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
+                      <div className="text-white/60 text-[10px] uppercase tracking-wider">{heroSlides[heroIdx].category}</div>
+                      <div className="text-white text-sm font-medium leading-tight line-clamp-1">{heroSlides[heroIdx].name}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Точки */}
+              <div className="flex gap-1.5 justify-center mt-3">
+                {heroSlides.map((_, i) => (
+                  <button key={i} onClick={() => setHeroIdx(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/30'}`} />
+                ))}
+              </div>
+            </div>
+
+            {/* Кнопки */}
+            <div className="hero-content-anim flex gap-3 mt-5">
+              <Button onClick={() => scrollTo('catalog')} className="flex-1 gradient-brand text-white rounded-2xl h-12 text-base font-bold hover:opacity-90">
+                В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
+              </Button>
+              <Button onClick={() => navigate('/services')} variant="outline" className="rounded-2xl h-12 px-5 text-base">
                 Услуги
-              </button>
+              </Button>
             </div>
 
-            {/* Точки слайдера */}
-            <div className="flex gap-1.5 items-center">
-              {heroSlides.map((_, i) => (
-                <button key={i} onClick={() => setHeroIdx(i)}
-                  className={`h-1 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-8 bg-white' : 'w-1 bg-white/40'}`} />
-              ))}
-            </div>
           </div>
         </div>
 

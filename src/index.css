@@ -126,6 +126,100 @@
       radial-gradient(at 80% 10%, hsl(0 85% 50% / 0.15) 0px, transparent 50%),
       radial-gradient(at 70% 80%, hsl(16 90% 55% / 0.2) 0px, transparent 50%);
   }
+  /* Анимации сборки логотипа */
+  @keyframes logo-part-left {
+    0% {
+      opacity: 0;
+      transform: translateX(-40px) rotate(-15deg) scale(0.7);
+    }
+    60% {
+      opacity: 1;
+      transform: translateX(4px) rotate(2deg) scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) rotate(0deg) scale(1);
+    }
+  }
+  @keyframes logo-part-right {
+    0% {
+      opacity: 0;
+      transform: translateX(40px) rotate(15deg) scale(0.7);
+    }
+    60% {
+      opacity: 1;
+      transform: translateX(-4px) rotate(-2deg) scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) rotate(0deg) scale(1);
+    }
+  }
+  @keyframes logo-part-top {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(3px) scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes logo-glow {
+    0% {
+      opacity: 0;
+      filter: blur(20px);
+    }
+    50% {
+      opacity: 0.6;
+      filter: blur(8px);
+    }
+    100% {
+      opacity: 0;
+      filter: blur(20px);
+    }
+  }
+  @keyframes logo-shine {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  @keyframes hero-content-up {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .logo-ce1 {
+    animation: logo-part-left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+  }
+  .logo-dash {
+    animation: logo-part-top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
+  }
+  .logo-ce2 {
+    animation: logo-part-right 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  }
+  .logo-cn {
+    animation: logo-part-top 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s both;
+  }
+  .logo-glow-anim {
+    animation: logo-glow 1.8s ease-in-out 1.2s both;
+  }
+  .hero-content-anim {
+    animation: hero-content-up 0.7s ease-out 1.4s both;
+  }
+
   .hover-scale {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
