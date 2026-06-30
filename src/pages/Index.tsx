@@ -178,10 +178,33 @@ export default function Index() {
     return [...new Set(allProducts.map(p => p.brand).filter(Boolean))];
   }, [allProducts]);
 
+  const heroSlides = useMemo(() => {
+    if (!allProducts.length) return [];
+    const byCategory: Record<string, Product[]> = {};
+    allProducts.forEach(p => {
+      if (!byCategory[p.category]) byCategory[p.category] = [];
+      byCategory[p.category].push(p);
+    });
+    const result: Product[] = [];
+    const cats = Object.keys(byCategory);
+    let round = 0;
+    while (result.length < 20) {
+      let added = false;
+      for (const cat of cats) {
+        if (byCategory[cat][round]) { result.push(byCategory[cat][round]); added = true; }
+        if (result.length >= 20) break;
+      }
+      if (!added) break;
+      round++;
+    }
+    return result.slice(0, 20);
+  }, [allProducts]);
+
   useEffect(() => {
-    const timer = setInterval(() => setHeroIdx((i) => (i + 1) % allProducts.length), 3000);
+    if (!heroSlides.length) return;
+    const timer = setInterval(() => setHeroIdx((i) => (i + 1) % heroSlides.length), 3000);
     return () => clearInterval(timer);
-  }, [allProducts.length]);
+  }, [heroSlides.length]);
 
   const handleAuth = async () => {
     setAuthError('');
@@ -771,15 +794,23 @@ export default function Index() {
             <div className="relative w-full md:w-[480px] animate-scale-in">
               <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
               <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
-                {allProducts.map((p, i) => (
-                  <div key={p.id} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
+                {heroSlides.map((p, i) => (
+                  <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
                     <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
                     <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
                   </div>
                 ))}
+                {heroSlides[heroIdx] && (
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
+                      <div className="text-white/60 text-[10px] uppercase tracking-wider">{heroSlides[heroIdx].category}</div>
+                      <div className="text-white text-sm font-medium leading-tight line-clamp-1">{heroSlides[heroIdx].name}</div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {allProducts.map((_, i) => (
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 flex-wrap justify-center max-w-[200px]">
+                {heroSlides.map((_, i) => (
                   <button key={i} onClick={() => setHeroIdx(i)}
                     className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
                 ))}
@@ -1720,33 +1751,60 @@ export default function Index() {
 
       {/* Модалка авторизации */}
       {authOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setAuthOpen(false)}>
-          <div className="bg-card border border-border rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display font-black text-2xl">{authMode === 'login' ? 'Вход' : 'Регистрация'}</h2>
-              <button onClick={() => setAuthOpen(false)} className="text-muted-foreground hover:text-foreground"><Icon name="X" size={20} /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setAuthOpen(false)}>
+          <div className="bg-card border border-border rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
+            {/* Левая панель — витрина магазина */}
+            <div className="gradient-brand p-8 md:w-5/12 flex flex-col justify-between text-white relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+              <div className="relative">
+                <div className="text-2xl font-black mb-1">Ce-Ce 谢谢</div>
+                <div className="text-white/70 text-sm">Магазин товаров из Китая</div>
+              </div>
+              <div className="relative space-y-4 my-6">
+                {[
+                  { icon: 'ShoppingBag', text: 'Тысячи товаров для жизни, дома и отдыха' },
+                  { icon: 'Truck', text: 'Доставка по всей России' },
+                  { icon: 'Tag', text: 'Оптовые цены от производителя' },
+                  { icon: 'Star', text: 'Личный кабинет и история заказов' },
+                ].map(({ icon, text }) => (
+                  <div key={text} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon name={icon} size={15} className="text-white" />
+                    </div>
+                    <span className="text-sm text-white/90 leading-snug">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="relative text-xs text-white/50">Войдите, чтобы делать заказы и отслеживать доставку</div>
             </div>
-            <div className="space-y-3">
-              {authMode === 'register' && (
-                <>
-                  <Input placeholder="Ваше имя" value={authName} onChange={(e) => setAuthName(e.target.value)} className="h-12 rounded-xl" />
-                  <Input placeholder="Номер телефона" type="tel" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} className="h-12 rounded-xl" />
-                </>
-              )}
-              <Input placeholder="Email" type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="h-12 rounded-xl" />
-              <Input placeholder="Пароль" type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="h-12 rounded-xl"
-                onKeyDown={(e) => e.key === 'Enter' && handleAuth()} />
-              {authError && <p className="text-sm text-red-500">{authError}</p>}
-              <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={handleAuth} disabled={loading}>
-                {loading ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-              </Button>
+            {/* Правая панель — форма */}
+            <div className="p-8 flex-1 flex flex-col justify-center">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-display font-black text-2xl">{authMode === 'login' ? 'Вход' : 'Регистрация'}</h2>
+                <button onClick={() => setAuthOpen(false)} className="text-muted-foreground hover:text-foreground"><Icon name="X" size={20} /></button>
+              </div>
+              <div className="space-y-3">
+                {authMode === 'register' && (
+                  <>
+                    <Input placeholder="Ваше имя" value={authName} onChange={(e) => setAuthName(e.target.value)} className="h-12 rounded-xl" />
+                    <Input placeholder="Номер телефона" type="tel" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} className="h-12 rounded-xl" />
+                  </>
+                )}
+                <Input placeholder="Email" type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="h-12 rounded-xl" />
+                <Input placeholder="Пароль" type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="h-12 rounded-xl"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAuth()} />
+                {authError && <p className="text-sm text-red-500">{authError}</p>}
+                <Button className="w-full gradient-brand text-white rounded-full h-12 text-base hover:opacity-90" onClick={handleAuth} disabled={loading}>
+                  {loading ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+                </Button>
+              </div>
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}{' '}
+                <button className="text-primary font-medium hover:underline" onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}>
+                  {authMode === 'login' ? 'Зарегистрироваться' : 'Войти'}
+                </button>
+              </p>
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}{' '}
-              <button className="text-primary font-medium hover:underline" onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}>
-                {authMode === 'login' ? 'Зарегистрироваться' : 'Войти'}
-              </button>
-            </p>
           </div>
         </div>
       )}
