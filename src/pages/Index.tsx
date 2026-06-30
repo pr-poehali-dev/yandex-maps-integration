@@ -125,43 +125,45 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    const CACHE_KEY = 'shop_cache_v2';
+    const CACHE_KEY = 'shop_cache_v3';
+    const CACHE_TTL = 2 * 60 * 1000; // 2 минуты — после этого кэш не используется
+
+    const applySettings = (s: Record<string, string>) => {
+      setSocials(prev => ({ ...prev, ...s }));
+      if (s.wholesale_qty_default) setWholesaleQtyDefault(parseInt(s.wholesale_qty_default));
+      if (s.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(s.wholesale_qty_heavy));
+      if (Array.isArray(s.store_images) && (s.store_images as unknown as string[]).length > 0) setStoreImages(s.store_images as unknown as string[]);
+      setMaintenanceBanner(s.maintenance_mode === 'true');
+      setProductsAddingBanner(s.products_adding_mode === 'true');
+    };
+
+    // Показываем кэш только если он свежий (< 2 мин) — иначе ждём сервер
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       try {
         const c = JSON.parse(cached);
-        if (c.products?.length) { setDbProducts(c.products); setProductsLoaded(true); }
-        if (c.settings) {
-          setSocials(s => ({ ...s, ...c.settings }));
-          if (c.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(c.settings.wholesale_qty_default));
-          if (c.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(c.settings.wholesale_qty_heavy));
-          if (Array.isArray(c.settings.store_images) && c.settings.store_images.length > 0) setStoreImages(c.settings.store_images);
-          setMaintenanceBanner(c.settings.maintenance_mode === 'true');
-          setProductsAddingBanner(c.settings.products_adding_mode === 'true');
+        const age = Date.now() - (c.ts || 0);
+        if (age < CACHE_TTL) {
+          if (c.products?.length) { setDbProducts(c.products); setProductsLoaded(true); }
+          if (c.settings) applySettings(c.settings);
+          if (c.categories?.length) setDbCategories(c.categories);
+          if (c.reviews?.length) setDbReviews(c.reviews);
         }
-        if (c.categories?.length) setDbCategories(c.categories);
-        if (c.reviews?.length) setDbReviews(c.reviews);
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
     }
+
     fetch(PRODUCTS_URL)
       .then(r => r.json())
       .then(data => {
         if (data.products?.length) { setDbProducts(data.products); setProductsLoaded(true); }
-        if (data.settings) {
-          setSocials(s => ({ ...s, ...data.settings }));
-          if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
-          if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
-          if (Array.isArray(data.settings.store_images) && data.settings.store_images.length > 0) setStoreImages(data.settings.store_images);
-          setMaintenanceBanner(data.settings.maintenance_mode === 'true');
-          setProductsAddingBanner(data.settings.products_adding_mode === 'true');
-        }
+        if (data.settings) applySettings(data.settings);
         if (data.categories?.length) setDbCategories(data.categories);
         fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) })
           .then(r => r.json())
           .then(rd => {
             const reviews = rd.reviews || [];
             if (reviews.length) setDbReviews(reviews);
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ products: data.products, settings: data.settings, categories: data.categories, reviews }));
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ products: data.products, settings: data.settings, categories: data.categories, reviews, ts: Date.now() }));
           });
       });
   }, []);
