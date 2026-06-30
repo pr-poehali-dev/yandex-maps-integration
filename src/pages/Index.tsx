@@ -772,48 +772,130 @@ export default function Index() {
         </div>
       )}
 
-      <section id="home" className="relative overflow-hidden gradient-mesh">
-        <div className="container py-24 md:py-32 grid md:grid-cols-2 gap-12 items-start">
-          <div className="animate-fade-in">
-            <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
-            <h1 className="font-display font-black text-5xl md:text-7xl leading-[0.95] tracking-tight mb-6">
-              Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
+      {/* HERO — мобайл: fullscreen карточка, десктоп: двухколоночный */}
+      <section id="home" className="relative overflow-hidden">
+
+        {/* ===== МОБИЛЬНЫЙ HERO ===== */}
+        <div className="md:hidden relative h-[100svh] min-h-[600px] flex flex-col">
+          {/* Фоновый слайдер — на весь экран */}
+          <div className="absolute inset-0">
+            {heroSlides.map((p, i) => (
+              <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: i === heroIdx ? 1 : 0 }}>
+                <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80" />
+              </div>
+            ))}
+          </div>
+
+          {/* Верхний бейдж */}
+          <div className="relative z-10 pt-4 px-5">
+            <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-semibold rounded-full px-3 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Новая коллекция 2026
+            </span>
+          </div>
+
+          {/* Нижний контент */}
+          <div className="relative z-10 mt-auto px-5 pb-8">
+            {/* Категория текущего слайда */}
+            {heroSlides[heroIdx] && (
+              <div className="text-white/60 text-xs uppercase tracking-widest mb-2 font-medium">
+                {heroSlides[heroIdx].category}
+              </div>
+            )}
+
+            <h1 className="font-display font-black text-4xl leading-[1] tracking-tight text-white mb-3">
+              Магазин<br />товаров<br /><span style={{ WebkitTextStroke: '1.5px white', color: 'transparent' }}>из Китая</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-md mb-8">
-              Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
+
+            <p className="text-white/70 text-sm mb-5 max-w-xs leading-relaxed">
+              Тысячи товаров для жизни, дома и отдыха — с доставкой по всей России
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
-                В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
-              </Button>
-              <Button onClick={() => navigate('/services')} variant="outline" className="rounded-full h-13 px-8 text-base">Услуги</Button>
-              <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
+
+            {/* Плашки-преимущества */}
+            <div className="flex gap-2 mb-5 flex-wrap">
+              {[
+                { icon: 'Truck', label: 'Доставка РФ' },
+                { icon: 'BadgePercent', label: 'Опт от 20%' },
+                { icon: 'ShieldCheck', label: 'Гарантия' },
+              ].map(({ icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5">
+                  <Icon name={icon} size={12} className="text-white" />
+                  <span className="text-white text-xs font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA кнопки */}
+            <div className="flex gap-3 mb-6">
+              <button
+                onClick={() => scrollTo('catalog')}
+                className="flex-1 gradient-brand text-white rounded-2xl h-13 text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-black/30"
+              >
+                В каталог <Icon name="ArrowRight" size={18} />
+              </button>
+              <button
+                onClick={() => navigate('/services')}
+                className="bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-2xl h-13 px-5 text-base font-semibold"
+              >
+                Услуги
+              </button>
+            </div>
+
+            {/* Точки слайдера */}
+            <div className="flex gap-1.5 items-center">
+              {heroSlides.map((_, i) => (
+                <button key={i} onClick={() => setHeroIdx(i)}
+                  className={`h-1 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-8 bg-white' : 'w-1 bg-white/40'}`} />
+              ))}
             </div>
           </div>
-          <div className="flex justify-center">
-            <div className="relative w-full md:w-[480px] animate-scale-in">
-              <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
-              <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
-                {heroSlides.map((p, i) => (
-                  <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
-                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
-                    <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
-                  </div>
-                ))}
-                {heroSlides[heroIdx] && (
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
-                      <div className="text-white/60 text-[10px] uppercase tracking-wider">{heroSlides[heroIdx].category}</div>
-                      <div className="text-white text-sm font-medium leading-tight line-clamp-1">{heroSlides[heroIdx].name}</div>
-                    </div>
-                  </div>
-                )}
+        </div>
+
+        {/* ===== ДЕСКТОПНЫЙ HERO ===== */}
+        <div className="hidden md:block gradient-mesh">
+          <div className="container py-32 grid md:grid-cols-2 gap-12 items-start">
+            <div className="animate-fade-in">
+              <Badge className="gradient-brand text-white border-0 mb-6 rounded-full px-4 py-1.5">Новая коллекция 2026</Badge>
+              <h1 className="font-display font-black text-7xl leading-[0.95] tracking-tight mb-6">
+                Компания,<br /><span className="gradient-text">которая вдохновляет и всегда рядом</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-md mb-8">
+                Всё, что нужно для жизни, отдыха и радости — в одном месте. Выбираем лучшее, чтобы вы были довольны.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={() => scrollTo('catalog')} className="gradient-brand text-white rounded-full h-13 px-8 text-base hover:opacity-90">
+                  В каталог <Icon name="ArrowRight" size={18} className="ml-1" />
+                </Button>
+                <Button onClick={() => navigate('/services')} variant="outline" className="rounded-full h-13 px-8 text-base">Услуги</Button>
+                <Button onClick={() => scrollTo('about')} variant="outline" className="rounded-full h-13 px-8 text-base">О нас</Button>
               </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 flex-wrap justify-center max-w-[200px]">
-                {heroSlides.map((_, i) => (
-                  <button key={i} onClick={() => setHeroIdx(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
-                ))}
+            </div>
+            <div className="flex justify-center">
+              <div className="relative w-full md:w-[480px] animate-scale-in">
+                <div className="absolute inset-0 gradient-brand blur-3xl opacity-30 rounded-full" />
+                <div className="relative overflow-hidden rounded-3xl shadow-2xl aspect-square">
+                  {heroSlides.map((p, i) => (
+                    <div key={`${p.id}-${i}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: i === heroIdx ? 1 : 0 }}>
+                      <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60" />
+                      <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-contain" />
+                    </div>
+                  ))}
+                  {heroSlides[heroIdx] && (
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
+                        <div className="text-white/60 text-[10px] uppercase tracking-wider">{heroSlides[heroIdx].category}</div>
+                        <div className="text-white text-sm font-medium leading-tight line-clamp-1">{heroSlides[heroIdx].name}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 flex-wrap justify-center max-w-[200px]">
+                  {heroSlides.map((_, i) => (
+                    <button key={i} onClick={() => setHeroIdx(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIdx ? 'w-6 gradient-brand' : 'w-1.5 bg-muted-foreground/40'}`} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
