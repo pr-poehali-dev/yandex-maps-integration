@@ -305,7 +305,7 @@ export default function Index() {
             {user ? (
               <Button variant="ghost" className="rounded-full px-3 gap-2" onClick={() => setCabinetOpen(true)}>
                 <Icon name="UserCircle" size={20} />
-                <span className="hidden sm:inline text-sm font-medium">{user.name.split(' ')[0]}</span>
+                <span className="text-sm font-medium">{user.name}</span>
               </Button>
             ) : (
               <>
