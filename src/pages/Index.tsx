@@ -82,6 +82,8 @@ export default function Index() {
   const [wholesaleQtyHeavy, setWholesaleQtyHeavy] = useState(5);
   const [dbCategories, setDbCategories] = useState<string[]>([]);
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
+  const [maintenanceBanner, setMaintenanceBanner] = useState(false);
+  const [productsAddingBanner, setProductsAddingBanner] = useState(false);
   const [storeImages, setStoreImages] = useState<string[]>([]);
   const [storeSlideIdx, setStoreSlideIdx] = useState(0);
   const [dbReviews, setDbReviews] = useState<{id:number;author_name:string;city:string;rating:number;text:string;product:string;created_at:string}[]>([]);
@@ -134,6 +136,8 @@ export default function Index() {
           if (c.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(c.settings.wholesale_qty_default));
           if (c.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(c.settings.wholesale_qty_heavy));
           if (Array.isArray(c.settings.store_images) && c.settings.store_images.length > 0) setStoreImages(c.settings.store_images);
+          setMaintenanceBanner(c.settings.maintenance_mode === 'true');
+          setProductsAddingBanner(c.settings.products_adding_mode === 'true');
         }
         if (c.categories?.length) setDbCategories(c.categories);
         if (c.reviews?.length) setDbReviews(c.reviews);
@@ -148,6 +152,8 @@ export default function Index() {
           if (data.settings.wholesale_qty_default) setWholesaleQtyDefault(parseInt(data.settings.wholesale_qty_default));
           if (data.settings.wholesale_qty_heavy) setWholesaleQtyHeavy(parseInt(data.settings.wholesale_qty_heavy));
           if (Array.isArray(data.settings.store_images) && data.settings.store_images.length > 0) setStoreImages(data.settings.store_images);
+          setMaintenanceBanner(data.settings.maintenance_mode === 'true');
+          setProductsAddingBanner(data.settings.products_adding_mode === 'true');
         }
         if (data.categories?.length) setDbCategories(data.categories);
         fetch(REVIEWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) })
@@ -773,6 +779,22 @@ export default function Index() {
             <p className="text-muted-foreground text-sm">Что-то пошло не так. Попробуйте ещё раз или выберите другой способ оплаты.</p>
             <Button className="w-full gradient-brand text-white rounded-full" onClick={() => setPaymentFail(false)}>Понятно</Button>
           </div>
+        </div>
+      )}
+
+      {/* Баннер тех. работ */}
+      {maintenanceBanner && (
+        <div className="bg-red-500 text-white px-4 py-3 flex items-center justify-center gap-3 text-sm font-semibold">
+          <span className="text-lg">🔧</span>
+          <span>Ведутся технические работы — некоторые функции могут быть недоступны</span>
+        </div>
+      )}
+
+      {/* Баннер добавления товаров */}
+      {productsAddingBanner && !maintenanceBanner && (
+        <div className="bg-amber-400 text-amber-950 px-4 py-3 flex items-center justify-center gap-3 text-sm font-semibold">
+          <span className="text-lg">📦</span>
+          <span>Идёт пополнение каталога — скоро появятся новые товары!</span>
         </div>
       )}
 

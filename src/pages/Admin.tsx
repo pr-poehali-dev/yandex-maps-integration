@@ -26,6 +26,8 @@ export default function Admin() {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [productsAddingMode, setProductsAddingMode] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -152,12 +154,14 @@ export default function Admin() {
       if (data.settings.store_images) {
         try { setStoreImages(JSON.parse(data.settings.store_images)); } catch { setStoreImages([]); }
       }
+      setMaintenanceMode(data.settings.maintenance_mode === 'true');
+      setProductsAddingMode(data.settings.products_adding_mode === 'true');
     }
   };
 
   const handleSaveSettings = async () => {
     setSavingSettings(true);
-    await api('save_settings', { settings: { ...settings, wholesale_qty_default: wholesaleQtyDefault, wholesale_qty_heavy: wholesaleQtyHeavy } }, token);
+    await api('save_settings', { settings: { ...settings, wholesale_qty_default: wholesaleQtyDefault, wholesale_qty_heavy: wholesaleQtyHeavy, maintenance_mode: String(maintenanceMode), products_adding_mode: String(productsAddingMode) } }, token);
     setSavingSettings(false);
     showMsg('Настройки сохранены!');
   };
@@ -355,6 +359,8 @@ export default function Admin() {
           users={users}
           adminReviews={adminReviews}
           reviewsLoading={reviewsLoading}
+          maintenanceMode={maintenanceMode}
+          productsAddingMode={productsAddingMode}
           onSetSettings={setSettings}
           onSetWholesaleDefault={setWholesaleQtyDefault}
           onSetWholesaleHeavy={setWholesaleQtyHeavy}
@@ -368,6 +374,8 @@ export default function Admin() {
           onLoadReviews={loadReviews}
           onSetAdminReviews={setAdminReviews}
           onMsg={showMsg}
+          onSetMaintenanceMode={setMaintenanceMode}
+          onSetProductsAddingMode={setProductsAddingMode}
         />
       )}
 

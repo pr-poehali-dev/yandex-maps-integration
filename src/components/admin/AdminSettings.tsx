@@ -18,6 +18,8 @@ interface Props {
   users: AdminUser[];
   adminReviews: AdminReview[];
   reviewsLoading: boolean;
+  maintenanceMode: boolean;
+  productsAddingMode: boolean;
   onSetSettings: (s: Settings) => void;
   onSetWholesaleDefault: (v: string) => void;
   onSetWholesaleHeavy: (v: string) => void;
@@ -31,16 +33,19 @@ interface Props {
   onLoadReviews: () => void;
   onSetAdminReviews: (reviews: AdminReview[]) => void;
   onMsg: (msg: string) => void;
+  onSetMaintenanceMode: (v: boolean) => void;
+  onSetProductsAddingMode: (v: boolean) => void;
 }
 
 export default function AdminSettings({
   tab, token, settings, wholesaleQtyDefault, wholesaleQtyHeavy,
   categories, newCategory, savingSettings, storeImages, uploadingStore,
-  users, adminReviews, reviewsLoading,
+  users, adminReviews, reviewsLoading, maintenanceMode, productsAddingMode,
   onSetSettings, onSetWholesaleDefault, onSetWholesaleHeavy,
   onSetNewCategory, onAddCategory, onDeleteCategory, onSaveSettings,
   onSetStoreImages, onSetUploadingStore,
   onLoadUsers, onLoadReviews, onSetAdminReviews, onMsg,
+  onSetMaintenanceMode, onSetProductsAddingMode,
 }: Props) {
   const storeFileRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +84,55 @@ export default function AdminSettings({
   if (tab === 'socials') return (
     <div className="px-4 py-5 space-y-4">
       <h2 className="font-display font-bold text-xl">Настройки</h2>
+
+      {/* Режимы сайта */}
+      <div className="bg-card border border-border rounded-3xl p-5 space-y-3">
+        <h3 className="font-semibold text-base flex items-center gap-2">
+          <Icon name="Settings2" size={16} className="text-primary" />Режимы сайта
+        </h3>
+
+        {/* Тех. работы */}
+        <div
+          onClick={() => { onSetMaintenanceMode(!maintenanceMode); setTimeout(onSaveSettings, 50); }}
+          className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all select-none ${maintenanceMode ? 'border-red-400 bg-red-50' : 'border-border bg-muted/30'}`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${maintenanceMode ? 'bg-red-100' : 'bg-muted'}`}>
+              <Icon name="Construction" size={20} className={maintenanceMode ? 'text-red-500' : 'text-muted-foreground'} />
+            </div>
+            <div>
+              <div className="font-semibold text-sm">Технические работы</div>
+              <div className={`text-xs mt-0.5 ${maintenanceMode ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                {maintenanceMode ? '🔴 Баннер показывается на сайте' : 'Выключено'}
+              </div>
+            </div>
+          </div>
+          <div className={`w-12 h-7 rounded-full transition-all flex items-center px-1 ${maintenanceMode ? 'bg-red-500' : 'bg-muted-foreground/30'}`}>
+            <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${maintenanceMode ? 'translate-x-5' : 'translate-x-0'}`} />
+          </div>
+        </div>
+
+        {/* Добавление товаров */}
+        <div
+          onClick={() => { onSetProductsAddingMode(!productsAddingMode); setTimeout(onSaveSettings, 50); }}
+          className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all select-none ${productsAddingMode ? 'border-amber-400 bg-amber-50' : 'border-border bg-muted/30'}`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${productsAddingMode ? 'bg-amber-100' : 'bg-muted'}`}>
+              <Icon name="PackagePlus" size={20} className={productsAddingMode ? 'text-amber-500' : 'text-muted-foreground'} />
+            </div>
+            <div>
+              <div className="font-semibold text-sm">Добавление товаров</div>
+              <div className={`text-xs mt-0.5 ${productsAddingMode ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>
+                {productsAddingMode ? '🟡 Баннер показывается на сайте' : 'Выключено'}
+              </div>
+            </div>
+          </div>
+          <div className={`w-12 h-7 rounded-full transition-all flex items-center px-1 ${productsAddingMode ? 'bg-amber-400' : 'bg-muted-foreground/30'}`}>
+            <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${productsAddingMode ? 'translate-x-5' : 'translate-x-0'}`} />
+          </div>
+        </div>
+      </div>
 
       {/* Категории */}
       <div className="bg-card border border-border rounded-3xl p-5 space-y-3">
