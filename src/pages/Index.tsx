@@ -307,9 +307,8 @@ export default function Index() {
                 <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
                   Войти
                 </Button>
-                <Button variant="ghost" className="rounded-full sm:hidden flex items-center gap-1 px-2 text-xs" onClick={() => setAuthOpen(true)}>
+                <Button variant="ghost" size="icon" className="rounded-full sm:hidden" onClick={() => setAuthOpen(true)}>
                   <Icon name="UserCircle" size={22} />
-                  <span>Регистрация</span>
                 </Button>
               </>
             )}
@@ -794,7 +793,7 @@ export default function Index() {
 
             {/* Подзаголовок — появляется после сборки */}
             <div className="hero-content-anim text-center mb-6">
-              <p className="text-muted-foreground text-sm">Магазин товаров из Китая · Доставка по всей России</p>
+              <p className="text-muted-foreground text-sm">Всё для жизни, дома и отдыха · Доставка по всей России</p>
             </div>
 
             {/* Слайдер товаров */}
@@ -1827,7 +1826,7 @@ export default function Index() {
               <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
               <div className="relative">
                 <div className="text-2xl font-black mb-1">Ce-Ce 谢谢</div>
-                <div className="text-white/70 text-sm">Магазин товаров из Китая</div>
+                <div className="text-white/70 text-sm">Всё для жизни и радости</div>
               </div>
               <div className="relative space-y-4 my-6">
                 {[
