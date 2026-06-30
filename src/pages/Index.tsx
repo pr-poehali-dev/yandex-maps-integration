@@ -284,8 +284,9 @@ export default function Index() {
                 <Button variant="outline" className="rounded-full px-4 text-sm hidden sm:flex" onClick={() => setAuthOpen(true)}>
                   Войти
                 </Button>
-                <Button variant="ghost" size="icon" className="rounded-full sm:hidden" onClick={() => setAuthOpen(true)}>
+                <Button variant="ghost" className="rounded-full sm:hidden flex items-center gap-1 px-2 text-xs" onClick={() => setAuthOpen(true)}>
                   <Icon name="UserCircle" size={22} />
+                  <span>Регистрация</span>
                 </Button>
               </>
             )}
